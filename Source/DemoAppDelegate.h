@@ -19,13 +19,16 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "FBConnect.h"
 @class CouchDatabase, RootViewController;
 
 
-@interface DemoAppDelegate : NSObject <UIApplicationDelegate, UIAlertViewDelegate>
+@interface DemoAppDelegate : NSObject <UIApplicationDelegate, UIAlertViewDelegate, FBSessionDelegate, FBRequestDelegate> {
+    Facebook *facebook;
+}
 
 @property (nonatomic, retain) CouchDatabase *database;
-
+@property (nonatomic, retain) Facebook *facebook;
 @property (nonatomic, retain) IBOutlet UIWindow *window;
 @property (nonatomic, retain) IBOutlet UINavigationController *navigationController;
 

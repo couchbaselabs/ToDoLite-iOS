@@ -37,7 +37,7 @@
 
 @implementation DemoAppDelegate
 
-
+@synthesize facebook;
 @synthesize window;
 @synthesize navigationController;
 @synthesize database;
@@ -46,9 +46,10 @@
 // Override point for customization after application launch.
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     NSLog(@"------ application:didFinishLaunchingWithOptions:");
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+
 #ifdef kDefaultSyncDbURL
     // Register the default value of the pref for the remote database URL to sync with:
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     NSDictionary *appdefaults = [NSDictionary dictionaryWithObject:kDefaultSyncDbURL
                                                             forKey:@"syncpoint"];
     [defaults registerDefaults:appdefaults];
@@ -89,7 +90,70 @@
     // Tell the RootViewController:
     RootViewController* root = (RootViewController*)navigationController.topViewController;
     [root useDatabase: database];
+    
+//    setup facebook
+    facebook = [[Facebook alloc] initWithAppId:@"251541441584833" andDelegate:self];
+    if ([defaults objectForKey:@"FBAccessTokenKey"] && [defaults objectForKey:@"FBExpirationDateKey"]) {
+        facebook.accessToken = [defaults objectForKey:@"FBAccessTokenKey"];
+        facebook.expirationDate = [defaults objectForKey:@"FBExpirationDateKey"];
+    }
+
     return YES;
+}
+
+- (BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url {
+    return [self.facebook handleOpenURL:url];
+}
+
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
+    return [self.facebook handleOpenURL:url];
+}
+
+- (BOOL)hasSyncpointSession {
+    return NO;
+}
+
+- (void)getSyncpointSessionForFBUser {
+    //  it's possible we could log into facebook even though we already have
+    //  a Syncpoint session. This guard is to prevent extra requests.
+    if (![self hasSyncpointSession]) {
+        // get facebook user, this makes the request, the response is made to our delegate callback
+        NSMutableDictionary *params = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                       @"SELECT uid, name FROM user WHERE uid=me()", @"query",
+                                       nil];
+        [facebook requestWithMethodName:@"fql.query" 
+                              andParams:params
+                          andHttpMethod:@"POST"
+                            andDelegate:self];
+    }
+}
+
+//called with the Facebook user data (uid, name)
+- (void)request:(FBRequest *)request didLoad:(id)result {
+    if ([result isKindOfClass:[NSArray class]]) {
+        result = [result objectAtIndex:0];
+    }
+    if ([result objectForKey:@"name"]) { // we have a user info response
+        NSLog(@"FB result: %@", [result description]);
+        NSNumber *uid = [result objectForKey:@"uid"];
+//        save a document to the cloud based handshake db
+    }
+}
+
+
+- (void)fbDidLogin {
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setObject:[facebook accessToken] forKey:@"FBAccessTokenKey"];
+    [defaults setObject:[facebook expirationDate] forKey:@"FBExpirationDateKey"];
+    [defaults synchronize];
+    [self getSyncpointSessionForFBUser];
+}
+
+/**
+ * Called when the user canceled the authorization dialog.
+ */
+-(void)fbDidNotLogin:(BOOL)cancelled {
+    // we don't have anything really to do here
 }
 
 

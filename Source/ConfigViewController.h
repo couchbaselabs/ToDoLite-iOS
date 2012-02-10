@@ -7,15 +7,21 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "DemoAppDelegate.h"
+
 @class CouchServer;
 
 @interface ConfigViewController : UIViewController
 
-@property (nonatomic, readonly) IBOutlet UITextField* urlField;
+//@property (nonatomic, readonly) IBOutlet UITextField* urlField;
 @property (nonatomic, readonly) IBOutlet UILabel* versionField;
+@property (nonatomic, readonly) IBOutlet UIButton* pairTrigger;
+@property (nonatomic, readonly) IBOutlet UIButton* unpairTrigger;
 @property (nonatomic, readonly) IBOutlet UISwitch* autoSyncSwitch;
+@property (nonatomic, readonly) DemoAppDelegate *delegate;
 
-- (IBAction) learnMore:(id)sender;
+- (IBAction) initiatePairing:(id)sender;
+- (IBAction) removePairing:(id)sender;
 - (IBAction)done:(id)sender;
 
 @end
