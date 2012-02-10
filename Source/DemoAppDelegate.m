@@ -25,6 +25,8 @@
 
 // The name of the database the app will use.
 #define kDatabaseName @"grocery-sync"
+#define kSessionDatabaseName @"sessions"
+#define kSessionSyncDbURL @"http://single.couchbase.net/sessions"
 
 // The default remote database URL to sync with, if the user hasn't set a different one as a pref.
 //#define kDefaultSyncDbURL @"http://couchbase.iriscouch.com/grocery-sync"
@@ -40,7 +42,7 @@
 @synthesize facebook;
 @synthesize window;
 @synthesize navigationController;
-@synthesize database;
+@synthesize database, sessionDatabase;
 
 
 // Override point for customization after application launch.
@@ -75,10 +77,18 @@
     }
     
     self.database = [server databaseNamed: kDatabaseName];
+// todo   should be moved to SyncpointClient
+    self.sessionDatabase = [server databaseNamed: kSessionDatabaseName];
+    // Create the session database on the first run of the app.
+    NSError* error;
+    if (![self.sessionDatabase ensureCreated: &error]) {
+        [self showAlert: @"Couldn't create session database." error: error fatal: YES];
+        return YES;
+    }
     
 #if !INSTALL_CANNED_DATABASE && !defined(USE_REMOTE_SERVER)
     // Create the database on the first run of the app.
-    NSError* error;
+
     if (![self.database ensureCreated: &error]) {
         [self showAlert: @"Couldn't create local database." error: error fatal: YES];
         return YES;
@@ -113,30 +123,60 @@
     return NO;
 }
 
-- (void)getSyncpointSessionForFBUser {
+- (NSString*) randomString {
+    CFUUIDRef uuidObject = CFUUIDCreate(kCFAllocatorDefault);
+    NSString *uuidStr = (__bridge NSString *)CFUUIDCreateString(kCFAllocatorDefault, uuidObject);
+    CFRelease(uuidObject);
+    return uuidStr;
+}
+
+- (NSMutableDictionary*) randomOAuthCreds {
+    return [NSMutableDictionary dictionaryWithObjectsAndKeys:
+            [self randomString], @"consumer_key",
+            [self randomString], @"consumer_secret",
+            [self randomString], @"token_secret",
+            [self randomString], @"token",
+            nil];
+}
+
+-(void) syncSessionDocumentWithId:(id)myDocId {
+    
+    [[self.sessionDatabase pushToDatabaseAtURL:[NSURL URLWithString:kSessionSyncDbURL]] start];
+    sessionPull = [self.sessionDatabase pushToDatabaseAtURL:[NSURL URLWithString:kSessionSyncDbURL]];
+//    todo add a by docid filter so I only see my document
+    sessionPull.filter = @"_doc_ids";
+    sessionPull.filterParams = [NSDictionary dictionaryWithObjectsAndKeys: 
+                                [NSArray arrayWithObject:myDocId] , @"doc_ids", 
+                                nil];
+    sessionPull.continuous = YES;
+    [sessionPull start];
+//    ok now we should listen to changes on the session db and stop replication 
+//    when we get our doc back in a finalized state
+}
+
+- (void)getSyncpointSessionFromFBAccessToken:(id) accessToken {
     //  it's possible we could log into facebook even though we already have
     //  a Syncpoint session. This guard is to prevent extra requests.
     if (![self hasSyncpointSession]) {
-        // get facebook user, this makes the request, the response is made to our delegate callback
-        NSMutableDictionary *params = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                       @"SELECT uid, name FROM user WHERE uid=me()", @"query",
-                                       nil];
-        [facebook requestWithMethodName:@"fql.query" 
-                              andParams:params
-                          andHttpMethod:@"POST"
-                            andDelegate:self];
-    }
-}
-
-//called with the Facebook user data (uid, name)
-- (void)request:(FBRequest *)request didLoad:(id)result {
-    if ([result isKindOfClass:[NSArray class]]) {
-        result = [result objectAtIndex:0];
-    }
-    if ([result objectForKey:@"name"]) { // we have a user info response
-        NSLog(@"FB result: %@", [result description]);
-        NSNumber *uid = [result objectForKey:@"uid"];
-//        save a document to the cloud based handshake db
+//        save a document that has the facebook access code, to the handshake database.
+//        the document also needs to have the oath credentials we'll use when replicating.
+//        the server will use the access code to find the facebook uid, which we can use to 
+//        look up the syncpoint user, and link these credentials to that user (establishing our session)
+        NSMutableDictionary *sessionData = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                             accessToken, @"fb_access_token",
+                                             [self randomOAuthCreds], @"oauth_creds", 
+                                             nil];
+        NSLog(@"session data %@",[sessionData description]);
+        CouchDocument *sessionDoc = [self.sessionDatabase untitledDocument];
+        RESTOperation *op = [[sessionDoc putProperties:sessionData] start];
+        [op onCompletion:^{
+            if (op.error) {
+                NSLog(@"op error %@",op.error);                
+            } else {
+                NSLog(@"session doc %@",[sessionDoc description]);
+                [self syncSessionDocumentWithId: sessionDoc.documentID];
+            }
+        }];
     }
 }
 
@@ -146,7 +186,7 @@
     [defaults setObject:[facebook accessToken] forKey:@"FBAccessTokenKey"];
     [defaults setObject:[facebook expirationDate] forKey:@"FBExpirationDateKey"];
     [defaults synchronize];
-    [self getSyncpointSessionForFBUser];
+    [self getSyncpointSessionFromFBAccessToken: [facebook accessToken]];
 }
 
 /**
