@@ -164,7 +164,11 @@
 //        look up the syncpoint user, and link these credentials to that user (establishing our session)
         NSMutableDictionary *sessionData = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                              accessToken, @"fb_access_token",
-                                             [self randomOAuthCreds], @"oauth_creds", 
+                                             [self randomOAuthCreds], @"oauth_creds",
+                                            @"new", @"state",
+                                            @"session-fb",@"type",
+//      todo this document needs to have our devices SSL cert signature in it
+//      so we can enforce that only this device can read this document
                                              nil];
         NSLog(@"session data %@",[sessionData description]);
         CouchDocument *sessionDoc = [self.sessionDatabase untitledDocument];
