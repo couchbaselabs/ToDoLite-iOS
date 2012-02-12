@@ -27,6 +27,7 @@
 #define kDatabaseName @"grocery-sync"
 #define kSessionDatabaseName @"sessions"
 #define kSessionSyncDbURL @"http://127.0.0.1:5984/sessions"
+#define kSessionControlHost @"http://127.0.0.1:5984/"
 
 // The default remote database URL to sync with, if the user hasn't set a different one as a pref.
 //#define kDefaultSyncDbURL @"http://couchbase.iriscouch.com/grocery-sync"
@@ -116,8 +117,10 @@
         [self loadSessionDocument];
         if ([self sessionIsActive]) {
             //        setup sync with the user control database
+            NSLog(@"go directly to user control");
             [self connectToControlDb];
         } else {
+            NSLog(@"session not active");
             [self syncSessionDocument];
         }
     } else {
@@ -165,7 +168,7 @@
 
 -(BOOL)sessionIsActive {
     NSLog(@"sessionIsActive? %@",[sessionDoc.properties objectForKey:@"state"]);
-    return [sessionDoc.properties objectForKey:@"state"] == @"active";
+    return [[sessionDoc.properties objectForKey:@"state"] isEqualToString:@"active"];
 }
 
 -(void) loadSessionDocument{
@@ -202,7 +205,7 @@
 
 -(void)connectToControlDb {
     NSAssert([self sessionIsActive], @"session must be active");
-    NSString *controlDB = [[sessionDoc.properties objectForKey:@"session"] objectForKey:@"control_database"];
+    NSString *controlDB = [kSessionControlHost stringByAppendingString:[[sessionDoc.properties objectForKey:@"session"] objectForKey:@"control_database"]];
     NSLog(@"connecting to control database %@",controlDB);
     sessionPull = [self.sessionDatabase pullFromDatabaseAtURL:[NSURL URLWithString:controlDB]];
     sessionPull.continuous = YES;
@@ -217,8 +220,9 @@
 // if so, we can switch to "logged-in" mode.
 
 -(void)sessionDatabaseChanged {
-    NSLog(@"sessionDatabaseChanged");
+    NSLog(@"sessionDatabaseChanged, sessionSynced %@", sessionSynced);
     if (!sessionSynced && [self sessionIsActive]) {
+        NSLog(@"switch to user control db");
         sessionSynced = YES;
         [sessionPull stop];
         [sessionPush stop];
