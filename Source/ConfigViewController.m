@@ -13,6 +13,10 @@
 extern double GrocerySyncVersionNumber;
 
 
+@interface ConfigViewController ()
+- (void)pop;
+@end
+
 @implementation ConfigViewController
 
 
@@ -51,13 +55,12 @@ extern double GrocerySyncVersionNumber;
 - (IBAction)initiatePairing:(id)sender {
     if (![delegate.facebook isSessionValid]) {
         [delegate.facebook authorize:nil];
-//        [self pop]; // why?
-        UINavigationController* navController = (UINavigationController*)self.parentViewController;
-        [navController popViewControllerAnimated: YES];
+        [self pop];
     }
 }
 
 - (IBAction)removePairing:(id)sender {
+//    todo: delete the session document
     [[delegate facebook] logout];
     [self showLoggedOut];
 }

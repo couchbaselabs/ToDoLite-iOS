@@ -26,6 +26,7 @@
 @interface DemoAppDelegate : NSObject <UIApplicationDelegate, UIAlertViewDelegate, FBSessionDelegate, FBRequestDelegate> {
     Facebook *facebook;
     CouchReplication *sessionPull;
+    CouchReplication *sessionPush;
     CouchDocument *sessionDoc;
 }
 

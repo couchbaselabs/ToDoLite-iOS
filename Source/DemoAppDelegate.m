@@ -37,6 +37,11 @@
 //#define USE_REMOTE_SERVER @"http://localhost:5984/"
 
 
+@interface DemoAppDelegate ()
+- (BOOL) hasSyncpointSession;
+- (BOOL) connectToControlDb;
+@end
+
 @implementation DemoAppDelegate
 
 @synthesize facebook;
@@ -79,6 +84,7 @@
     self.database = [server databaseNamed: kDatabaseName];
 // todo   should be moved to SyncpointClient
     self.sessionDatabase = [server databaseNamed: kSessionDatabaseName];
+
     // Create the session database on the first run of the app.
     NSError* error;
     if (![self.sessionDatabase ensureCreated: &error]) {
@@ -101,14 +107,18 @@
     // Tell the RootViewController:
     RootViewController* root = (RootViewController*)navigationController.topViewController;
     [root useDatabase: database];
-    
-//    setup facebook
-    facebook = [[Facebook alloc] initWithAppId:@"251541441584833" andDelegate:self];
-    if ([defaults objectForKey:@"FBAccessTokenKey"] && [defaults objectForKey:@"FBExpirationDateKey"]) {
-        facebook.accessToken = [defaults objectForKey:@"FBAccessTokenKey"];
-        facebook.expirationDate = [defaults objectForKey:@"FBExpirationDateKey"];
-    }
 
+    if ([self hasSyncpointSession]) {
+        //        setup sync with the user control database
+        [self connectToControlDb];
+    } else {
+        //    setup facebook
+        facebook = [[Facebook alloc] initWithAppId:@"251541441584833" andDelegate:self];
+        if ([defaults objectForKey:@"FBAccessTokenKey"] && [defaults objectForKey:@"FBExpirationDateKey"]) {
+            facebook.accessToken = [defaults objectForKey:@"FBAccessTokenKey"];
+            facebook.expirationDate = [defaults objectForKey:@"FBExpirationDateKey"];
+        }
+    }
     return YES;
 }
 
@@ -121,7 +131,8 @@
 }
 
 - (BOOL)hasSyncpointSession {
-    return NO;
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    return [defaults objectForKey:@"sessionDocId"] != nil;
 }
 
 - (NSString*) randomString {
@@ -143,7 +154,7 @@
 -(void) syncSessionDocument {
     
     [[self.sessionDatabase pushToDatabaseAtURL:[NSURL URLWithString:kSessionSyncDbURL]] start];
-    sessionPull = [self.sessionDatabase pushToDatabaseAtURL:[NSURL URLWithString:kSessionSyncDbURL]];
+    sessionPull = [self.sessionDatabase pullFromDatabaseAtURL:[NSURL URLWithString:kSessionSyncDbURL]];
 //    todo add a by docid filter so I only see my document
     sessionPull.filter = @"_doc_ids";
     sessionPull.filterParams = [NSDictionary dictionaryWithObjectsAndKeys: 
@@ -159,9 +170,46 @@
                                                object: self.sessionDatabase];
 }
 
+-(BOOL)sessionIsActive {
+    return [sessionDoc.properties objectForKey:@"state"] == @"active";
+}
+
+-(void)connectToControlDb {
+    NSString *controlDB = [[sessionDoc.properties objectForKey:@"session"] objectForKey:@"control_database"];
+    NSLog(@"connecting to control database %@",controlDB);
+    sessionPull = [self.sessionDatabase pullFromDatabaseAtURL:[NSURL URLWithString:controlDB]];
+    sessionPull.continuous = YES;
+    [sessionPull start];
+    sessionPush = [self.sessionDatabase pushToDatabaseAtURL:[NSURL URLWithString:controlDB]];
+    sessionPush.continuous = YES;
+    [sessionPush start];
+}
+
+// we should only be here if our session is inactive
+// the change may have made our session active,
+// if so, we can switch to "logged-in" mode.
 -(void)sessionDatabaseChanged {
-    NSLog(@"session data %@",[sessionDoc description]);
-    
+    if ([self sessionIsActive]) {
+        [sessionPull stop];
+        [sessionPush stop];
+        [self connectToControlDb];
+    }
+}
+
+//
+-(void)sessionBecameActive {
+//    when the session is active, we sync with the users control db
+//      when the session is new, we sync with the sessions db to establish it 
+//    TODO only run this on the first change
+//    this should run on every app launch too
+//    and get the latest session info
+    if (){
+
+        
+        CouchReplication* sessionPush = [self.sessionDatabase pushToDatabaseAtURL:[NSURL URLWithString:kSessionSyncDbURL]];
+        sessionPush.continuous = YES;
+        [sessionPush start];
+    }
 }
 
 - (void)getSyncpointSessionFromFBAccessToken:(id) accessToken {
@@ -188,6 +236,9 @@
                 NSLog(@"op error %@",op.error);                
             } else {
                 NSLog(@"session doc %@",[sessionDoc description]);
+                NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+                [defaults setObject:sessionDoc.documentID forKey:@"sessionDocId"];
+                [defaults synchronize];
                 [self syncSessionDocument];
             }
         }];
