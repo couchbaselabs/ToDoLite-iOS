@@ -20,12 +20,13 @@
 
 #import <UIKit/UIKit.h>
 #import "FBConnect.h"
-@class CouchDatabase, RootViewController, CouchReplication;
+@class CouchDatabase, CouchDocument, RootViewController, CouchReplication;
 
 
 @interface DemoAppDelegate : NSObject <UIApplicationDelegate, UIAlertViewDelegate, FBSessionDelegate, FBRequestDelegate> {
     Facebook *facebook;
     CouchReplication *sessionPull;
+    CouchDocument *sessionDoc;
 }
 
 @property (nonatomic, retain) CouchDatabase *database;

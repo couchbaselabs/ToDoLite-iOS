@@ -96,6 +96,7 @@
 #endif
     
     database.tracksChanges = YES;
+    sessionDatabase.tracksChanges = YES;
     
     // Tell the RootViewController:
     RootViewController* root = (RootViewController*)navigationController.topViewController;
@@ -139,19 +140,28 @@
             nil];
 }
 
--(void) syncSessionDocumentWithId:(id)myDocId {
+-(void) syncSessionDocument {
     
     [[self.sessionDatabase pushToDatabaseAtURL:[NSURL URLWithString:kSessionSyncDbURL]] start];
     sessionPull = [self.sessionDatabase pushToDatabaseAtURL:[NSURL URLWithString:kSessionSyncDbURL]];
 //    todo add a by docid filter so I only see my document
     sessionPull.filter = @"_doc_ids";
     sessionPull.filterParams = [NSDictionary dictionaryWithObjectsAndKeys: 
-                                [NSArray arrayWithObject:myDocId] , @"doc_ids", 
+                                [NSArray arrayWithObject:sessionDoc.documentID] , @"doc_ids", 
                                 nil];
     sessionPull.continuous = YES;
     [sessionPull start];
 //    ok now we should listen to changes on the session db and stop replication 
 //    when we get our doc back in a finalized state
+    [[NSNotificationCenter defaultCenter] addObserver: self 
+                                             selector: @selector(sessionDatabaseChanged)
+                                                 name: kCouchDatabaseChangeNotification 
+                                               object: self.sessionDatabase];
+}
+
+-(void)sessionDatabaseChanged {
+    NSLog(@"session data %@",[sessionDoc description]);
+    
 }
 
 - (void)getSyncpointSessionFromFBAccessToken:(id) accessToken {
@@ -171,14 +181,14 @@
 //      so we can enforce that only this device can read this document
                                              nil];
         NSLog(@"session data %@",[sessionData description]);
-        CouchDocument *sessionDoc = [self.sessionDatabase untitledDocument];
+        sessionDoc = [self.sessionDatabase untitledDocument];
         RESTOperation *op = [[sessionDoc putProperties:sessionData] start];
         [op onCompletion:^{
             if (op.error) {
                 NSLog(@"op error %@",op.error);                
             } else {
                 NSLog(@"session doc %@",[sessionDoc description]);
-                [self syncSessionDocumentWithId: sessionDoc.documentID];
+                [self syncSessionDocument];
             }
         }];
     }
