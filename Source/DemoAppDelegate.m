@@ -26,7 +26,7 @@
 // The name of the database the app will use.
 #define kDatabaseName @"grocery-sync"
 #define kSessionDatabaseName @"sessions"
-#define kSessionSyncDbURL @"http://single.couchbase.net/sessions"
+#define kSessionSyncDbURL @"http://127.0.0.1:5984/sessions"
 
 // The default remote database URL to sync with, if the user hasn't set a different one as a pref.
 //#define kDefaultSyncDbURL @"http://couchbase.iriscouch.com/grocery-sync"
@@ -178,8 +178,13 @@
     sessionPull = [self.sessionDatabase pullFromDatabaseAtURL:[NSURL URLWithString:kSessionSyncDbURL]];
 //    todo add a by docid read rule so I only see my document
     sessionPull.filter = @"_doc_ids";
+    
+    NSString *docIdsString = [NSString stringWithFormat:@"[\"%@\"]",
+                         sessionDoc.documentID];
+    
     sessionPull.filterParams = [NSDictionary dictionaryWithObjectsAndKeys: 
-                                [NSArray arrayWithObjects:sessionDoc.documentID, nil] , @"doc_ids", 
+                                docIdsString
+                                , @"doc_ids", 
                                 nil];
     sessionPull.continuous = YES;
     [sessionPull start];
