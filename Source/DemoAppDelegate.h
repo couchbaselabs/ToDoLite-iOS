@@ -25,6 +25,7 @@
 
 @interface DemoAppDelegate : NSObject <UIApplicationDelegate, UIAlertViewDelegate, FBSessionDelegate, FBRequestDelegate> {
     Facebook *facebook;
+    BOOL sessionSynced;
     CouchReplication *sessionPull;
     CouchReplication *sessionPush;
     CouchDocument *sessionDoc;
@@ -37,6 +38,7 @@
 @property (nonatomic, retain) IBOutlet UINavigationController *navigationController;
 
 - (void)showAlert: (NSString*)message error: (NSError*)error fatal: (BOOL)fatal;
+- (id) syncpointSessionId;
 
 @end
 

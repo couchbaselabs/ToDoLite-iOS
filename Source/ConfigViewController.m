@@ -61,6 +61,7 @@ extern double GrocerySyncVersionNumber;
 
 - (IBAction)removePairing:(id)sender {
 //    todo: delete the session document
+//    [sessionDocument delete]
     [[delegate facebook] logout];
     [self showLoggedOut];
 }
@@ -76,7 +77,7 @@ extern double GrocerySyncVersionNumber;
 
     //        facebook
     
-    if ([delegate.facebook isSessionValid]) {
+    if ([delegate syncpointSessionId]) {
         [self showLoggedIn];
     } else {
         [self showLoggedOut];

@@ -38,8 +38,11 @@
 
 
 @interface DemoAppDelegate ()
-- (BOOL) hasSyncpointSession;
-- (BOOL) connectToControlDb;
+- (void) connectToControlDb;
+- (void) loadSessionDocument;
+- (void) syncSessionDocument;
+-(BOOL)sessionIsActive;
+-(void)sessionDatabaseChanged;
 @end
 
 @implementation DemoAppDelegate
@@ -68,7 +71,7 @@
 	[window makeKeyAndVisible];
 
     // Start the Couchbase Mobile server:
-    gCouchLogLevel = 1;
+    gCouchLogLevel = 3;
     CouchTouchDBServer* server;
 #ifdef USE_REMOTE_SERVER
     server = [[CouchTouchDBServer alloc] initWithURL: [NSURL URLWithString: USE_REMOTE_SERVER]];
@@ -108,10 +111,19 @@
     RootViewController* root = (RootViewController*)navigationController.topViewController;
     [root useDatabase: database];
 
-    if ([self hasSyncpointSession]) {
-        //        setup sync with the user control database
-        [self connectToControlDb];
+    if ([self syncpointSessionId]) {
+        NSLog(@"has session");
+        [self loadSessionDocument];
+        if ([self sessionIsActive]) {
+            //        setup sync with the user control database
+            [self connectToControlDb];
+        } else {
+            [self syncSessionDocument];
+        }
     } else {
+        NSLog(@"no session");
+
+//        [self syncSessionDocument];
         //    setup facebook
         facebook = [[Facebook alloc] initWithAppId:@"251541441584833" andDelegate:self];
         if ([defaults objectForKey:@"FBAccessTokenKey"] && [defaults objectForKey:@"FBExpirationDateKey"]) {
@@ -130,11 +142,6 @@
     return [self.facebook handleOpenURL:url];
 }
 
-- (BOOL)hasSyncpointSession {
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    return [defaults objectForKey:@"sessionDocId"] != nil;
-}
-
 - (NSString*) randomString {
     CFUUIDRef uuidObject = CFUUIDCreate(kCFAllocatorDefault);
     NSString *uuidStr = (__bridge NSString *)CFUUIDCreateString(kCFAllocatorDefault, uuidObject);
@@ -151,30 +158,45 @@
             nil];
 }
 
+- (id)syncpointSessionId {
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    return [defaults objectForKey:@"sessionDocId"];
+}
+
+-(BOOL)sessionIsActive {
+    NSLog(@"sessionIsActive? %@",[sessionDoc.properties objectForKey:@"state"]);
+    return [sessionDoc.properties objectForKey:@"state"] == @"active";
+}
+
+-(void) loadSessionDocument{
+    sessionDoc = [sessionDatabase documentWithID:[self syncpointSessionId]];
+}
 -(void) syncSessionDocument {
-    
     [[self.sessionDatabase pushToDatabaseAtURL:[NSURL URLWithString:kSessionSyncDbURL]] start];
+    NSLog(@"syncSessionDocument pull");
+
     sessionPull = [self.sessionDatabase pullFromDatabaseAtURL:[NSURL URLWithString:kSessionSyncDbURL]];
-//    todo add a by docid filter so I only see my document
+//    todo add a by docid read rule so I only see my document
     sessionPull.filter = @"_doc_ids";
     sessionPull.filterParams = [NSDictionary dictionaryWithObjectsAndKeys: 
-                                [NSArray arrayWithObject:sessionDoc.documentID] , @"doc_ids", 
+                                [NSArray arrayWithObjects:sessionDoc.documentID, nil] , @"doc_ids", 
                                 nil];
     sessionPull.continuous = YES;
     [sessionPull start];
+    NSLog(@"syncSessionDocument pulled");
+
 //    ok now we should listen to changes on the session db and stop replication 
 //    when we get our doc back in a finalized state
+    sessionSynced = NO;
+    NSLog(@"observing session db");
     [[NSNotificationCenter defaultCenter] addObserver: self 
                                              selector: @selector(sessionDatabaseChanged)
                                                  name: kCouchDatabaseChangeNotification 
                                                object: self.sessionDatabase];
 }
 
--(BOOL)sessionIsActive {
-    return [sessionDoc.properties objectForKey:@"state"] == @"active";
-}
-
 -(void)connectToControlDb {
+    NSAssert([self sessionIsActive], @"session must be active");
     NSString *controlDB = [[sessionDoc.properties objectForKey:@"session"] objectForKey:@"control_database"];
     NSLog(@"connecting to control database %@",controlDB);
     sessionPull = [self.sessionDatabase pullFromDatabaseAtURL:[NSURL URLWithString:controlDB]];
@@ -188,8 +210,11 @@
 // we should only be here if our session is inactive
 // the change may have made our session active,
 // if so, we can switch to "logged-in" mode.
+
 -(void)sessionDatabaseChanged {
-    if ([self sessionIsActive]) {
+    NSLog(@"sessionDatabaseChanged");
+    if (!sessionSynced && [self sessionIsActive]) {
+        sessionSynced = YES;
         [sessionPull stop];
         [sessionPush stop];
         [self connectToControlDb];
@@ -197,25 +222,12 @@
 }
 
 //
--(void)sessionBecameActive {
-//    when the session is active, we sync with the users control db
-//      when the session is new, we sync with the sessions db to establish it 
-//    TODO only run this on the first change
-//    this should run on every app launch too
-//    and get the latest session info
-    if (){
 
-        
-        CouchReplication* sessionPush = [self.sessionDatabase pushToDatabaseAtURL:[NSURL URLWithString:kSessionSyncDbURL]];
-        sessionPush.continuous = YES;
-        [sessionPush start];
-    }
-}
 
 - (void)getSyncpointSessionFromFBAccessToken:(id) accessToken {
     //  it's possible we could log into facebook even though we already have
     //  a Syncpoint session. This guard is to prevent extra requests.
-    if (![self hasSyncpointSession]) {
+    if (![self syncpointSessionId]) {
 //        save a document that has the facebook access code, to the handshake database.
 //        the document also needs to have the oath credentials we'll use when replicating.
 //        the server will use the access code to find the facebook uid, which we can use to 
