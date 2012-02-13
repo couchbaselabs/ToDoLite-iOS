@@ -203,6 +203,62 @@
                                                object: self.sessionDatabase];
 }
 
+-(CouchDocument*)getDefaultChannelSubscription {
+    CouchQueryEnumerator *rows = [[sessionDatabase getAllDocuments] rows];
+    CouchQueryRow *row;
+    
+    CouchDocument *channel; // global, owned by user and private by default
+    CouchDocument *subscription; // user
+    CouchDocument *installation; // per session
+//    if we have a channel owned by the user, and it is flagged default == true,
+//    then we don't need to make a channel doc or a subscription,
+//    but we do need to make an installation doc that references the subscription.
+
+//    if we don't have a default channel owned by the user, 
+//    then we need to create it, and a subcription to it (by the owner).
+//    also we create an installation doc linking the kDatabaseName (pre-pairing) database
+//    with the channel & subscription.
+        
+//    note: need a channel doc and a subscription doc only makes sense when you need to 
+//    allow for channels that are shared by multiple users.
+    NSString *myUserId= [[sessionDoc.properties objectForKey:@"session"] objectForKey:@"user_id"];
+    NSString *mySessionId;
+    while ((row = [rows nextRow])) {
+        if ([[row.documentProperties objectForKey:@"local_db_name"] isEqualToString:kDatabaseName] && [[row.documentProperties objectForKey:@"session_id"] isEqualToString:mySessionId]) {
+            installation =  row.document;
+        } else if ([[row.documentProperties objectForKey:@"type"] isEqualToString:@"channel"] && [[row.documentProperties objectForKey:@"owner_id"] isEqualToString:myUserId]) {
+            channel = row.document;
+        }
+    }
+//    TODO use a query
+    CouchQueryEnumerator *rows2 = [[sessionDatabase getAllDocuments] rows];
+    while ((row = [rows2 nextRow])) {
+        if ([[row.documentProperties objectForKey:@"type"] isEqualToString:@"subscription"] && [[row.documentProperties objectForKey:@"owner_id"] isEqualToString:myUserId] && [[row.documentProperties objectForKey:@"channel_id"] isEqualToString:[channel.properties objectForKey:@"_id"]]) {
+            //            could be more than one match if the user subscribes to multiple channels.
+            //            want to find the one where the id equals the channel id
+            subscription = row.document;
+        }
+    }
+    
+//    if we haven't returned yet we need to make a document
+    CouchDocument *doc = [sessionDatabase untitledDocument];
+    [[[doc putProperties:[NSDictionary dictionaryWithObjectsAndKeys:
+                        kDatabaseName, @"local_db_name", 
+                        @"localInstance",@"type",
+                        @"new",@"state",
+                        nil]] start] wait];
+    return doc;
+}
+
+-(void) maybeInitilizeDefaultChannel {
+//    do we have a channel doc that refers to our default channel yet?
+//    need a view of any documents where session_id == this-session and device_db_name == grocery-db-name
+//    if we do, setup replication like it tells us to
+//    if not, we need to create one
+    CouchDocument *subscriptionDoc = [self getDefaultChannelSubscription];
+//    do we have channel doc for this subscription?
+}
+
 -(void)connectToControlDb {
     NSAssert([self sessionIsActive], @"session must be active");
     NSString *controlDB = [kSessionControlHost stringByAppendingString:[[sessionDoc.properties objectForKey:@"session"] objectForKey:@"control_database"]];
@@ -213,6 +269,7 @@
     sessionPush = [self.sessionDatabase pushToDatabaseAtURL:[NSURL URLWithString:controlDB]];
     sessionPush.continuous = YES;
     [sessionPush start];
+    [self maybeInitilizeDefaultChannel];
 }
 
 // we should only be here if our session is inactive
