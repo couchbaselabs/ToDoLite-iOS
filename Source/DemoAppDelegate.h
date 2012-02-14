@@ -20,12 +20,13 @@
 
 #import <UIKit/UIKit.h>
 #import "FBConnect.h"
-@class CouchDatabase, CouchDocument, RootViewController, CouchReplication;
+@class CouchDatabase, CouchDocument, CouchTouchDBServer, RootViewController, CouchReplication;
 
 
 @interface DemoAppDelegate : NSObject <UIApplicationDelegate, UIAlertViewDelegate, FBSessionDelegate, FBRequestDelegate> {
     Facebook *facebook;
     BOOL sessionSynced;
+    CouchTouchDBServer* server;
     CouchReplication *sessionPull;
     CouchReplication *sessionPush;
     CouchDocument *sessionDoc;

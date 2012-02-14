@@ -44,6 +44,7 @@
 - (void) syncSessionDocument;
 -(BOOL)sessionIsActive;
 -(void)sessionDatabaseChanged;
+-(void)getUpToDateWithSubscriptions;
 @end
 
 @implementation DemoAppDelegate
@@ -72,8 +73,7 @@
 	[window makeKeyAndVisible];
 
     // Start the Couchbase Mobile server:
-    gCouchLogLevel = 3;
-    CouchTouchDBServer* server;
+    gCouchLogLevel = 1;
 #ifdef USE_REMOTE_SERVER
     server = [[CouchTouchDBServer alloc] initWithURL: [NSURL URLWithString: USE_REMOTE_SERVER]];
 #else
@@ -118,7 +118,12 @@
         if ([self sessionIsActive]) {
             //        setup sync with the user control database
             NSLog(@"go directly to user control");
+            sessionSynced = YES;
             [self connectToControlDb];
+            [[NSNotificationCenter defaultCenter] addObserver: self 
+                                                     selector: @selector(sessionDatabaseChanged)
+                                                         name: kCouchDatabaseChangeNotification 
+                                                       object: self.sessionDatabase];
         } else {
             NSLog(@"session not active");
             [self syncSessionDocument];
@@ -126,7 +131,6 @@
     } else {
         NSLog(@"no session");
 
-//        [self syncSessionDocument];
         //    setup facebook
         facebook = [[Facebook alloc] initWithAppId:@"251541441584833" andDelegate:self];
         if ([defaults objectForKey:@"FBAccessTokenKey"] && [defaults objectForKey:@"FBExpirationDateKey"]) {
@@ -203,13 +207,51 @@
                                                object: self.sessionDatabase];
 }
 
--(CouchDocument*)getDefaultChannelSubscription {
+-(CouchDocument*) makeInstallationForSubscription: (CouchDocument*)subscription withDatabaseNamed:(NSString*) name {
+    CouchDocument *installation = [sessionDatabase untitledDocument];
+    if (name == nil) {
+        name = [@"channel-" stringByAppendingString:[self randomString]];
+    }
+    CouchDatabase *channelDb = [server databaseNamed: name];
+    
+    // Create the session database on the first run of the app.
+    NSError* error;
+    if (![channelDb ensureCreated: &error]) {
+        NSLog(@"could not create channel db %@",name);
+        exit(-1);
+    }
+    [[[installation putProperties:[NSDictionary dictionaryWithObjectsAndKeys:
+                                   name, @"local_db_name", 
+                                   [subscription.properties objectForKey:@"owner_id"], @"owner_id", 
+                                   [subscription.properties objectForKey:@"channel_id"], @"channel_id", 
+                                   sessionDoc.documentID, @"session_id", 
+                                   subscription.documentID, @"subscription_id", 
+                                   @"installation",@"type",
+                                   @"created",@"state",
+                                   nil]] start] wait];
+    return installation;
+}
+
+-(CouchDocument*) makeSubscriptionForChannel: (CouchDocument*)channel andOwnerId:(NSString*) ownerId {
+    CouchDocument *subscription = [sessionDatabase untitledDocument];
+    [[[subscription putProperties:[NSDictionary dictionaryWithObjectsAndKeys:
+                                   ownerId, @"owner_id", 
+                                   channel.documentID, @"channel_id", 
+                                   @"subscription",@"type",
+                                   @"active",@"state",
+                                   nil]] start] wait];
+    return subscription;
+}
+
+//-(CouchDocument*) findChannelFor
+
+-(void) maybeInitilizeDefaultChannel {
     CouchQueryEnumerator *rows = [[sessionDatabase getAllDocuments] rows];
     CouchQueryRow *row;
     
-    CouchDocument *channel; // global, owned by user and private by default
-    CouchDocument *subscription; // user
-    CouchDocument *installation; // per session
+    CouchDocument *channel = nil; // global, owned by user and private by default
+    CouchDocument *subscription = nil; // user
+    CouchDocument *installation = nil; // per session
 //    if we have a channel owned by the user, and it is flagged default == true,
 //    then we don't need to make a channel doc or a subscription,
 //    but we do need to make an installation doc that references the subscription.
@@ -222,68 +264,165 @@
 //    note: need a channel doc and a subscription doc only makes sense when you need to 
 //    allow for channels that are shared by multiple users.
     NSString *myUserId= [[sessionDoc.properties objectForKey:@"session"] objectForKey:@"user_id"];
-    NSString *mySessionId;
-    while ((row = [rows nextRow])) {
-        if ([[row.documentProperties objectForKey:@"local_db_name"] isEqualToString:kDatabaseName] && [[row.documentProperties objectForKey:@"session_id"] isEqualToString:mySessionId]) {
-            installation =  row.document;
-        } else if ([[row.documentProperties objectForKey:@"type"] isEqualToString:@"channel"] && [[row.documentProperties objectForKey:@"owner_id"] isEqualToString:myUserId]) {
+    while ((row = [rows nextRow])) { 
+        if ([[row.documentProperties objectForKey:@"type"] isEqualToString:@"channel"] && [[row.documentProperties objectForKey:@"owner_id"] isEqualToString:myUserId] && ([row.documentProperties objectForKey:@"default"] == [NSNumber numberWithBool:YES])) {
             channel = row.document;
         }
     }
-//    TODO use a query
-    CouchQueryEnumerator *rows2 = [[sessionDatabase getAllDocuments] rows];
-    while ((row = [rows2 nextRow])) {
-        if ([[row.documentProperties objectForKey:@"type"] isEqualToString:@"subscription"] && [[row.documentProperties objectForKey:@"owner_id"] isEqualToString:myUserId] && [[row.documentProperties objectForKey:@"channel_id"] isEqualToString:[channel.properties objectForKey:@"_id"]]) {
-            //            could be more than one match if the user subscribes to multiple channels.
-            //            want to find the one where the id equals the channel id
-            subscription = row.document;
+    if (channel) {
+        //    TODO use a query
+        CouchQueryEnumerator *rows2 = [[sessionDatabase getAllDocuments] rows];
+        while ((row = [rows2 nextRow])) {
+            if ([[row.documentProperties objectForKey:@"local_db_name"] isEqualToString:kDatabaseName] && [[row.documentProperties objectForKey:@"session_id"] isEqualToString:sessionDoc.documentID] && [[row.documentProperties objectForKey:@"channel_id"] isEqualToString:channel.documentID]) {
+                installation =  row.document;
+            } else if ([[row.documentProperties objectForKey:@"type"] isEqualToString:@"subscription"] && [[row.documentProperties objectForKey:@"owner_id"] isEqualToString:myUserId] && [[row.documentProperties objectForKey:@"channel_id"] isEqualToString:channel.documentID]) {
+                subscription = row.document;
+            }
         }
+        NSLog(@"channel %@", channel.description);
+        NSLog(@"subscription %@", subscription.description);
+        NSLog(@"installation %@", installation.description);
+        if (subscription) {
+            if (installation) {
+//                we are set, sync will trigger based on the installation
+            } else {
+//                we have a subscription and a channel (created on another device)
+//                but we do not have a local installation, so let's make one
+                installation = [self makeInstallationForSubscription: subscription withDatabaseNamed:kDatabaseName];
+            }
+        } else {
+//            channel but no subscription, maybe we crashed earlier or had a partial sync
+            subscription = [self makeSubscriptionForChannel: channel andOwnerId:myUserId];
+            if (installation) {
+//                we already have an install doc for the local device, this should never happen
+            } else {
+                installation = [self makeInstallationForSubscription: subscription withDatabaseNamed:kDatabaseName];
+            }
+        }
+    } else {
+//     make a channel, subscription, and installation
+        channel = [sessionDatabase untitledDocument];
+        [[[channel putProperties:[NSDictionary dictionaryWithObjectsAndKeys:
+                                     @"Default List", @"name",
+                                        [NSNumber numberWithBool:YES], @"default",
+                                     @"channel",@"type",
+                                  myUserId, @"owner_id", 
+                                     @"new",@"state",
+                                     nil]] start] wait];
+        subscription = [self makeSubscriptionForChannel: channel andOwnerId:myUserId];
+        installation = [self makeInstallationForSubscription: subscription withDatabaseNamed:kDatabaseName];
     }
-    
-//    if we haven't returned yet we need to make a document
-    CouchDocument *doc = [sessionDatabase untitledDocument];
-    [[[doc putProperties:[NSDictionary dictionaryWithObjectsAndKeys:
-                        kDatabaseName, @"local_db_name", 
-                        @"localInstance",@"type",
-                        @"new",@"state",
-                        nil]] start] wait];
-    return doc;
 }
 
--(void) maybeInitilizeDefaultChannel {
-//    do we have a channel doc that refers to our default channel yet?
-//    need a view of any documents where session_id == this-session and device_db_name == grocery-db-name
-//    if we do, setup replication like it tells us to
-//    if not, we need to create one
-    CouchDocument *subscriptionDoc = [self getDefaultChannelSubscription];
-//    do we have channel doc for this subscription?
-}
 
 -(void)connectToControlDb {
     NSAssert([self sessionIsActive], @"session must be active");
     NSString *controlDB = [kSessionControlHost stringByAppendingString:[[sessionDoc.properties objectForKey:@"session"] objectForKey:@"control_database"]];
     NSLog(@"connecting to control database %@",controlDB);
     sessionPull = [self.sessionDatabase pullFromDatabaseAtURL:[NSURL URLWithString:controlDB]];
-    sessionPull.continuous = YES;
     [sessionPull start];
+    [sessionPull retain];
+    NSLog(@" sessionPull running %d",sessionPull.running);
+    [sessionPull addObserver: self forKeyPath: @"running" options: 0 context: NULL];
     sessionPush = [self.sessionDatabase pushToDatabaseAtURL:[NSURL URLWithString:controlDB]];
     sessionPush.continuous = YES;
     [sessionPush start];
-    [self maybeInitilizeDefaultChannel];
 }
 
-// we should only be here if our session is inactive
-// the change may have made our session active,
-// if so, we can switch to "logged-in" mode.
+
+- (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object 
+                         change:(NSDictionary *)change context:(void *)context
+{
+    NSLog(@" observeValueForKeyPath sessionPull running %d",sessionPull.running);
+    if (object == sessionPull && (sessionPull.running == 0)) {
+        NSString *controlDB = [kSessionControlHost stringByAppendingString:[[sessionDoc.properties objectForKey:@"session"] objectForKey:@"control_database"]];
+        [sessionPull removeObserver: self forKeyPath: @"running"];
+        [sessionPull stop];
+        NSLog(@"finished first pull, checking channels status");
+        [self maybeInitilizeDefaultChannel];
+        [self getUpToDateWithSubscriptions];
+        sessionPull = [self.sessionDatabase pullFromDatabaseAtURL:[NSURL URLWithString:controlDB]];
+        sessionPull.continuous = YES;
+        [sessionPull start];
+    }
+}
+
+-(NSMutableArray*) activeSubscriptionsWithoutInstallations {
+    NSMutableArray *subs = [NSMutableArray array];
+    NSMutableArray *installed_sub_ids = [NSMutableArray array];
+    NSMutableArray *results = [NSMutableArray array];
+    NSString *myUserId= [[sessionDoc.properties objectForKey:@"session"] objectForKey:@"user_id"];
+    CouchQueryEnumerator *rows = [[sessionDatabase getAllDocuments] rows];
+    CouchQueryRow *row;
+    while ((row = [rows nextRow])) {
+        if ([[row.documentProperties objectForKey:@"type"] isEqualToString:@"subscription"] && [[row.documentProperties objectForKey:@"owner_id"] isEqualToString:myUserId] && [[row.documentProperties objectForKey:@"state"] isEqualToString:@"active"]) {
+            [subs addObject:row.document];
+        } else if ([[row.documentProperties objectForKey:@"type"] isEqualToString:@"installation"] && [[row.documentProperties objectForKey:@"session_id"] isEqualToString:sessionDoc.documentID]) {
+            [installed_sub_ids addObject:[row.documentProperties objectForKey:@"subscription_id"]];
+        }
+    }
+    [subs enumerateObjectsUsingBlock:^(CouchDocument *obj, NSUInteger idx, BOOL *stop) {
+        if (NSNotFound == [installed_sub_ids indexOfObjectPassingTest:^(id sid, NSUInteger idx, BOOL *end){
+            return [sid isEqualToString:obj.documentID];
+        }]) {
+            [results addObject:obj];
+        }
+    }];
+    return results;
+}
+
+-(NSMutableArray*) createdInstallationsWithReadyChannels {
+    NSString *myUserId= [[sessionDoc.properties objectForKey:@"session"] objectForKey:@"user_id"];
+    CouchQueryEnumerator *rows = [[sessionDatabase getAllDocuments] rows];
+    CouchQueryRow *row;
+    NSMutableArray *installs = [NSMutableArray array];
+    NSMutableArray *results = [NSMutableArray array];
+    NSMutableArray *ready_channel_ids = [NSMutableArray array];
+    while ((row = [rows nextRow])) {
+        if ([[row.documentProperties objectForKey:@"type"] isEqualToString:@"installation"] && [[row.documentProperties objectForKey:@"state"] isEqualToString:@"created"] && [[row.documentProperties objectForKey:@"session_id"] isEqualToString:sessionDoc.documentID]) {
+            [installs addObject:row.document];
+        } else if ([[row.documentProperties objectForKey:@"type"] isEqualToString:@"channel"] && [[row.documentProperties objectForKey:@"state"] isEqualToString:@"ready"] && [[row.documentProperties objectForKey:@"owner_id"] isEqualToString:myUserId]) {
+            [ready_channel_ids addObject:row.documentID];
+        }
+    }
+    [installs enumerateObjectsUsingBlock:^(CouchDocument *obj, NSUInteger idx, BOOL *stop) {
+        if (NSNotFound != [ready_channel_ids indexOfObjectPassingTest:^(id chid, NSUInteger idx, BOOL *end){
+            return [chid isEqualToString:[obj.properties objectForKey:@"channel_id"]];
+        }]) {
+            [results addObject:obj];
+        }
+    }];
+    return results;
+}
+
+-(void) getUpToDateWithSubscriptions {
+    NSLog(@"getUpToDateWithSubscriptions");
+    NSMutableArray *needInstalls = [self activeSubscriptionsWithoutInstallations]; // make installations for them
+    [needInstalls enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        NSLog(@"make installation for sub %@", obj);
+        [self makeInstallationForSubscription: obj withDatabaseNamed:nil];
+    }];
+    NSMutableArray *readyToSync = [self createdInstallationsWithReadyChannels]; // set up sync for these channels
+    [readyToSync enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        NSLog(@"setup sync for installation %@", obj);
+//        TODO setup sync!
+    }];
+}
+
 
 -(void)sessionDatabaseChanged {
-    NSLog(@"sessionDatabaseChanged, sessionSynced %@", sessionSynced);
+    NSLog(@"sessionDatabaseChanged");
     if (!sessionSynced && [self sessionIsActive]) {
-        NSLog(@"switch to user control db");
+        NSLog(@"switch to user control db, pull %@ push %@", sessionPull, sessionPush);
         sessionSynced = YES;
         [sessionPull stop];
+        NSLog(@"stopped pull, stopping push");
         [sessionPush stop];
         [self connectToControlDb];
+    } else {
+        NSLog(@"change on local session db");
+//        re run state manager for subscription docs
+        [self getUpToDateWithSubscriptions];
     }
 }
 
