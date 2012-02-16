@@ -26,8 +26,8 @@
 // The name of the database the app will use.
 #define kDatabaseName @"grocery-sync"
 #define kSessionDatabaseName @"sessions"
-#define kSessionSyncDbURL @"http://127.0.0.1:5984/sessions"
-#define kSessionControlHost @"http://127.0.0.1:5984/"
+#define kSessionSyncDbURL @"http://single.couchbase.net/sessions"
+#define kSessionControlHost @"http://single.couchbase.net/"
 
 // The default remote database URL to sync with, if the user hasn't set a different one as a pref.
 //#define kDefaultSyncDbURL @"http://couchbase.iriscouch.com/grocery-sync"
@@ -403,16 +403,24 @@
         [self makeInstallationForSubscription: obj withDatabaseNamed:nil];
     }];
     NSMutableArray *readyToSync = [self createdInstallationsWithReadyChannels]; // set up sync for these channels
-    [readyToSync enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+    [readyToSync enumerateObjectsUsingBlock:^(CouchDocument *obj, NSUInteger idx, BOOL *stop) {
         NSLog(@"setup sync for installation %@", obj);
-//        TODO setup sync!
+//        TODO setup sync with the database listed in "cloud_database" on the channel doc
+//        this means we need the server side to actually make some channels "ready" first
+        CouchDocument *channelDoc = [sessionDatabase documentWithID:[obj.properties objectForKey:@"channel_id"]];
+        CouchDatabase *localChannelDb = [server databaseNamed: [obj.properties objectForKey:@"local_db_name"]];
+        NSURL *cloudChannelURL = [NSURL URLWithString:[kSessionControlHost stringByAppendingString:[channelDoc.properties objectForKey:@"cloud_database"]]];
+        CouchReplication *pull = [localChannelDb pullFromDatabaseAtURL:cloudChannelURL];
+        pull.continuous = YES;
+        CouchReplication *push = [localChannelDb pushToDatabaseAtURL:cloudChannelURL];
+        push.continuous = YES;
     }];
 }
 
 
 -(void)sessionDatabaseChanged {
-    NSLog(@"sessionDatabaseChanged");
-    if (!sessionSynced && [self sessionIsActive]) {
+    NSLog(@"sessionDatabaseChanged sessionSynced: %d", sessionSynced);
+    if ((sessionSynced != YES) && [self sessionIsActive]) {
         NSLog(@"switch to user control db, pull %@ push %@", sessionPull, sessionPush);
         sessionSynced = YES;
         [sessionPull stop];
