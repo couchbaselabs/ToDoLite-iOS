@@ -73,7 +73,9 @@
 	[window makeKeyAndVisible];
 
     // Start the Couchbase Mobile server:
-    gCouchLogLevel = 1;
+    gCouchLogLevel = 3;
+    gRESTLogLevel = kRESTLogRequestURLs;
+
 #ifdef USE_REMOTE_SERVER
     server = [[CouchTouchDBServer alloc] initWithURL: [NSURL URLWithString: USE_REMOTE_SERVER]];
 #else
@@ -153,7 +155,7 @@
     CFUUIDRef uuidObject = CFUUIDCreate(kCFAllocatorDefault);
     NSString *uuidStr = (__bridge NSString *)CFUUIDCreateString(kCFAllocatorDefault, uuidObject);
     CFRelease(uuidObject);
-    return uuidStr;
+    return [uuidStr lowercaseString];
 }
 
 - (NSMutableDictionary*) randomOAuthCreds {
@@ -213,7 +215,8 @@
         name = [@"channel-" stringByAppendingString:[self randomString]];
     }
     CouchDatabase *channelDb = [server databaseNamed: name];
-    
+    NSLog(@"create channel db %@",name);
+
     // Create the session database on the first run of the app.
     NSError* error;
     if (![channelDb ensureCreated: &error]) {
@@ -421,11 +424,14 @@
 -(void)sessionDatabaseChanged {
     NSLog(@"sessionDatabaseChanged sessionSynced: %d", sessionSynced);
     if ((sessionSynced != YES) && [self sessionIsActive]) {
-        NSLog(@"switch to user control db, pull %@ push %@", sessionPull, sessionPush);
+        if (sessionPull && sessionPush) {
+            NSLog(@"switch to user control db, pull %@ push %@", sessionPull, sessionPush);
+            [sessionPull stop];
+            NSLog(@"stopped pull, stopping push");
+            [sessionPush stop];
+        }
         sessionSynced = YES;
-        [sessionPull stop];
-        NSLog(@"stopped pull, stopping push");
-        [sessionPush stop];
+
         [self connectToControlDb];
     } else {
         NSLog(@"change on local session db");
