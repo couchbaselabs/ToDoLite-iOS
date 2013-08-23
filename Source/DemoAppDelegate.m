@@ -41,11 +41,6 @@
 @implementation DemoAppDelegate
 
 
-@synthesize window;
-@synthesize navigationController;
-@synthesize database;
-
-
 // Override point for customization after application launch.
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     NSLog(@"------ application:didFinishLaunchingWithOptions:");
@@ -59,8 +54,8 @@
 #endif
     
     // Add the navigation controller's view to the window and display.
-	[window addSubview:navigationController.view];
-	[window makeKeyAndVisible];
+	[_window addSubview:_navigationController.view];
+	[_window makeKeyAndVisible];
 
     // Get or create the database.
     NSError* error;
@@ -69,9 +64,10 @@
     if (!self.database)
         [self showAlert: @"Couldn't open database" error: error fatal: YES];
     
-    // Tell the RootViewController:
-    RootViewController* root = (RootViewController*)navigationController.topViewController;
-    [root useDatabase: database];
+    // Initialize the RootViewController:
+    RootViewController* root = (RootViewController*)_navigationController.topViewController;
+    [root useDatabase: _database];
+
     return YES;
 }
 

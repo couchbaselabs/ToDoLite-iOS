@@ -20,25 +20,15 @@
 
 #import <UIKit/UIKit.h>
 #import <Couchbaselite/CBLUITableSource.h>
-@class CBLDatabase, CBLReplication;
+@class CBLDatabase, CBLReplication, List;
 
 
 @interface RootViewController : UIViewController <CBLUITableDelegate, UITextFieldDelegate>
-{
-    CBLDatabase *database;
-    NSURL* remoteSyncURL;
-    CBLReplication* _pull;
-    CBLReplication* _push;
-    
-    UITableView *tableView;
-    IBOutlet UIProgressView *progress;
-    BOOL showingSyncButton;
-    IBOutlet UITextField *addItemTextField;
-    IBOutlet UIImageView *addItemBackground;
-}
 
-@property(nonatomic, strong) IBOutlet UITableView *tableView;
-@property(nonatomic, strong) IBOutlet CBLUITableSource* dataSource;
+@property (nonatomic) IBOutlet UITableView *tableView;
+@property (nonatomic) IBOutlet CBLUITableSource* dataSource;
+
+@property (nonatomic) List* currentList;
 
 -(void)useDatabase:(CBLDatabase*)theDatabase;
 

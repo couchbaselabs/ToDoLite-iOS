@@ -15,9 +15,6 @@ extern double Couchbase_ListsVersionNumber;
 @implementation ConfigViewController
 
 
-@synthesize urlField, versionField, autoSyncSwitch;
-
-
 - (id)init {
     self = [super initWithNibName: @"ConfigViewController" bundle: nil];
     if (self) {

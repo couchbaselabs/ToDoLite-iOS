@@ -21,12 +21,11 @@
 #import "RootViewController.h"
 #import "ConfigViewController.h"
 #import "DemoAppDelegate.h"
+#import "List.h"
+#import "Task.h"
 
 #import <Couchbaselite/CouchbaseLite.h>
 #import <CouchbaseLite/CBLJSON.h>
-
-//#import <CouchbaseLite/CouchbaseLite.h>
-//#import <CouchbaseLite/CBLDesignDocument_Embedded.h>
 
 
 @interface RootViewController ()
@@ -41,12 +40,16 @@
 
 
 @implementation RootViewController
+{
+    CBLReplication* _pull;
+    CBLReplication* _push;
+    BOOL _showingSyncButton;
+    List* _currentList;
 
-
-@synthesize dataSource;
-@synthesize database;
-@synthesize tableView;
-@synthesize remoteSyncURL;
+    IBOutlet UIProgressView *progress;
+    IBOutlet UITextField *addItemTextField;
+    IBOutlet UIImageView *addItemBackground;
+}
 
 
 #pragma mark - View lifecycle
@@ -71,17 +74,10 @@
         [addItemTextField setFrame:CGRectMake(56, 8, 665, 43)];
     }
 
-    // Create a query sorted by descending date, i.e. newest items first:
-    NSAssert(database!=nil, @"Not hooked up to database yet");
-//    CBLLiveQuery* query = [[[database designDocumentWithName: @"grocery"]
-//                                                queryViewNamed: @"byDate"] asLiveQuery];
+    NSAssert(_database!=nil, @"Not hooked up to database yet");
 
-    CBLLiveQuery* query = [[[database viewNamed:@"byDate"] query] asLiveQuery];
-    
-    query.descending = YES;
-    
-    self.dataSource.query = query;
-    self.dataSource.labelProperty = @"text";    // Document property to display in the cell label
+    self.dataSource.labelProperty = @"title";    // Document property to display in the cell label
+    [self updateQuery];
 
     [self updateSyncURL];
 }
@@ -99,15 +95,17 @@
 }
 
 
+- (void)showErrorAlert: (NSString*)message forError: (NSError*)error {
+    NSLog(@"%@: error=%@", message, error);
+    [(DemoAppDelegate*)[[UIApplication sharedApplication] delegate]
+     showAlert: message error: error fatal: NO];
+}
+
+
 - (void)useDatabase:(CBLDatabase*)theDatabase {
     self.database = theDatabase;
-    
-    [[theDatabase viewNamed: @"byDate"] setMapBlock: MAPBLOCK({
-        id date = [doc objectForKey: @"created_at"];
-        if (date) emit(date, doc);
-    }) reduceBlock: nil version: @"1.1"];
-    
-    // and a validation function requiring parseable dates:
+
+    // Register a validation function requiring parseable dates:
     [theDatabase defineValidation: @"created_at" asBlock: VALIDATIONBLOCK({
         if (newRevision.isDeleted)
             return YES;
@@ -118,13 +116,41 @@
         }
         return YES;
     })];
+
+    [[_database modelFactory] registerClass: [List class] forDocumentType: @"list"];
+    [[_database modelFactory] registerClass: [Task class] forDocumentType: @"item"];
+
+    List* list;
+    CBLQuery *query = [List queryListsInDatabase: _database];
+    CBLQueryRow* row = query.rows.nextRow;
+    if (row) {
+        list = [List modelForDocument: row.document];
+    } else {
+        // There are no lists in the database, so create one:
+        NSLog(@"No lists found; creating initial one");
+        List* firstList = [[List alloc] initInDatabase: _database withTitle: @"To Do"];
+        NSError* error;
+        if (![firstList save: &error]) {
+            [self showErrorAlert: @"create a list" forError: error];
+            return;
+        }
+    }
+    self.currentList = list;
 }
 
 
-- (void)showErrorAlert: (NSString*)message forError: (NSError*)error {
-    NSLog(@"%@: error=%@", message, error);
-    [(DemoAppDelegate*)[[UIApplication sharedApplication] delegate]
-     showAlert: message error: error fatal: NO];
+- (void) setCurrentList:(List *)list {
+    if (list == _currentList)
+        return;
+    _currentList = list;
+    [self updateQuery];
+}
+
+
+- (void) updateQuery {
+    if (_dataSource)
+        _dataSource.query = [[_currentList queryTasks] asLiveQuery];
+    self.title = _currentList.title;
 }
 
 
@@ -146,14 +172,15 @@
     cell.textLabel.font = [UIFont fontWithName: @"Helvetica" size:18.0];
     cell.textLabel.backgroundColor = [UIColor clearColor];
     
-    // Configure the cell contents. Our view function (see above) copies the document properties
-    // into its value, so we can read them from there without having to load the document.
+    // Configure the cell contents.
     // cell.textLabel.text is already set, thanks to setting up labelProperty above.
-    NSDictionary* properties = row.value;
-    BOOL checked = [[properties objectForKey:@"check"] boolValue];
-    cell.textLabel.textColor = checked ? [UIColor grayColor] : [UIColor blackColor];
+    Task* task = [Task modelForDocument: row.document];
+    bool checked = task.check;
+    cell.textLabel.textColor = checked ? [UIColor grayColor]
+                                       : [UIColor blackColor];
     cell.imageView.image = [UIImage imageNamed:
-            (checked ? @"list_area___checkbox___checked" : @"list_area___checkbox___unchecked")];
+            (checked ? @"list_area___checkbox___checked"
+                     : @"list_area___checkbox___unchecked")];
 }
 
 
@@ -167,66 +194,15 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     CBLQueryRow *row = [self.dataSource rowAtIndex:indexPath.row];
-    CBLDocument *doc = [row document];
+    Task* task = [Task modelForDocument: row.document];
 
-    // every other tap to select will cause an attachment to be written to the document, and nothing else
-    static int inc;
-    if (inc++ % 2 == 0)
-    {
-        UIImage* image = [UIImage imageNamed:@"background.jpg"];
-        if (image)
-        {
-            CBLAttachment* attachment = nil;
+    // Toggle the document's 'checked' property:
+    task.check = !task.check;
 
-            // try JPEG first
-            NSData* data = UIImageJPEGRepresentation(image, 0.8f);
-            if (data)
-            {
-                attachment = [[CBLAttachment alloc] initWithContentType:@"image/jpeg" body:data];
-            }
-            else     // try PNG next
-            {
-                data = UIImagePNGRepresentation(image);
-                if (data)
-                {
-                    attachment = [[CBLAttachment alloc] initWithContentType:@"image/png" body:data];
-                }
-            }
-
-            CBLRevision* revision = doc.currentRevision;
-            if (revision)
-            {
-                CBLNewRevision* newRevision = [revision newRevision];
-
-                if (attachment)
-                {
-                    [newRevision addAttachment:attachment named:@"icon"];
-                }
-                else     // remove
-                {
-                    [newRevision removeAttachmentNamed:@"icon"];
-                }
-
-                NSError* err;
-                if (![newRevision save:&err])
-                {
-                    NSLog(@"CBLNewRevision save error: %@", [err description]);
-                }
-            }
-        }
-    }
-    else
-    {
-        // Toggle the document's 'checked' property:
-        NSMutableDictionary *docContent = [doc.properties mutableCopy];
-        BOOL wasChecked = [[docContent valueForKey:@"check"] boolValue];
-        [docContent setObject:[NSNumber numberWithBool:!wasChecked] forKey:@"check"];
-
-        // Save changes:
-        NSError* error;
-        if (![doc.currentRevision putProperties: docContent error: &error]) {
-            [self showErrorAlert: @"Failed to update item" forError: error];
-        }
+    // Save changes:
+    NSError* error;
+    if (![task save: &error]) {
+        [self showErrorAlert: @"Failed to update item" forError: error];
     }
 }
 
@@ -238,9 +214,9 @@
     // If there were a whole lot of documents, this would be more efficient with a custom query.
     NSMutableArray* checked = [NSMutableArray array];
     for (CBLQueryRow* row in self.dataSource.rows) {
-        CBLDocument* doc = row.document;
-        if ([[doc.properties valueForKey:@"check"] boolValue])
-            [checked addObject: doc];
+        Task* task = [Task modelForDocument: row.document];
+        if (task.check)
+            [checked addObject: task.document];
     }
     return checked;
 }
@@ -266,7 +242,7 @@
     if (buttonIndex == 0)
         return;
     NSError* error;
-    if (![dataSource deleteDocuments: self.checkedDocuments error: &error]) {
+    if (![_dataSource deleteDocuments: self.checkedDocuments error: &error]) {
         [self showErrorAlert: @"Failed to delete items" forError: error];
     }
 }
@@ -289,22 +265,17 @@
 
 -(void)textFieldDidEndEditing:(UITextField *)textField {
     // Get the name of the item from the text field:
-	NSString *text = addItemTextField.text;
-    if (text.length == 0) {
+	NSString *title = addItemTextField.text;
+    if (title.length == 0) {
         return;
     }
     [addItemTextField setText:nil];
 
-    // Create the new document's properties:
-	NSDictionary *inDocument = [NSDictionary dictionaryWithObjectsAndKeys:text, @"text",
-                                [NSNumber numberWithBool:NO], @"check",
-                                [CBLJSON JSONObjectWithDate: [NSDate date]], @"created_at",
-                                nil];
-    
-    // Save the document:
-    CBLDocument* doc = [database untitledDocument];
+    // Create and save a new task:
+    NSAssert(_currentList, @"no current list");
+    Task* task = [_currentList addTaskWithTitle: title];
     NSError* error;
-    if (![doc putProperties: inDocument error: &error]) {
+    if (![task save: &error]) {
         [self showErrorAlert: @"Couldn't save new item" forError: error];
     }
 }
@@ -321,7 +292,7 @@
 
 
 - (void)updateSyncURL {
-    if (!self.database)
+    if (!_database)
         return;
     NSURL* newRemoteURL = nil;
     NSString *syncpoint = [[NSUserDefaults standardUserDefaults] objectForKey:@"syncpoint"];
@@ -330,7 +301,7 @@
     
     [self forgetSync];
 
-    NSArray* repls = [self.database replicateWithURL: newRemoteURL exclusively: YES];
+    NSArray* repls = [_database replicateWithURL: newRemoteURL exclusively: YES];
     if (repls) {
         _pull = [repls objectAtIndex: 0];
         _push = [repls objectAtIndex: 1];
@@ -360,8 +331,8 @@
 
 
 - (void)showSyncButton {
-    if (!showingSyncButton) {
-        showingSyncButton = YES;
+    if (!_showingSyncButton) {
+        _showingSyncButton = YES;
         UIBarButtonItem* syncButton =
                 [[UIBarButtonItem alloc] initWithTitle: @"Configure"
                                                  style:UIBarButtonItemStylePlain
@@ -373,8 +344,8 @@
 
 
 - (void)showSyncStatus {
-    if (showingSyncButton) {
-        showingSyncButton = NO;
+    if (_showingSyncButton) {
+        _showingSyncButton = NO;
         if (!progress) {
             progress = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleBar];
             CGRect frame = progress.frame;
