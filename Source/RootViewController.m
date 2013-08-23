@@ -1,6 +1,6 @@
 //
 //  RootViewController.m
-//  Couchbase Mobile
+//  Couchbase Lists
 //
 //  Created by Jan Lehnardt on 27/11/2010.
 //  Copyright 2011 Couchbase, Inc.
@@ -169,15 +169,64 @@
     CBLQueryRow *row = [self.dataSource rowAtIndex:indexPath.row];
     CBLDocument *doc = [row document];
 
-    // Toggle the document's 'checked' property:
-    NSMutableDictionary *docContent = [doc.properties mutableCopy];
-    BOOL wasChecked = [[docContent valueForKey:@"check"] boolValue];
-    [docContent setObject:[NSNumber numberWithBool:!wasChecked] forKey:@"check"];
+    // every other tap to select will cause an attachment to be written to the document, and nothing else
+    static int inc;
+    if (inc++ % 2 == 0)
+    {
+        UIImage* image = [UIImage imageNamed:@"background.jpg"];
+        if (image)
+        {
+            CBLAttachment* attachment = nil;
 
-    // Save changes:
-    NSError* error;
-    if (![doc.currentRevision putProperties: docContent error: &error]) {
-        [self showErrorAlert: @"Failed to update item" forError: error];
+            // try JPEG first
+            NSData* data = UIImageJPEGRepresentation(image, 0.8f);
+            if (data)
+            {
+                attachment = [[CBLAttachment alloc] initWithContentType:@"image/jpeg" body:data];
+            }
+            else     // try PNG next
+            {
+                data = UIImagePNGRepresentation(image);
+                if (data)
+                {
+                    attachment = [[CBLAttachment alloc] initWithContentType:@"image/png" body:data];
+                }
+            }
+
+            CBLRevision* revision = doc.currentRevision;
+            if (revision)
+            {
+                CBLNewRevision* newRevision = [revision newRevision];
+
+                if (attachment)
+                {
+                    [newRevision addAttachment:attachment named:@"icon"];
+                }
+                else     // remove
+                {
+                    [newRevision removeAttachmentNamed:@"icon"];
+                }
+
+                NSError* err;
+                if (![newRevision save:&err])
+                {
+                    NSLog(@"CBLNewRevision save error: %@", [err description]);
+                }
+            }
+        }
+    }
+    else
+    {
+        // Toggle the document's 'checked' property:
+        NSMutableDictionary *docContent = [doc.properties mutableCopy];
+        BOOL wasChecked = [[docContent valueForKey:@"check"] boolValue];
+        [docContent setObject:[NSNumber numberWithBool:!wasChecked] forKey:@"check"];
+
+        // Save changes:
+        NSError* error;
+        if (![doc.currentRevision putProperties: docContent error: &error]) {
+            [self showErrorAlert: @"Failed to update item" forError: error];
+        }
     }
 }
 
@@ -285,6 +334,9 @@
     if (repls) {
         _pull = [repls objectAtIndex: 0];
         _push = [repls objectAtIndex: 1];
+        _pull.continuous = _push.continuous = YES;
+        _pull.persistent = _push.persistent = NO;
+        _push.create_target = YES;
         NSNotificationCenter* nctr = [NSNotificationCenter defaultCenter];
         [nctr addObserver: self selector: @selector(replicationProgress:)
                      name: kCBLReplicationChangeNotification object: _pull];

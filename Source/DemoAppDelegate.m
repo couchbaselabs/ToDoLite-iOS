@@ -1,6 +1,6 @@
 //
 //  DemoAppDelegate.m
-//  Couchbase Mobile
+//  Couchbase Lists
 //
 //  Created by Jan Lehnardt on 27/11/2010.
 //  Copyright 2011 Couchbase, Inc.
@@ -32,7 +32,7 @@
 // The default remote database URL to sync with, if the user hasn't set a different one as a pref.
 //#define kDefaultSyncDbURL @"http://couchbase.iriscouch.com/grocery-sync"
 
-// Define this to use a server at a specific URL, instead of the embedded Couchbase Mobile.
+// Define this to use a server at a specific URL, instead of the embedded Couchbase Lists.
 // This can be useful for debugging, since you can use the admin console (futon) to inspect
 // or modify the database contents.
 //#define USE_REMOTE_SERVER @"http://localhost:5984/"
@@ -62,7 +62,7 @@
 	[window addSubview:navigationController.view];
 	[window makeKeyAndVisible];
 
-    // Start the Couchbase Mobile server:
+    // Get or create the database.
     NSError* error;
     self.database = [[CBLManager sharedInstance] createDatabaseNamed: kDatabaseName
                                                                error: &error];

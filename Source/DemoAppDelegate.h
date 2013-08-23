@@ -1,6 +1,6 @@
 //
 //  DemoAppDelegate.h
-//  Couchbase Mobile
+//  Couchbase Lists
 //
 //  Created by Jan Lehnardt on 27/11/2010.
 //  Copyright 2011 Couchbase, Inc.

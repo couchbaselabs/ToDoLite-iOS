@@ -1,6 +1,6 @@
 //
 //  ConfigViewController.h
-//  CBLDemo
+//  Couchbase Lists
 //
 //  Created by Jens Alfke on 8/8/11.
 //  Copyright 2011 Couchbase, Inc. All rights reserved.
