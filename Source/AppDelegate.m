@@ -1,5 +1,5 @@
 //
-//  DemoAppDelegate.m
+//  AppDelegate.m
 //  Couchbase Lists
 //
 //  Created by Jan Lehnardt on 27/11/2010.
@@ -18,8 +18,8 @@
 // the License.
 //
 
-#import "DemoAppDelegate.h"
-#import "RootViewController.h"
+#import "AppDelegate.h"
+#import "ListController.h"
 
 #import <Couchbaselite/CouchbaseLite.h>
 
@@ -38,7 +38,7 @@
 //#define USE_REMOTE_SERVER @"http://localhost:5984/"
 
 
-@implementation DemoAppDelegate
+@implementation AppDelegate
 
 
 // Override point for customization after application launch.
@@ -64,8 +64,8 @@
     if (!self.database)
         [self showAlert: @"Couldn't open database" error: error fatal: YES];
     
-    // Initialize the RootViewController:
-    RootViewController* root = (RootViewController*)_navigationController.topViewController;
+    // Initialize the ListController:
+    ListController* root = (ListController*)_navigationController.topViewController;
     [root useDatabase: _database];
 
     return YES;

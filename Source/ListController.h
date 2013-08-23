@@ -1,5 +1,5 @@
 //
-//  DemoAppDelegate.h
+//  ListController.h
 //  Couchbase Lists
 //
 //  Created by Jan Lehnardt on 27/11/2010.
@@ -19,17 +19,20 @@
 //
 
 #import <UIKit/UIKit.h>
-@class CBLDatabase, RootViewController;
+#import <Couchbaselite/CBLUITableSource.h>
+@class CBLDatabase, CBLReplication, List;
 
 
-@interface DemoAppDelegate : NSObject <UIApplicationDelegate, UIAlertViewDelegate>
+@interface ListController : UIViewController <CBLUITableDelegate, UITextFieldDelegate>
 
-@property (nonatomic, strong) CBLDatabase *database;
+@property (nonatomic) IBOutlet UITableView *tableView;
+@property (nonatomic) IBOutlet CBLUITableSource* dataSource;
 
-@property (nonatomic, strong) IBOutlet UIWindow *window;
-@property (nonatomic, strong) IBOutlet UINavigationController *navigationController;
+@property (nonatomic) List* currentList;
 
-- (void)showAlert: (NSString*)message error: (NSError*)error fatal: (BOOL)fatal;
+-(void)useDatabase:(CBLDatabase*)theDatabase;
+
+- (IBAction)configureSync:(id)sender;
+- (IBAction) deleteCheckedItems:(id)sender;
 
 @end
-

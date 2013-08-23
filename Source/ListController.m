@@ -1,5 +1,5 @@
 //
-//  RootViewController.m
+//  ListController.m
 //  Couchbase Lists
 //
 //  Created by Jan Lehnardt on 27/11/2010.
@@ -18,9 +18,9 @@
 // the License.
 //
 
-#import "RootViewController.h"
+#import "ListController.h"
 #import "ConfigViewController.h"
-#import "DemoAppDelegate.h"
+#import "AppDelegate.h"
 #import "List.h"
 #import "Task.h"
 
@@ -28,7 +28,7 @@
 #import <CouchbaseLite/CBLJSON.h>
 
 
-@interface RootViewController ()
+@interface ListController ()
 @property(nonatomic, strong)CBLDatabase *database;
 @property(nonatomic, strong)NSURL* remoteSyncURL;
 - (void)updateSyncURL;
@@ -39,7 +39,7 @@
 @end
 
 
-@implementation RootViewController
+@implementation ListController
 {
     CBLReplication* _pull;
     CBLReplication* _push;
@@ -97,7 +97,7 @@
 
 - (void)showErrorAlert: (NSString*)message forError: (NSError*)error {
     NSLog(@"%@: error=%@", message, error);
-    [(DemoAppDelegate*)[[UIApplication sharedApplication] delegate]
+    [(AppDelegate*)[[UIApplication sharedApplication] delegate]
      showAlert: message error: error fatal: NO];
 }
 
