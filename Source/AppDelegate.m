@@ -20,14 +20,13 @@
 
 #import "AppDelegate.h"
 #import "ListController.h"
+#import "MasterController.h"
 
 #import <Couchbaselite/CouchbaseLite.h>
 
-//#import <CouchbaseLite/CouchbaseLite.h>
-//#import <CouchbaseLite/CBLManager.h>
 
 // The name of the database the app will use.
-#define kDatabaseName @"grocery-sync"
+#define kDatabaseName @"todo"
 
 // The default remote database URL to sync with, if the user hasn't set a different one as a pref.
 //#define kDefaultSyncDbURL @"http://couchbase.iriscouch.com/grocery-sync"
@@ -44,6 +43,8 @@
 // Override point for customization after application launch.
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     NSLog(@"------ application:didFinishLaunchingWithOptions:");
+    gAppDelegate = self;
+    
 #ifdef kDefaultSyncDbURL
     // Register the default value of the pref for the remote database URL to sync with:
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
@@ -53,9 +54,7 @@
     [defaults synchronize];
 #endif
     
-    // Add the navigation controller's view to the window and display.
-	[_window addSubview:_navigationController.view];
-	[_window makeKeyAndVisible];
+    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
 
     // Get or create the database.
     NSError* error;
@@ -64,10 +63,34 @@
     if (!self.database)
         [self showAlert: @"Couldn't open database" error: error fatal: YES];
     
-    // Initialize the ListController:
-    ListController* root = (ListController*)_navigationController.topViewController;
-    [root useDatabase: _database];
+    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) {
+        // iPhone UI:
+        MasterController *master = [[MasterController alloc] initWithNibName:@"MasterController_iPhone" bundle:nil];
+        [master useDatabase: _database];
+        self.navigationController = [[UINavigationController alloc] initWithRootViewController:master];
+        self.window.rootViewController = self.navigationController;
+    } else {
+        // iPad UI:
+        MasterController *master = [[MasterController alloc] initWithNibName:@"MasterController_iPad" bundle:nil];
+        [master useDatabase: _database];
+        UINavigationController *masterNavigationController = [[UINavigationController alloc] initWithRootViewController:master];
 
+        ListController *listController = [[ListController alloc] initWithNibName:@"ListController_iPad" bundle:nil];
+        [listController useDatabase: _database];
+        UINavigationController *detailNavigationController = [[UINavigationController alloc] initWithRootViewController:listController];
+
+        self.navigationController = detailNavigationController;
+
+    	master.listController = listController;
+
+        self.splitViewController = [[UISplitViewController alloc] init];
+        self.splitViewController.delegate = listController;
+        self.splitViewController.viewControllers = @[masterNavigationController, detailNavigationController];
+
+        self.window.rootViewController = self.splitViewController;
+    }
+
+    [self.window makeKeyAndVisible];
     return YES;
 }
 

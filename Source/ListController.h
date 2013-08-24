@@ -23,14 +23,15 @@
 @class CBLDatabase, CBLReplication, List;
 
 
-@interface ListController : UIViewController <CBLUITableDelegate, UITextFieldDelegate>
+@interface ListController : UIViewController <CBLUITableDelegate, UISplitViewControllerDelegate, UITextFieldDelegate>
+
+-(void)useDatabase:(CBLDatabase*)theDatabase;
 
 @property (nonatomic) IBOutlet UITableView *tableView;
 @property (nonatomic) IBOutlet CBLUITableSource* dataSource;
 
+/** This controls which list is displayed. */
 @property (nonatomic) List* currentList;
-
--(void)useDatabase:(CBLDatabase*)theDatabase;
 
 - (IBAction)configureSync:(id)sender;
 - (IBAction) deleteCheckedItems:(id)sender;

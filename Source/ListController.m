@@ -31,6 +31,7 @@
 @interface ListController ()
 @property(nonatomic, strong)CBLDatabase *database;
 @property(nonatomic, strong)NSURL* remoteSyncURL;
+@property (strong, nonatomic) UIPopoverController *masterPopoverController;
 - (void)updateSyncURL;
 - (void)showSyncButton;
 - (void)showSyncStatus;
@@ -58,12 +59,12 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 
-    UIBarButtonItem* deleteButton = [[UIBarButtonItem alloc] initWithTitle: @"Clean"
-                                                            style:UIBarButtonItemStylePlain
-                                                           target: self 
-                                                           action: @selector(deleteCheckedItems:)];
-    self.navigationItem.leftBarButtonItem = deleteButton;
-    
+//    UIBarButtonItem* deleteButton = [[UIBarButtonItem alloc] initWithTitle: @"Clean"
+//                                                            style:UIBarButtonItemStylePlain
+//                                                           target: self 
+//                                                           action: @selector(deleteCheckedItems:)];
+//    self.navigationItem.leftBarButtonItem = deleteButton;
+
     [self showSyncButton];
     
     [self.tableView setBackgroundView:nil];
@@ -119,23 +120,6 @@
 
     [[_database modelFactory] registerClass: [List class] forDocumentType: @"list"];
     [[_database modelFactory] registerClass: [Task class] forDocumentType: @"item"];
-
-    List* list;
-    CBLQuery *query = [List queryListsInDatabase: _database];
-    CBLQueryRow* row = query.rows.nextRow;
-    if (row) {
-        list = [List modelForDocument: row.document];
-    } else {
-        // There are no lists in the database, so create one:
-        NSLog(@"No lists found; creating initial one");
-        List* firstList = [[List alloc] initInDatabase: _database withTitle: @"To Do"];
-        NSError* error;
-        if (![firstList save: &error]) {
-            [self showErrorAlert: @"create a list" forError: error];
-            return;
-        }
-    }
-    self.currentList = list;
 }
 
 
@@ -144,6 +128,10 @@
         return;
     _currentList = list;
     [self updateQuery];
+
+    if (self.masterPopoverController != nil) {
+        [self.masterPopoverController dismissPopoverAnimated:YES];
+    }
 }
 
 
@@ -278,6 +266,29 @@
     if (![task save: &error]) {
         [self showErrorAlert: @"Couldn't save new item" forError: error];
     }
+}
+
+
+#pragma mark - SPLIT VIEW:
+
+
+- (void)splitViewController:(UISplitViewController *)splitController
+     willHideViewController:(UIViewController *)viewController
+          withBarButtonItem:(UIBarButtonItem *)barButtonItem
+       forPopoverController:(UIPopoverController *)popoverController
+{
+    barButtonItem.title = NSLocalizedString(@"Lists", @"Lists");
+    [self.navigationItem setLeftBarButtonItem:barButtonItem animated:YES];
+    self.masterPopoverController = popoverController;
+}
+
+- (void)splitViewController:(UISplitViewController *)splitController
+     willShowViewController:(UIViewController *)viewController
+  invalidatingBarButtonItem:(UIBarButtonItem *)barButtonItem
+{
+    // Called when the view is shown again in the split view, invalidating the button and popover controller.
+    [self.navigationItem setLeftBarButtonItem:nil animated:YES];
+    self.masterPopoverController = nil;
 }
 
 

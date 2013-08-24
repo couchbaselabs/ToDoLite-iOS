@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.iPad.XIB" version="3.0" toolsVersion="4488.2" systemVersion="13A558" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" useAutolayout="YES">
+    <dependencies>
+        <deployment defaultVersion="1536" identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3715.3"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="MasterController">
+            <connections>
+                <outlet property="dataSource" destination="s4T-zu-saT" id="l5N-ZZ-BXt"/>
+                <outlet property="tableView" destination="sJZ-Kg-bPZ" id="eW4-fc-sN2"/>
+                <outlet property="view" destination="sJZ-Kg-bPZ" id="pan-Lo-YMO"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="sJZ-Kg-bPZ">
+            <rect key="frame" x="0.0" y="0.0" width="320" height="460"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+            <connections>
+                <outlet property="dataSource" destination="s4T-zu-saT" id="1hJ-bG-6GO"/>
+                <outlet property="delegate" destination="-1" id="Qkj-io-DKh"/>
+            </connections>
+        </tableView>
+        <customObject id="s4T-zu-saT" customClass="CBLUITableSource">
+            <connections>
+                <outlet property="tableView" destination="sJZ-Kg-bPZ" id="9Zl-4N-IBK"/>
+            </connections>
+        </customObject>
+    </objects>
+</document>
