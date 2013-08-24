@@ -54,7 +54,7 @@ Please see the documentation for [TouchDB][1] and [CouchCocoa][1].
 
 Released under the Apache license, 2.0.
 
-Copyright 2011-2012, Couchbase, Inc.
+Copyright 2011-2013, Couchbase, Inc.
 
 
 [1]: https://github.com/couchbaselabs/TouchDB-iOS/

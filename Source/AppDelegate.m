@@ -1,9 +1,9 @@
 //
 //  AppDelegate.m
-//  Couchbase Lists
+//  ToDoLite
 //
 //  Created by Jan Lehnardt on 27/11/2010.
-//  Copyright 2011 Couchbase, Inc.
+//  Copyright 2010-2013 Couchbase, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may not
 // use this file except in compliance with the License. You may obtain a copy of
@@ -30,12 +30,7 @@
 #define kDatabaseName @"todo"
 
 // The default remote database URL to sync with, if the user hasn't set a different one as a pref.
-//#define kDefaultSyncDbURL @"http://couchbase.iriscouch.com/grocery-sync"
-
-// Define this to use a server at a specific URL, instead of the embedded Couchbase Lists.
-// This can be useful for debugging, since you can use the admin console (futon) to inspect
-// or modify the database contents.
-//#define USE_REMOTE_SERVER @"http://localhost:5984/"
+//#define kDefaultSyncDbURL @"http://example.com/todo"
 
 
 @implementation AppDelegate
