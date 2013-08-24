@@ -33,7 +33,6 @@
 /** This controls which list is displayed. */
 @property (nonatomic) List* currentList;
 
-- (IBAction)configureSync:(id)sender;
 - (IBAction) deleteCheckedItems:(id)sender;
 
 @end

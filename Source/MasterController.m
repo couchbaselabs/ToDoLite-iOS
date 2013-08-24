@@ -63,6 +63,10 @@
     [self setEditing: NO];
     self.title = @"Lists";
 
+    UIImage* bgImage = [UIImage imageNamed: @"background.jpg"];
+    [_tableView setBackgroundView: [[UIImageView alloc] initWithImage: bgImage]];
+
+
     _dataSource.labelProperty = @"title";    // Document property to display in the cell label
     _dataSource.query = _query;
 }
@@ -150,6 +154,28 @@
                                                                                 target:self
                                                                                 action:@selector(editLists:)];
     self.navigationItem.rightBarButtonItem = editButton;
+}
+
+
+- (void)couchTableSource:(CBLUITableSource*)source
+             willUseCell:(UITableViewCell*)cell
+                  forRow:(CBLQueryRow*)row
+{
+    // Set the cell background and font:
+    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone)
+        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+
+    static UIColor* kBGColor;
+    if (!kBGColor)
+        kBGColor = [UIColor colorWithPatternImage: [UIImage imageNamed:@"item_background_master"]];
+    cell.backgroundColor = kBGColor;
+
+    UILabel* textLabel = cell.textLabel;
+    textLabel.backgroundColor = [UIColor clearColor];
+    textLabel.font = [UIFont fontWithName: @"MarkerFelt-Wide" size:24.0];
+    textLabel.minimumScaleFactor = 0.75;
+    textLabel.adjustsFontSizeToFitWidth = YES;
 }
 
 

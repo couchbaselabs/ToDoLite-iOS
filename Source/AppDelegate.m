@@ -21,6 +21,7 @@
 #import "AppDelegate.h"
 #import "ListController.h"
 #import "MasterController.h"
+#import "ConfigViewController.h"
 
 #import <Couchbaselite/CouchbaseLite.h>
 
@@ -38,6 +39,12 @@
 
 
 @implementation AppDelegate
+{
+    CBLReplication* _pull;
+    CBLReplication* _push;
+    BOOL _showingSyncButton;
+    IBOutlet UIProgressView *progress;
+}
 
 
 // Override point for customization after application launch.
@@ -67,8 +74,8 @@
         // iPhone UI:
         MasterController *master = [[MasterController alloc] initWithNibName:@"MasterController_iPhone" bundle:nil];
         [master useDatabase: _database];
-        self.navigationController = [[UINavigationController alloc] initWithRootViewController:master];
-        self.window.rootViewController = self.navigationController;
+        _navigationController = [[UINavigationController alloc] initWithRootViewController:master];
+        self.window.rootViewController = _navigationController;
     } else {
         // iPad UI:
         MasterController *master = [[MasterController alloc] initWithNibName:@"MasterController_iPad" bundle:nil];
@@ -79,7 +86,7 @@
         [listController useDatabase: _database];
         UINavigationController *detailNavigationController = [[UINavigationController alloc] initWithRootViewController:listController];
 
-        self.navigationController = detailNavigationController;
+        _navigationController = detailNavigationController;
 
     	master.listController = listController;
 
@@ -91,6 +98,9 @@
     }
 
     [self.window makeKeyAndVisible];
+
+    [self updateSyncURL];
+
     return YES;
 }
 
@@ -114,6 +124,67 @@
 }
 
 
+
+
+#pragma mark - SYNC:
+
+
+- (void) configureSync {
+    ConfigViewController* controller = [[ConfigViewController alloc] init];
+    [_navigationController pushViewController: controller animated: YES];
+}
+
+
+- (void)updateSyncURL {
+    if (!_database)
+        return;
+    NSURL* newRemoteURL = nil;
+    NSString *syncpoint = [[NSUserDefaults standardUserDefaults] objectForKey:@"syncpoint"];
+    if (syncpoint.length > 0)
+        newRemoteURL = [NSURL URLWithString:syncpoint];
+    
+    [self forgetSync];
+
+    NSArray* repls = [_database replicateWithURL: newRemoteURL exclusively: YES];
+    if (repls) {
+        _pull = [repls objectAtIndex: 0];
+        _push = [repls objectAtIndex: 1];
+        _pull.continuous = _push.continuous = YES;
+        _pull.persistent = _push.persistent = NO;
+        _push.create_target = YES;
+        NSNotificationCenter* nctr = [NSNotificationCenter defaultCenter];
+        [nctr addObserver: self selector: @selector(replicationProgress:)
+                     name: kCBLReplicationChangeNotification object: _pull];
+        [nctr addObserver: self selector: @selector(replicationProgress:)
+                     name: kCBLReplicationChangeNotification object: _push];
+    }
+}
+
+
+- (void) forgetSync {
+    NSNotificationCenter* nctr = [NSNotificationCenter defaultCenter];
+    if (_pull) {
+        [nctr removeObserver: self name: nil object: _pull];
+        _pull = nil;
+    }
+    if (_push) {
+        [nctr removeObserver: self name: nil object: _push];
+        _push = nil;
+    }
+}
+
+
+- (void) replicationProgress: (NSNotificationCenter*)n {
+    BOOL active = NO;
+    if (_pull.mode == kCBLReplicationActive || _push.mode == kCBLReplicationActive) {
+        unsigned completed = _pull.completed + _push.completed;
+        unsigned total = _pull.total + _push.total;
+        NSLog(@"SYNC progress: %u / %u", completed, total);
+        progress.progress = (completed / (float)MAX(total, 1u));
+        active = YES;
+    }
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = active;
+}
 
 
 @end

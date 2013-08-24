@@ -30,6 +30,8 @@
 @property (nonatomic) UISplitViewController* splitViewController;
 @property (nonatomic) UINavigationController *navigationController;
 
+- (void) configureSync;
+
 - (void)showAlert: (NSString*)message error: (NSError*)error fatal: (BOOL)fatal;
 
 @end

@@ -32,22 +32,13 @@
 @property(nonatomic, strong)CBLDatabase *database;
 @property(nonatomic, strong)NSURL* remoteSyncURL;
 @property (strong, nonatomic) UIPopoverController *masterPopoverController;
-- (void)updateSyncURL;
-- (void)showSyncButton;
-- (void)showSyncStatus;
-- (IBAction)configureSync:(id)sender;
-- (void)forgetSync;
 @end
 
 
 @implementation ListController
 {
-    CBLReplication* _pull;
-    CBLReplication* _push;
-    BOOL _showingSyncButton;
     List* _currentList;
 
-    IBOutlet UIProgressView *progress;
     IBOutlet UITextField *addItemTextField;
     IBOutlet UIImageView *addItemBackground;
 }
@@ -65,8 +56,6 @@
 //                                                           action: @selector(deleteCheckedItems:)];
 //    self.navigationItem.leftBarButtonItem = deleteButton;
 
-    [self showSyncButton];
-    
     [self.tableView setBackgroundView:nil];
     [self.tableView setBackgroundColor:[UIColor clearColor]];
     if([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad)
@@ -79,20 +68,6 @@
 
     self.dataSource.labelProperty = @"title";    // Document property to display in the cell label
     [self updateQuery];
-
-    [self updateSyncURL];
-}
-
-
-- (void)dealloc {
-    [self forgetSync];
-}
-
-
-- (void)viewWillAppear:(BOOL)animated {
-    [super viewWillAppear: animated];
-    // Check for changes after returning from the sync config view:
-    [self updateSyncURL];
 }
 
 
@@ -142,7 +117,12 @@
 }
 
 
-#pragma mark - Couch table source delegate
+#pragma mark - TABLE DELEGATE
+
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return 50;
+}
 
 
 // Customize the appearance of table view cells.
@@ -157,9 +137,12 @@
     cell.backgroundColor = kBGColor;
     cell.selectionStyle = UITableViewCellSelectionStyleGray;
 
-    cell.textLabel.font = [UIFont fontWithName: @"Helvetica" size:18.0];
-    cell.textLabel.backgroundColor = [UIColor clearColor];
-    
+    UILabel* textLabel = cell.textLabel;
+    textLabel.backgroundColor = [UIColor clearColor];
+    textLabel.font = [UIFont fontWithName: @"Marker Felt" size:24.0];
+    textLabel.minimumScaleFactor = 0.75;
+    textLabel.adjustsFontSizeToFitWidth = YES;
+
     // Configure the cell contents.
     // cell.textLabel.text is already set, thanks to setting up labelProperty above.
     Task* task = [Task modelForDocument: row.document];
@@ -169,14 +152,6 @@
     cell.imageView.image = [UIImage imageNamed:
             (checked ? @"list_area___checkbox___checked"
                      : @"list_area___checkbox___unchecked")];
-}
-
-
-#pragma mark - Table view delegate
-
-
-- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    return 50;
 }
 
 
@@ -195,7 +170,7 @@
 }
 
 
-#pragma mark - Editing:
+#pragma mark - EDITING
 
 
 - (NSArray*)checkedDocuments {
@@ -235,7 +210,7 @@
     }
 }
 
-#pragma mark - UITextField delegate
+#pragma mark - TEXT FIELD
 
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
@@ -289,97 +264,6 @@
     // Called when the view is shown again in the split view, invalidating the button and popover controller.
     [self.navigationItem setLeftBarButtonItem:nil animated:YES];
     self.masterPopoverController = nil;
-}
-
-
-#pragma mark - SYNC:
-
-
-- (IBAction)configureSync:(id)sender {
-    UINavigationController* navController = (UINavigationController*)self.parentViewController;
-    ConfigViewController* controller = [[ConfigViewController alloc] init];
-    [navController pushViewController: controller animated: YES];
-}
-
-
-- (void)updateSyncURL {
-    if (!_database)
-        return;
-    NSURL* newRemoteURL = nil;
-    NSString *syncpoint = [[NSUserDefaults standardUserDefaults] objectForKey:@"syncpoint"];
-    if (syncpoint.length > 0)
-        newRemoteURL = [NSURL URLWithString:syncpoint];
-    
-    [self forgetSync];
-
-    NSArray* repls = [_database replicateWithURL: newRemoteURL exclusively: YES];
-    if (repls) {
-        _pull = [repls objectAtIndex: 0];
-        _push = [repls objectAtIndex: 1];
-        _pull.continuous = _push.continuous = YES;
-        _pull.persistent = _push.persistent = NO;
-        _push.create_target = YES;
-        NSNotificationCenter* nctr = [NSNotificationCenter defaultCenter];
-        [nctr addObserver: self selector: @selector(replicationProgress:)
-                     name: kCBLReplicationChangeNotification object: _pull];
-        [nctr addObserver: self selector: @selector(replicationProgress:)
-                     name: kCBLReplicationChangeNotification object: _push];
-    }
-}
-
-
-- (void) forgetSync {
-    NSNotificationCenter* nctr = [NSNotificationCenter defaultCenter];
-    if (_pull) {
-        [nctr removeObserver: self name: nil object: _pull];
-        _pull = nil;
-    }
-    if (_push) {
-        [nctr removeObserver: self name: nil object: _push];
-        _push = nil;
-    }
-}
-
-
-- (void)showSyncButton {
-    if (!_showingSyncButton) {
-        _showingSyncButton = YES;
-        UIBarButtonItem* syncButton =
-                [[UIBarButtonItem alloc] initWithTitle: @"Configure"
-                                                 style:UIBarButtonItemStylePlain
-                                                target: self 
-                                                action: @selector(configureSync:)];
-        self.navigationItem.rightBarButtonItem = syncButton;
-    }
-}
-
-
-- (void)showSyncStatus {
-    if (_showingSyncButton) {
-        _showingSyncButton = NO;
-        if (!progress) {
-            progress = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleBar];
-            CGRect frame = progress.frame;
-            frame.size.width = self.view.frame.size.width / 4.0f;
-            progress.frame = frame;
-        }
-        UIBarButtonItem* progressItem = [[UIBarButtonItem alloc] initWithCustomView:progress];
-        progressItem.enabled = NO;
-        self.navigationItem.rightBarButtonItem = progressItem;
-    }
-}
-
-
-- (void) replicationProgress: (NSNotificationCenter*)n {
-    if (_pull.mode == kCBLReplicationActive || _push.mode == kCBLReplicationActive) {
-        unsigned completed = _pull.completed + _push.completed;
-        unsigned total = _pull.total + _push.total;
-        NSLog(@"SYNC progress: %u / %u", completed, total);
-        [self showSyncStatus];
-        progress.progress = (completed / (float)MAX(total, 1u));
-    } else {
-        [self showSyncButton];
-    }
 }
 
 
