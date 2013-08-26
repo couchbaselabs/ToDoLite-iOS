@@ -81,7 +81,7 @@ extern double ToDoLiteVersionNumber;
         
         // If user just enters the server URL, fill in a default database name:
         if ([remoteURL.path isEqual: @""] || [remoteURL.path isEqual: @"/"]) {
-            remoteURL = [remoteURL URLByAppendingPathComponent: @"grocery-sync"];
+            remoteURL = [remoteURL URLByAppendingPathComponent: @"todo"];
             syncpoint = remoteURL.absoluteString;
         }        
     }

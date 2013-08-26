@@ -37,4 +37,5 @@
 @end
 
 
-AppDelegate* gAppDelegate;
+extern AppDelegate* gAppDelegate;
+extern BOOL gRunningOnIPad;

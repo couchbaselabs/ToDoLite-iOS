@@ -13,6 +13,9 @@
 #import <CouchbaseLite/CouchbaseLite.h>
 
 
+#define kPrefCurrentList @"CurrentListID"
+
+
 @interface MasterController () <UIAlertViewDelegate>
 @end
 
@@ -21,6 +24,7 @@
 {
     CBLDatabase* _database;
     CBLLiveQuery* _query;
+    BOOL _initialLoadComplete;
     ListController* _listController;
     UIBarButtonItem* _newListButton;
 }
@@ -38,14 +42,6 @@
 
 - (void) useDatabase:(CBLDatabase *)db {
     _database = db;
-
-    // Create an initial list if the db is empty:
-    CBLQuery* query = [List queryListsInDatabase: _database];
-    if (query.rows.nextRow == nil) {
-        NSLog(@"No lists found; creating initial one");
-        [self createListWithTitle: @"To Do"];
-    }
-    _query = query.asLiveQuery;
 }
 
 
@@ -63,12 +59,53 @@
     [self setEditing: NO];
     self.title = @"Lists";
 
-    UIImage* bgImage = [UIImage imageNamed: @"background.jpg"];
-    [_tableView setBackgroundView: [[UIImageView alloc] initWithImage: bgImage]];
+    if (!gRunningOnIPad) {
+        UIImage* bgImage = [UIImage imageNamed: @"background.jpg"];
+        [_tableView setBackgroundView: [[UIImageView alloc] initWithImage: bgImage]];
+    }
 
-
-    _dataSource.labelProperty = @"title";    // Document property to display in the cell label
+    _query = [List queryListsInDatabase: _database].asLiveQuery;
     _dataSource.query = _query;
+    _dataSource.labelProperty = @"title";    // Document property to display in the cell label
+}
+
+
+- (void)viewWillAppear:(BOOL)animated {
+    NSLog(@"ViewWillAppear");//TEMP
+    [super viewWillAppear: animated];
+    if (!gRunningOnIPad) {
+        if (_initialLoadComplete)
+            self.initialList = nil;
+    }
+}
+
+
+// Returns the list that was showing on quit:
+- (List*) initialList {
+    CBLDocument* doc = nil;
+    NSString* listID = [[NSUserDefaults standardUserDefaults] objectForKey: kPrefCurrentList];
+    if (listID) {
+        if (listID.length > 0)
+            doc = [_database documentWithID: listID];
+        return doc ? [List modelForDocument: doc] : nil;
+    } else {
+        // If there's no pref, choose the first list:
+        [_query waitForRows];
+        doc = _query.rows.nextRow.document;
+        if (doc)
+            return [List modelForDocument: doc];
+
+        // If there are no lists, create one:
+        NSLog(@"No lists found; creating initial one");
+        return [self createListWithTitle: @"To Do"];
+    }
+}
+
+
+- (void) setInitialList: (List*)list {
+    //
+    NSString* docID = list ? list.document.documentID : @"";
+    [[NSUserDefaults standardUserDefaults] setObject: docID forKey: kPrefCurrentList];
 }
 
 
@@ -78,14 +115,15 @@
 
 
 - (NSIndexPath*) pathForList: (List*)list {
-    return [_dataSource indexPathForDocument: list.document];
+    return list ? [_dataSource indexPathForDocument: list.document] : nil;
 }
 
 
+// Select a list in the table view, and display it in the detail view
 - (bool) selectList: (List*)list {
     NSIndexPath* path = [self pathForList: list];
-    if (!path)
-        return false;
+//    if (!path) {
+//        return false;
     [_tableView selectRowAtIndexPath: path
                             animated: NO
                       scrollPosition: UITableViewScrollPositionMiddle];
@@ -94,18 +132,22 @@
 }
 
 
+// Display a list in the detail view (without changing the table selection)
 - (void) showList: (List*)list {
-    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) {
-	    if (!_listController) {
-	        _listController = [[ListController alloc] initWithNibName:@"ListController"
-                                                                   bundle:nil];
-            [_listController useDatabase: _database];
-        }
-        _listController.currentList = list;
-        [self.navigationController pushViewController: _listController animated: YES];
-    } else {
-        if (list != _listController.currentList)
+    self.initialList = list;
+    if (list) {
+        if (!gRunningOnIPad) {
+            if (!_listController) {
+                _listController = [[ListController alloc] initWithNibName: @"ListController"
+                                                                   bundle: nil];
+                [_listController useDatabase: _database];
+            }
             _listController.currentList = list;
+            [self.navigationController pushViewController: _listController
+                                                 animated: _initialLoadComplete];
+        } else {
+            _listController.currentList = list;
+        }
     }
 }
 
@@ -157,20 +199,42 @@
 }
 
 
+// Delegate method called when table contents change
+- (void)couchTableSource:(CBLUITableSource*)source
+         updateFromQuery:(CBLLiveQuery*)query
+            previousRows:(NSArray *)previousRows
+{
+    [_tableView reloadData];
+
+    if (!_initialLoadComplete) {
+        // On initial table load, decide which row/list to select:
+        [self selectList: self.initialList];
+//        if (!gRunningOnIPad) {
+//            [self showList: list];
+//        }
+        _initialLoadComplete = YES;
+    }
+}
+
+
+// Delegate method to set up a new table cell
 - (void)couchTableSource:(CBLUITableSource*)source
              willUseCell:(UITableViewCell*)cell
                   forRow:(CBLQueryRow*)row
 {
-    // Set the cell background and font:
-    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone)
+    // Add right-pointing triangle, and set selection style:
+    if (!gRunningOnIPad) {
+        cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    }
 
+    // Set the cell background:
     static UIColor* kBGColor;
     if (!kBGColor)
         kBGColor = [UIColor colorWithPatternImage: [UIImage imageNamed:@"item_background_master"]];
     cell.backgroundColor = kBGColor;
 
+    // Set the cell font:
     UILabel* textLabel = cell.textLabel;
     textLabel.backgroundColor = [UIColor clearColor];
     textLabel.font = [UIFont fontWithName: @"MarkerFelt-Wide" size:24.0];
@@ -179,6 +243,7 @@
 }
 
 
+// Delegate method to handle a row selection
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     CBLQueryRow *row = [self.dataSource rowAtIndex:indexPath.row];
     List* list = [List modelForDocument: row.document];

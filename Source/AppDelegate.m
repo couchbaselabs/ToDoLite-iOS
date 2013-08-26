@@ -26,6 +26,10 @@
 #import <Couchbaselite/CouchbaseLite.h>
 
 
+AppDelegate* gAppDelegate;
+BOOL gRunningOnIPad;
+
+
 // The name of the database the app will use.
 #define kDatabaseName @"todo"
 
@@ -46,6 +50,7 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     NSLog(@"------ application:didFinishLaunchingWithOptions:");
     gAppDelegate = self;
+    gRunningOnIPad = [[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad;
     
 #ifdef kDefaultSyncDbURL
     // Register the default value of the pref for the remote database URL to sync with:
@@ -60,12 +65,12 @@
 
     // Get or create the database.
     NSError* error;
-    self.database = [[CBLManager sharedInstance] createDatabaseNamed: kDatabaseName
+    _database = [[CBLManager sharedInstance] createDatabaseNamed: kDatabaseName
                                                                error: &error];
-    if (!self.database)
+    if (!_database)
         [self showAlert: @"Couldn't open database" error: error fatal: YES];
     
-    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) {
+    if (!gRunningOnIPad) {
         // iPhone UI:
         MasterController *master = [[MasterController alloc] initWithNibName:@"MasterController_iPhone" bundle:nil];
         [master useDatabase: _database];
@@ -77,7 +82,7 @@
         [master useDatabase: _database];
         UINavigationController *masterNavigationController = [[UINavigationController alloc] initWithRootViewController:master];
 
-        ListController *listController = [[ListController alloc] initWithNibName:@"ListController_iPad" bundle:nil];
+        ListController *listController = [[ListController alloc] initWithNibName:@"ListController" bundle:nil];
         [listController useDatabase: _database];
         UINavigationController *detailNavigationController = [[UINavigationController alloc] initWithRootViewController:listController];
 
@@ -85,9 +90,9 @@
 
     	master.listController = listController;
 
-        self.splitViewController = [[UISplitViewController alloc] init];
-        self.splitViewController.delegate = listController;
-        self.splitViewController.viewControllers = @[masterNavigationController, detailNavigationController];
+        _splitViewController = [[UISplitViewController alloc] init];
+        _splitViewController.delegate = listController;
+        _splitViewController.viewControllers = @[masterNavigationController, detailNavigationController];
 
         self.window.rootViewController = self.splitViewController;
     }
@@ -98,6 +103,9 @@
 
     return YES;
 }
+
+
+#pragma mark - ALERTS:
 
 
 // Display an error alert, without blocking.
@@ -117,8 +125,6 @@
 - (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
     exit(0);
 }
-
-
 
 
 #pragma mark - SYNC:

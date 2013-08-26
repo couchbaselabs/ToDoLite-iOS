@@ -32,4 +32,10 @@
 }
 
 
+- (NSString*) description {
+    return [NSString stringWithFormat: @"%@[%@ '%@']",
+            self.class, self.document.abbreviatedID, self.title];
+}
+
+
 @end

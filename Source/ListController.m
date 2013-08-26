@@ -50,19 +50,14 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 
-//    UIBarButtonItem* deleteButton = [[UIBarButtonItem alloc] initWithTitle: @"Clean"
-//                                                            style:UIBarButtonItemStylePlain
-//                                                           target: self 
-//                                                           action: @selector(deleteCheckedItems:)];
-//    self.navigationItem.leftBarButtonItem = deleteButton;
+    UIBarButtonItem* cleanButton = [[UIBarButtonItem alloc] initWithTitle: @"Clean"
+                                                            style: UIBarButtonItemStylePlain
+                                                           target: self 
+                                                           action: @selector(deleteCheckedItems:)];
+    self.navigationItem.rightBarButtonItem = cleanButton;
 
     [self.tableView setBackgroundView:nil];
     [self.tableView setBackgroundColor:[UIColor clearColor]];
-    if([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad)
-    {
-        [addItemBackground setFrame:CGRectMake(45, 8, 680, 44)];
-        [addItemTextField setFrame:CGRectMake(56, 8, 665, 43)];
-    }
 
     NSAssert(_database!=nil, @"Not hooked up to database yet");
 
@@ -71,10 +66,21 @@
 }
 
 
-- (void)showErrorAlert: (NSString*)message forError: (NSError*)error {
-    NSLog(@"%@: error=%@", message, error);
-    [(AppDelegate*)[[UIApplication sharedApplication] delegate]
-     showAlert: message error: error fatal: NO];
+static void setViewMargin(UIView* view, CGFloat margin) {
+    CGRect superBounds = view.superview.bounds;
+    CGRect frame = view.frame;
+    frame.origin.x = CGRectGetMinX(superBounds) + margin;
+    frame.size.width += (CGRectGetMaxX(superBounds) - margin) - CGRectGetMaxX(frame);
+    view.frame = frame;
+}
+
+
+- (void) viewDidLayoutSubviews {
+    if(gRunningOnIPad) {
+        // Adjust left/right margins of New Item text field when nib is scaled to iPad:
+        setViewMargin(addItemBackground, 44);
+        setViewMargin(addItemTextField, 55);
+    }
 }
 
 
@@ -165,7 +171,7 @@
     // Save changes:
     NSError* error;
     if (![task save: &error]) {
-        [self showErrorAlert: @"Failed to update item" forError: error];
+        [gAppDelegate showAlert: @"Failed to update item" error: error fatal: NO];
     }
 }
 
@@ -206,7 +212,7 @@
         return;
     NSError* error;
     if (![_dataSource deleteDocuments: self.checkedDocuments error: &error]) {
-        [self showErrorAlert: @"Failed to delete items" forError: error];
+        [gAppDelegate showAlert: @"Failed to delete items" error: error fatal: NO];
     }
 }
 
@@ -239,7 +245,7 @@
     Task* task = [_currentList addTaskWithTitle: title];
     NSError* error;
     if (![task save: &error]) {
-        [self showErrorAlert: @"Couldn't save new item" forError: error];
+        [gAppDelegate showAlert: @"Couldn't save new item" error: error fatal: NO];
     }
 }
 

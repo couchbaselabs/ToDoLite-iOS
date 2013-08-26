@@ -40,6 +40,12 @@
 }
 
 
+- (NSString*) description {
+    return [NSString stringWithFormat: @"%@[%@ '%@']",
+            self.class, self.document.abbreviatedID, self.title];
+}
+
+
 - (Task*) addTaskWithTitle: (NSString*)title {
     return [[Task alloc] initInList: self withTitle: title];
 }
