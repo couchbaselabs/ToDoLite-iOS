@@ -24,6 +24,7 @@
 
 @interface AppDelegate : NSObject <UIApplicationDelegate, UIAlertViewDelegate>
 
+@property (nonatomic) UIWindow* window;
 @property (nonatomic) CBLDatabase *database;
 
 /** The URL of the remote server database to replicate with.

@@ -58,7 +58,7 @@ BOOL gRunningOnIPad;
     [defaults registerDefaults:appdefaults];
     [defaults synchronize];
 #endif
-    
+
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
 
     // Get or create the database.
