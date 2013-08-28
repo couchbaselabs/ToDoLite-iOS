@@ -88,8 +88,15 @@
             doc = [_database documentWithID: listID];
         return doc ? [List modelForDocument: doc] : nil;
     } else {
-        // If there's no pref, choose the first list:
-        [_query waitForRows];
+        // If there's no pref, choose the first list. But first wait for the query to finish:
+        // (TODO: Change this to a call to [_query waitForRows] after CBL beta)
+        while (!_query.rows && _query.error) {
+            if (![[NSRunLoop currentRunLoop] runMode: NSDefaultRunLoopMode
+                                          beforeDate: [NSDate distantFuture]]) {
+                break;
+            }
+        }
+
         doc = _query.rows.nextRow.document;
         if (doc)
             return [List modelForDocument: doc];
