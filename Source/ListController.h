@@ -25,7 +25,7 @@
 
 @interface ListController : UIViewController <CBLUITableDelegate, UISplitViewControllerDelegate, UITextFieldDelegate>
 
--(void)useDatabase:(CBLDatabase*)theDatabase;
+- (instancetype) initWithDatabase: (CBLDatabase*)db;
 
 @property (nonatomic) IBOutlet UITableView *tableView;
 @property (nonatomic) IBOutlet CBLUITableSource* dataSource;

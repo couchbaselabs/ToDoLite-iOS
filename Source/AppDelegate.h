@@ -26,16 +26,18 @@
 
 @property (nonatomic) CBLDatabase *database;
 
-@property (nonatomic) UIWindow *window;
-@property (nonatomic) UISplitViewController* splitViewController;
-@property (nonatomic) UINavigationController *navigationController;
+/** The URL of the remote server database to replicate with.
+    Setting this property updates the database's replications for the new URL. */
+@property NSURL* syncURL;
 
-- (void) configureSync;
-
+/** Utility method to display an error alert. */
 - (void)showAlert: (NSString*)message error: (NSError*)error fatal: (BOOL)fatal;
 
 @end
 
 
+/** The singleton AppDelegate instance. */
 extern AppDelegate* gAppDelegate;
+
+/** YES if on an iPad, NO if an iPhone. */
 extern BOOL gRunningOnIPad;

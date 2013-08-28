@@ -16,10 +16,9 @@
 		27167F5913C4FA57001CC5B6 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; };
 		27167F5A13C4FA57001CC5B6 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2892E40F0DC94CBA00A64D0F /* CoreGraphics.framework */; };
 		27278E3817CBD749004ABC21 /* Default~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 27278E3717CBD749004ABC21 /* Default~ipad.png */; };
+		27278E3D17CC223F004ABC21 /* Titled.m in Sources */ = {isa = PBXBuildFile; fileRef = 27278E3C17CC223F004ABC21 /* Titled.m */; };
 		274A587517C6E66600EC8184 /* Task.m in Sources */ = {isa = PBXBuildFile; fileRef = 274A587417C6E66600EC8184 /* Task.m */; };
 		274A587817C6F22C00EC8184 /* List.m in Sources */ = {isa = PBXBuildFile; fileRef = 274A587717C6F22C00EC8184 /* List.m */; };
-		276A43C913F088B800E5743A /* ConfigViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 276A43C713F088B700E5743A /* ConfigViewController.m */; };
-		276A43CA13F088B800E5743A /* ConfigViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 276A43C813F088B700E5743A /* ConfigViewController.xib */; };
 		2783A0D6156D6A8500DC8692 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2783A0D5156D6A8500DC8692 /* CFNetwork.framework */; };
 		278E615614BA5A4B00A0B840 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 278E615514BA5A4B00A0B840 /* libsqlite3.dylib */; };
 		27962307142031E80051455D /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 27962306142031E80051455D /* Security.framework */; };
@@ -55,14 +54,14 @@
 		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		27167F6113C4FA57001CC5B6 /* ToDoLite.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ToDoLite.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		27278E3717CBD749004ABC21 /* Default~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default~ipad.png"; sourceTree = "<group>"; };
+		27278E3B17CC223F004ABC21 /* Titled.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Titled.h; sourceTree = "<group>"; };
+		27278E3C17CC223F004ABC21 /* Titled.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Titled.m; sourceTree = "<group>"; };
+		27278E3E17CD1181004ABC21 /* Schema.md */ = {isa = PBXFileReference; lastKnownFileType = text; path = Schema.md; sourceTree = "<group>"; };
 		274A587317C6E66600EC8184 /* Task.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Task.h; sourceTree = "<group>"; };
 		274A587417C6E66600EC8184 /* Task.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Task.m; sourceTree = "<group>"; };
 		274A587617C6F22C00EC8184 /* List.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = List.h; sourceTree = "<group>"; };
 		274A587717C6F22C00EC8184 /* List.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = List.m; sourceTree = "<group>"; };
 		27637C011416E78D001E30CA /* README.md */ = {isa = PBXFileReference; lastKnownFileType = text; path = README.md; sourceTree = "<group>"; };
-		276A43C613F088B700E5743A /* ConfigViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConfigViewController.h; sourceTree = "<group>"; };
-		276A43C713F088B700E5743A /* ConfigViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConfigViewController.m; sourceTree = "<group>"; };
-		276A43C813F088B700E5743A /* ConfigViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ConfigViewController.xib; sourceTree = "<group>"; };
 		2783A0D5156D6A8500DC8692 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		278E615514BA5A4B00A0B840 /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 		27962306142031E80051455D /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
@@ -132,9 +131,6 @@
 				28C286DF0D94DF7D0034E888 /* ListController.h */,
 				28C286E00D94DF7D0034E888 /* ListController.m */,
 				28F335F01007B36200424DE2 /* ListController.xib */,
-				276A43C613F088B700E5743A /* ConfigViewController.h */,
-				276A43C713F088B700E5743A /* ConfigViewController.m */,
-				276A43C813F088B700E5743A /* ConfigViewController.xib */,
 			);
 			name = UI;
 			path = Source;
@@ -175,6 +171,8 @@
 				274A587717C6F22C00EC8184 /* List.m */,
 				274A587317C6E66600EC8184 /* Task.h */,
 				274A587417C6E66600EC8184 /* Task.m */,
+				27278E3B17CC223F004ABC21 /* Titled.h */,
+				27278E3C17CC223F004ABC21 /* Titled.m */,
 			);
 			name = Model;
 			path = Source;
@@ -184,6 +182,7 @@
 			isa = PBXGroup;
 			children = (
 				27637C011416E78D001E30CA /* README.md */,
+				27278E3E17CD1181004ABC21 /* Schema.md */,
 				080E96DDFE201D6D7F000001 /* UI */,
 				274A587917C6FD1400EC8184 /* Model */,
 				29B97315FDCFA39411CA2CEA /* Other Sources */,
@@ -324,7 +323,6 @@
 				27AFCEB913E9FFAE00F00AFB /* item_background~ipad.png in Resources */,
 				27AFCEBC13EA08D700F00AFB /* background.jpg in Resources */,
 				27AFCEBD13EA08D700F00AFB /* background~ipad.jpg in Resources */,
-				276A43CA13F088B800E5743A /* ConfigViewController.xib in Resources */,
 				27E69B0017C937AA00D04BE0 /* item_background_master.png in Resources */,
 				27CDDE4D13F1D7ED002C5079 /* couchbase-mobile-icon-nameless.png in Resources */,
 				27E69AFE17C8172100D04BE0 /* MasterController_iPhone.xib in Resources */,
@@ -342,12 +340,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				274A587517C6E66600EC8184 /* Task.m in Sources */,
+				27278E3D17CC223F004ABC21 /* Titled.m in Sources */,
 				27E69AF917C7DE6900D04BE0 /* MasterController.m in Sources */,
 				27167F2513C4FA57001CC5B6 /* main.m in Sources */,
 				27167F2613C4FA57001CC5B6 /* AppDelegate.m in Sources */,
 				274A587817C6F22C00EC8184 /* List.m in Sources */,
 				27167F2713C4FA57001CC5B6 /* ListController.m in Sources */,
-				276A43C913F088B800E5743A /* ConfigViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

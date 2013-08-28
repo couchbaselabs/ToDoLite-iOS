@@ -9,7 +9,14 @@
 #import <UIKit/UIKit.h>
 @class CBLServer;
 
+
+#define kPrefServerDB @"serverDbURL"
+
+
+/** View controller that lets the user enter a URL to sync with. */
 @interface ConfigViewController : UIViewController
+
+- (instancetype) initWithURL: (NSURL*)syncURL;
 
 @property (nonatomic) IBOutlet UITextField* urlField;
 @property (nonatomic) IBOutlet UILabel* versionField;

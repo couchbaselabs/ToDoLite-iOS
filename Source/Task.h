@@ -1,25 +1,26 @@
 //
 //  Task.h
-//  CouchbaseLists
+//  ToDo Lite
 //
 //  Created by Jens Alfke on 8/22/13.
 //
 //
 
-#import <CouchbaseLite/CouchbaseLite.h>
+#import "Titled.h"
 @class List;
 
 
-/** Model object for a task item. */
-@interface Task : CBLModel
+/** Model object for a task item. (See Titled for inherited properties!) */
+@interface Task : Titled
 
-@property (copy) NSString* title;
-@property bool check;
-@property NSDate* created_at;
-@property (weak) List* listId;
-
-/** Creates a new Task in the database, with the given text. */
+/** Creates a new Task in the given list, with the given title. */
 - (instancetype) initInList: (List*)list
                   withTitle: (NSString*)title;
+
+/** Is the task checked off / completed? */
+@property bool checked;
+
+/** The List this item belongs to. */
+@property (weak) List* list_id;
 
 @end

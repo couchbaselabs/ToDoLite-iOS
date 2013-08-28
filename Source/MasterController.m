@@ -1,6 +1,6 @@
 //
 //  MasterController.m
-//  CouchbaseLists
+//  ToDo Lite
 //
 //  Created by Jens Alfke on 8/23/13.
 //
@@ -13,6 +13,7 @@
 #import <CouchbaseLite/CouchbaseLite.h>
 
 
+// User defaults key whose value is the document ID of the currently-displayed list.
 #define kPrefCurrentList @"CurrentListID"
 
 
@@ -30,26 +31,23 @@
 }
 
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+// Designated initializer.
+- (id)initWithDatabase: (CBLDatabase*)db
 {
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    NSParameterAssert(db);
+    self = [super initWithNibName: @"MasterController_iPhone" bundle: nil];
     if (self) {
-        // Custom initialization
+        _database = db;
+        _query = [List queryListsInDatabase: _database].asLiveQuery;
     }
     return self;
 }
 
 
-- (void) useDatabase:(CBLDatabase *)db {
-    _database = db;
-}
-
-
+// Called immediately after the nib loads; customizes views.
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    NSAssert(_dataSource, @"_dataSource not connected");
-    NSAssert(_database, @"db not connected");
 
     _newListButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd
                                                                    target:self
@@ -64,23 +62,24 @@
         [_tableView setBackgroundView: [[UIImageView alloc] initWithImage: bgImage]];
     }
 
-    _query = [List queryListsInDatabase: _database].asLiveQuery;
+    NSAssert(_dataSource, @"_dataSource not connected");
     _dataSource.query = _query;
     _dataSource.labelProperty = @"title";    // Document property to display in the cell label
 }
 
 
+// Called whenever the view will appear onscreen.
 - (void)viewWillAppear:(BOOL)animated {
-    NSLog(@"ViewWillAppear");//TEMP
     [super viewWillAppear: animated];
     if (!gRunningOnIPad) {
+        // On iPhone, when returning to the master view, clear the current-list pref.
         if (_initialLoadComplete)
             self.initialList = nil;
     }
 }
 
 
-// Returns the list that was showing on quit:
+// Returns the list that was last showing on quit:
 - (List*) initialList {
     CBLDocument* doc = nil;
     NSString* listID = [[NSUserDefaults standardUserDefaults] objectForKey: kPrefCurrentList];
@@ -102,29 +101,28 @@
 }
 
 
+// Stores a pref to remember which list is currently displayed, so it can be restored on launch.
 - (void) setInitialList: (List*)list {
-    //
     NSString* docID = list ? list.document.documentID : @"";
     [[NSUserDefaults standardUserDefaults] setObject: docID forKey: kPrefCurrentList];
 }
 
 
+// Returns the List object corresponding to a row in the table view.
 - (List*) listForPath: (NSIndexPath*)indexPath {
     return [_dataSource documentAtIndexPath: indexPath].modelObject;
 }
 
 
+// Returns the index of the given list in the table view, or nil if not present.
 - (NSIndexPath*) pathForList: (List*)list {
     return list ? [_dataSource indexPathForDocument: list.document] : nil;
 }
 
 
-// Select a list in the table view, and display it in the detail view
+// Selects a list in the table view, and displays it in the detail view
 - (bool) selectList: (List*)list {
-    NSIndexPath* path = [self pathForList: list];
-//    if (!path) {
-//        return false;
-    [_tableView selectRowAtIndexPath: path
+    [_tableView selectRowAtIndexPath: [self pathForList: list]
                             animated: NO
                       scrollPosition: UITableViewScrollPositionMiddle];
     [self showList: list];
@@ -132,16 +130,13 @@
 }
 
 
-// Display a list in the detail view (without changing the table selection)
+// Displays a list in the detail view (without changing the table selection)
 - (void) showList: (List*)list {
     self.initialList = list;
     if (list) {
         if (!gRunningOnIPad) {
-            if (!_listController) {
-                _listController = [[ListController alloc] initWithNibName: @"ListController"
-                                                                   bundle: nil];
-                [_listController useDatabase: _database];
-            }
+            if (!_listController)
+                _listController = [[ListController alloc] initWithDatabase: _database];
             _listController.currentList = list;
             [self.navigationController pushViewController: _listController
                                                  animated: _initialLoadComplete];
@@ -152,6 +147,7 @@
 }
 
 
+// Handles a command to create a new list, by displaying an alert to prompt for the title.
 - (IBAction) newList: (id)sender {
     UIAlertView* alert= [[UIAlertView alloc] initWithTitle: @"New To-Do List"
                                                    message: @"Title for new list:"
@@ -162,6 +158,7 @@
     [alert show];
 }
 
+// Completion routine for the new-list alert.
 - (void)alertView:(UIAlertView *)alert didDismissWithButtonIndex:(NSInteger)buttonIndex {
     if (buttonIndex > 0) {
         NSString* title = [alert textFieldAtIndex: 0].text;
@@ -173,6 +170,7 @@
     }
 }
 
+// Actually creates a new List given a title.
 - (List*) createListWithTitle: (NSString*)title {
     List* list = [[List alloc] initInDatabase: _database withTitle: title];
     NSError* error;
@@ -184,10 +182,12 @@
 }
 
 
+// Handles button command to toggle edit mode for the table view.
 - (IBAction) editLists: (id)sender {
     [self setEditing: !_tableView.editing];
 }
 
+// Sets the edit mode for the table (updating the corresponding button's state.)
 - (void) setEditing:(BOOL)editing {
     [_tableView setEditing: editing animated: YES];
 
@@ -199,7 +199,7 @@
 }
 
 
-// Delegate method called when table contents change
+// Delegate method called when the live-query results change.
 - (void)couchTableSource:(CBLUITableSource*)source
          updateFromQuery:(CBLLiveQuery*)query
             previousRows:(NSArray *)previousRows
@@ -207,11 +207,8 @@
     [_tableView reloadData];
 
     if (!_initialLoadComplete) {
-        // On initial table load, decide which row/list to select:
+        // On initial table load on launch, decide which row/list to select:
         [self selectList: self.initialList];
-//        if (!gRunningOnIPad) {
-//            [self showList: list];
-//        }
         _initialLoadComplete = YES;
     }
 }

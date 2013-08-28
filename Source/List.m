@@ -1,6 +1,6 @@
 //
 //  List.m
-//  CouchbaseLists
+//  ToDo Lite
 //
 //  Created by Jens Alfke on 8/22/13.
 //
@@ -9,59 +9,59 @@
 #import "List.h"
 #import "Task.h"
 
+
+// Note: See Schema.md for the document schema we're using.
+
+
+#define kListDocType @"list"
+
+
 @implementation List
 
 
-@dynamic title, created_at;
++ (NSString*) docType {
+    return kListDocType;
+}
 
 
+// Returns a query for all the lists in a database.
 + (CBLQuery*) queryListsInDatabase: (CBLDatabase*)db {
     CBLView* view = [db viewNamed: @"lists"];
     if (!view.mapBlock) {
+        // Register the map function, the first time we access the view:
         [view setMapBlock: MAPBLOCK({
-            if ([doc[@"type"] isEqualToString: @"list"])
+            if ([doc[@"type"] isEqualToString:kListDocType])
                 emit(doc[@"title"], nil);
-        }) reduceBlock: nil version: @"1"];
+        }) reduceBlock: nil version: @"1"]; // bump version any time you change the MAPBLOCK body!
     }
     return [view query];
 }
 
 
-- (instancetype) initInDatabase: (CBLDatabase*)db
-                      withTitle: (NSString*)title
-{
-    self = [super initWithNewDocumentInDatabase: db];
-    if (self) {
-        [self setValue: @"list" ofProperty: @"type"];
-        self.title = title;
-        self.created_at = [NSDate date];
-    }
-    return self;
-}
-
-
-- (NSString*) description {
-    return [NSString stringWithFormat: @"%@[%@ '%@']",
-            self.class, self.document.abbreviatedID, self.title];
-}
-
-
+// Creates a new task.
 - (Task*) addTaskWithTitle: (NSString*)title {
     return [[Task alloc] initInList: self withTitle: title];
 }
 
 
+// Returns a query for this list's tasks, in reverse chronological order.
 - (CBLQuery*) queryTasks {
     CBLView* view = [self.document.database viewNamed: @"tasksByDate"];
     if (!view.mapBlock) {
+        // On first query after launch, register the map function:
+        NSString* const kTaskDocType = [Task docType];
         [view setMapBlock: MAPBLOCK({
-            if ([doc[@"type"] isEqualToString: @"item"]) {
+            if ([doc[@"type"] isEqualToString: kTaskDocType]) {
                 id date = doc[@"created_at"];
-                NSString* listID = doc[@"listId"];
+                NSString* listID = doc[@"list_id"];
                 emit(@[listID, date], doc);
             }
-        }) reduceBlock: nil version: @"3"];
+        }) reduceBlock: nil version: @"4"]; // bump version any time you change the MAPBLOCK body!
     }
+    
+    // Configure the query. Since it's in descending order, the startKey is the maximum key,
+    // while the endKey is the _minimum_ key. (The empty object @{} is a placeholder that's
+    // greater than any actual value.) Got that?
     CBLQuery* query = [view query];
     query.descending = YES;
     NSString* myListId = self.document.documentID;
@@ -69,7 +69,6 @@
     query.endKey = @[myListId];
     return query;
 }
-
 
 
 @end

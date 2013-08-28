@@ -1,6 +1,6 @@
 //
 //  MasterController.h
-//  CouchbaseLists
+//  ToDo Lite
 //
 //  Created by Jens Alfke on 8/23/13.
 //
@@ -16,7 +16,7 @@
 
 @property ListController* listController;
 
-- (void) useDatabase: (CBLDatabase*)db;
+- (id)initWithDatabase: (CBLDatabase*)db;
 
 @property (nonatomic) IBOutlet UITableView *tableView;
 @property (nonatomic) IBOutlet CBLUITableSource* dataSource;

@@ -44,10 +44,37 @@
 }
 
 
-#pragma mark - View lifecycle
+// Designated initializer.
+- (instancetype) initWithDatabase: (CBLDatabase*)db {
+    NSParameterAssert(db);
+    self = [super init];
+    if (self) {
+        _database = db;
+
+        // Register a validation function requiring parseable dates:
+        [_database defineValidation: @"created_at" asBlock: VALIDATIONBLOCK({
+            if (newRevision.isDeleted)
+                return YES;
+            id date = [newRevision.properties objectForKey: @"created_at"];
+            if (date && ! [CBLJSON dateWithJSONObject: date]) {
+                context.errorMessage = [@"invalid date " stringByAppendingString: [date description]];
+                return NO;
+            }
+            return YES;
+        })];
+
+        [[_database modelFactory] registerClass: [List class] forDocumentType: @"list"];
+        [[_database modelFactory] registerClass: [Task class] forDocumentType: @"item"];
+}
+    return self;
+}
 
 
-- (void)viewDidLoad {
+#pragma mark - VIEW LIFECYCLE:
+
+
+// Called immediately after the nib loads; customizes views.
+- (void) viewDidLoad {
     [super viewDidLoad];
 
     UIBarButtonItem* cleanButton = [[UIBarButtonItem alloc] initWithTitle: @"Clean"
@@ -59,13 +86,14 @@
     [self.tableView setBackgroundView:nil];
     [self.tableView setBackgroundColor:[UIColor clearColor]];
 
-    NSAssert(_database!=nil, @"Not hooked up to database yet");
-
     self.dataSource.labelProperty = @"title";    // Document property to display in the cell label
+
+    // Start up the CBL query that computes the table rows:
     [self updateQuery];
 }
 
 
+// Subroutine to inset a view's left/right edges to a specific margin from the parent view.
 static void setViewMargin(UIView* view, CGFloat margin) {
     CGRect superBounds = view.superview.bounds;
     CGRect frame = view.frame;
@@ -75,6 +103,7 @@ static void setViewMargin(UIView* view, CGFloat margin) {
 }
 
 
+// Called after the view has laid out its subviews.
 - (void) viewDidLayoutSubviews {
     if(gRunningOnIPad) {
         // Adjust left/right margins of New Item text field when nib is scaled to iPad:
@@ -84,41 +113,25 @@ static void setViewMargin(UIView* view, CGFloat margin) {
 }
 
 
-- (void)useDatabase:(CBLDatabase*)theDatabase {
-    self.database = theDatabase;
-
-    // Register a validation function requiring parseable dates:
-    [theDatabase defineValidation: @"created_at" asBlock: VALIDATIONBLOCK({
-        if (newRevision.isDeleted)
-            return YES;
-        id date = [newRevision.properties objectForKey: @"created_at"];
-        if (date && ! [CBLJSON dateWithJSONObject: date]) {
-            context.errorMessage = [@"invalid date " stringByAppendingString: [date description]];
-            return NO;
-        }
-        return YES;
-    })];
-
-    [[_database modelFactory] registerClass: [List class] forDocumentType: @"list"];
-    [[_database modelFactory] registerClass: [Task class] forDocumentType: @"item"];
-}
-
-
+// Changes which List is being displayed.
 - (void) setCurrentList:(List *)list {
     if (list == _currentList)
         return;
     _currentList = list;
     [self updateQuery];
 
+    // In portrait-mode iPad UI, dismiss the master list popover now:
     if (self.masterPopoverController != nil) {
         [self.masterPopoverController dismissPopoverAnimated:YES];
     }
 }
 
 
+// Recreates the CBLQuery that drives the table view, based on the current List.
 - (void) updateQuery {
     if (_dataSource)
         _dataSource.query = [[_currentList queryTasks] asLiveQuery];
+    // Also set the controller's title:
     self.title = _currentList.title;
 }
 
@@ -126,12 +139,13 @@ static void setViewMargin(UIView* view, CGFloat margin) {
 #pragma mark - TABLE DELEGATE
 
 
+// Customizes the height of the table rows.
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     return 50;
 }
 
 
-// Customize the appearance of table view cells.
+// Customizes the appearance of table view cells.
 - (void)couchTableSource:(CBLUITableSource*)source
              willUseCell:(UITableViewCell*)cell
                   forRow:(CBLQueryRow*)row
@@ -150,9 +164,9 @@ static void setViewMargin(UIView* view, CGFloat margin) {
     textLabel.adjustsFontSizeToFitWidth = YES;
 
     // Configure the cell contents.
-    // cell.textLabel.text is already set, thanks to setting up labelProperty above.
+    // (cell.textLabel.text is already set, thanks to setting up labelProperty above.)
     Task* task = [Task modelForDocument: row.document];
-    bool checked = task.check;
+    bool checked = task.checked;
     cell.textLabel.textColor = checked ? [UIColor grayColor]
                                        : [UIColor blackColor];
     cell.imageView.image = [UIImage imageNamed:
@@ -161,12 +175,13 @@ static void setViewMargin(UIView* view, CGFloat margin) {
 }
 
 
+// Called when a row is selected/touched.
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     CBLQueryRow *row = [self.dataSource rowAtIndex:indexPath.row];
     Task* task = [Task modelForDocument: row.document];
 
     // Toggle the document's 'checked' property:
-    task.check = !task.check;
+    task.checked = !task.checked;
 
     // Save changes:
     NSError* error;
@@ -179,18 +194,20 @@ static void setViewMargin(UIView* view, CGFloat margin) {
 #pragma mark - EDITING
 
 
+// Returns an array of the Tasks whose 'completed' property is true (i.e. the checkbox is checked.)
 - (NSArray*)checkedDocuments {
-    // If there were a whole lot of documents, this would be more efficient with a custom query.
+    // If there were a whole lot of documents, this would be more efficient with a custom view.
     NSMutableArray* checked = [NSMutableArray array];
     for (CBLQueryRow* row in self.dataSource.rows) {
         Task* task = [Task modelForDocument: row.document];
-        if (task.check)
+        if (task.checked)
             [checked addObject: task.document];
     }
     return checked;
 }
 
 
+// Handler for the "Clean" command: deletes all the checked items.
 - (IBAction)deleteCheckedItems:(id)sender {
     NSUInteger numChecked = self.checkedDocuments.count;
     if (numChecked == 0)
@@ -204,13 +221,17 @@ static void setViewMargin(UIView* view, CGFloat margin) {
                                           cancelButtonTitle: @"Cancel"
                                           otherButtonTitles: @"Remove", nil];
     [alert show];
+    // Now wait for the user to dismiss the alert...
 }
 
 
+// Called when the Clean alert is dismissed.
 - (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
     if (buttonIndex == 0)
         return;
     NSError* error;
+    // Do the deletion via the CBLUITableDataSource, not the CBLDatabase, so that the data source
+    // can animate it:
     if (![_dataSource deleteDocuments: self.checkedDocuments error: &error]) {
         [gAppDelegate showAlert: @"Failed to delete items" error: error fatal: NO];
     }
@@ -219,6 +240,7 @@ static void setViewMargin(UIView* view, CGFloat margin) {
 #pragma mark - TEXT FIELD
 
 
+// Called when the text field's Return key is tapped.
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
 	[textField resignFirstResponder];
     [addItemBackground setImage:[UIImage imageNamed:@"textfield___inactive.png"]];
@@ -227,16 +249,18 @@ static void setViewMargin(UIView* view, CGFloat margin) {
 }
 
 
+// Called when the text field is initially tapped and the keyboard appears.
 - (void)textFieldDidBeginEditing:(UITextField *)textField {
     [addItemBackground setImage:[UIImage imageNamed:@"textfield___active.png"]];
 }
 
 
+// Called when text entry is finished in the text field.
 -(void)textFieldDidEndEditing:(UITextField *)textField {
     // Get the name of the item from the text field:
 	NSString *title = addItemTextField.text;
     if (title.length == 0) {
-        return;
+        return;  // Nothing entered
     }
     [addItemTextField setText:nil];
 
@@ -253,21 +277,26 @@ static void setViewMargin(UIView* view, CGFloat margin) {
 #pragma mark - SPLIT VIEW:
 
 
+// Called when switching from iPad landscape to portrait mode, i.e. the master controller is moving
+// from the main window to a popover.
 - (void)splitViewController:(UISplitViewController *)splitController
      willHideViewController:(UIViewController *)viewController
           withBarButtonItem:(UIBarButtonItem *)barButtonItem
        forPopoverController:(UIPopoverController *)popoverController
 {
+    NSLog(@"---- willHideViewController");
     barButtonItem.title = NSLocalizedString(@"Lists", @"Lists");
     [self.navigationItem setLeftBarButtonItem:barButtonItem animated:YES];
     self.masterPopoverController = popoverController;
 }
 
+// Called when switching from iPad portait to landscape mode, i.e. the master controller is moving
+// from a popover to the main window.
 - (void)splitViewController:(UISplitViewController *)splitController
      willShowViewController:(UIViewController *)viewController
   invalidatingBarButtonItem:(UIBarButtonItem *)barButtonItem
 {
-    // Called when the view is shown again in the split view, invalidating the button and popover controller.
+    NSLog(@"---- willShowViewController");
     [self.navigationItem setLeftBarButtonItem:nil animated:YES];
     self.masterPopoverController = nil;
 }
