@@ -8,6 +8,7 @@
 
 #import "List.h"
 #import "Task.h"
+#import "Profile.h"
 
 
 // Note: See Schema.md for the document schema we're using.
@@ -18,6 +19,7 @@
 
 @implementation List
 
+@dynamic owner, members;
 
 + (NSString*) docType {
     return kListDocType;
@@ -34,7 +36,22 @@
                 emit(doc[@"title"], nil);
         }) reduceBlock: nil version: @"1"]; // bump version any time you change the MAPBLOCK body!
     }
-    return [view query];
+    return [view createQuery];
+}
+
++ (void) updateAllListsInDatabase: (CBLDatabase*)database withOwner: (Profile*)owner error: (NSError**)e {
+    CBLQueryEnumerator *myLists = [[List queryListsInDatabase:database] rows:e];
+    if (*e) {
+        return;
+    }
+    for (CBLQueryRow* row in myLists) {
+        List* list = [List modelForDocument: row.document];
+        list.owner = owner;
+        [list save:e]; // todo error handling
+        if (*e) {
+            return;
+        }
+    }
 }
 
 
@@ -62,7 +79,7 @@
     // Configure the query. Since it's in descending order, the startKey is the maximum key,
     // while the endKey is the _minimum_ key. (The empty object @{} is a placeholder that's
     // greater than any actual value.) Got that?
-    CBLQuery* query = [view query];
+    CBLQuery* query = [view createQuery];
     query.descending = YES;
     NSString* myListId = self.document.documentID;
     query.startKey = @[myListId, @{}];
