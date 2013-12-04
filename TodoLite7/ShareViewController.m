@@ -45,6 +45,7 @@
 	// Do any additional setup after loading the view.
     app = [[UIApplication sharedApplication] delegate];
     database = app.database;
+    NSAssert(app.cblSync.userID, @"no userID");
     myDocId = [@"p:" stringByAppendingString:app.cblSync.userID];
 
     [self configureView];

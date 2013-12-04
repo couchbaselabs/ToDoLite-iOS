@@ -11,6 +11,8 @@
 #import <Social/Social.h>
 #import <CouchbaseLite/CouchbaseLite.h>
 
+//#import "CBLSyncAuthenticator.h"
+
 @class CBLSyncManager;
 
 #pragma mark - Authenticators
@@ -18,18 +20,16 @@
 
 // base Authenticator, you can inherit from this to
 // create a custom Authenticator
-//@interface CBLSyncAuthenticator : NSObject
-//
-//@end
-
-// example Facebook Authenticator
-@interface CBLFacebookAuthenticator : NSObject
+@protocol CBLSyncAuthenticator <NSObject>
 @property (readwrite) CBLSyncManager *syncManager;
-@property (readonly) NSString *facebookAppID;
-- (instancetype) initWithAppID:(NSString *)facebookAppID;
-
 -(void) getCredentials: (void (^)(NSString *userID, NSDictionary *userData))block;
 -(void) registerCredentialsWithReplications: (NSArray *)repls;
+@end
+
+// example Facebook Authenticator
+@interface CBLFacebookAuthenticator : NSObject<CBLSyncAuthenticator>
+@property (readonly) NSString *facebookAppID;
+- (instancetype) initWithAppID:(NSString *)facebookAppID;
 @end
 
 #pragma mark - CBLSyncManager
@@ -46,10 +46,10 @@
 @property (readonly) CBLDatabase *database;
 @property (readonly) NSString *userID;
 @property (readonly) NSURL *remoteURL;
-@property (readwrite, nonatomic) CBLFacebookAuthenticator *authenticator;
+@property (readwrite, nonatomic) NSObject<CBLSyncAuthenticator> *authenticator;
 
 //// setup the facebook authenticator
-- (void)setAuthenticator:(CBLFacebookAuthenticator *)authenticator;
+- (void)setAuthenticator:(NSObject<CBLSyncAuthenticator> *)authenticator;
 
 //- (void)useFacebookAppID: (NSString *)myAppID;
 

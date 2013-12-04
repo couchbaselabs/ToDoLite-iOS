@@ -72,7 +72,7 @@
     onSyncStartedBlocks = [onSyncStartedBlocks arrayByAddingObject:block];
 }
 
-- (void)setAuthenticator:(CBLFacebookAuthenticator *)authenticator {
+- (void)setAuthenticator:(NSObject<CBLSyncAuthenticator> *)authenticator {
     _authenticator = authenticator;
     _authenticator.syncManager = self;
 }
@@ -149,6 +149,9 @@
 @end
 
 @implementation CBLFacebookAuthenticator
+
+@synthesize syncManager=_syncManager;
+
 - (instancetype) initWithAppID:(NSString *)appID {
     self = [super init];
     if (self) {

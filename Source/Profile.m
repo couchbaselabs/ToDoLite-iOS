@@ -29,6 +29,7 @@
 }
 
 + (instancetype) profileInDatabase: (CBLDatabase*)db forUserID: (NSString*)userID {
+    NSParameterAssert(userID);
     NSString* profileDocId = [@"p:" stringByAppendingString:userID];
     CBLDocument *doc;
     if (profileDocId.length > 0)
