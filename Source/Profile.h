@@ -13,11 +13,11 @@
 /** Returns a query for all the profiles in a database. */
 + (CBLQuery*) queryProfilesInDatabase: (CBLDatabase*)db;
 
-+ (instancetype) currentUserProfile:(CBLDatabase*)db;
++ (instancetype) profileInDatabase: (CBLDatabase*)db forUserID: (NSString*)userID;
 
 - (instancetype) initCurrentUserProfileInDatabase: (CBLDatabase*)database
                        withName: (NSString*)name
-                       andUserId: (NSString*)userId;
+                       andUserID: (NSString*)userId;
 
 /** The readwrite full name. */
 @property (readwrite) NSString* name;

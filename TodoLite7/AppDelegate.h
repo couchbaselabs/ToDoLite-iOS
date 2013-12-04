@@ -9,14 +9,14 @@
 #import <UIKit/UIKit.h>
 #import <Accounts/Accounts.h>
 #import <CouchbaseLite/CouchbaseLite.h>
-#import "CBLFacebookSync.h"
+#import "CBLSyncManager.h"
 
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
 @property (strong, nonatomic) CBLDatabase *database;
-@property (strong, nonatomic) CBLFacebookSync *cblSync;
+@property (strong, nonatomic) CBLSyncManager *cblSync;
 
 - (void)loginAndSync: (void (^)())complete;
 

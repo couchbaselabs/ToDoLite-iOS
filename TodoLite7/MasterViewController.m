@@ -82,7 +82,7 @@
         NSString* title = [alert textFieldAtIndex: 0].text;
         if (title.length > 0) {
             List* list = [self createListWithTitle: title];
-            Profile *myUser = [Profile currentUserProfile: database];
+            Profile *myUser = [Profile profileInDatabase: database forUserID:app.cblSync.userID];
             if (myUser) {
                 NSLog(@"list owner %@", myUser);
                 list.owner = myUser;
@@ -151,6 +151,7 @@
 }
 */
 
+//todo call this from the table view
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     NSLog(@"didSelectRowAtIndexPath");

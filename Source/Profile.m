@@ -28,24 +28,19 @@
     return [view createQuery];
 }
 
-+ (instancetype) currentUserProfile: (CBLDatabase*)db {
-    NSString* userId = [[NSUserDefaults standardUserDefaults] objectForKey: @"CBLFBUserID"];
-    if (userId) {
-        NSString* profileDocId = [@"p:" stringByAppendingString:userId];
-        CBLDocument *doc;
-        if (profileDocId.length > 0)
-            doc = [db documentWithID: profileDocId];
-        return doc ? [Profile modelForDocument: doc] : nil;
-    } else {
-        return nil;
-    }
++ (instancetype) profileInDatabase: (CBLDatabase*)db forUserID: (NSString*)userID {
+    NSString* profileDocId = [@"p:" stringByAppendingString:userID];
+    CBLDocument *doc;
+    if (profileDocId.length > 0)
+        doc = [db documentWithID: profileDocId];
+    return doc ? [Profile modelForDocument: doc] : nil;
 }
 
 
 
 - (instancetype) initCurrentUserProfileInDatabase: (CBLDatabase*)database
                        withName: (NSString*)name
-                       andUserId: (NSString*)userId
+                       andUserID: (NSString*)userId
 {
     NSParameterAssert(name);
     NSParameterAssert(userId);

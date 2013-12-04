@@ -37,8 +37,8 @@
 		79E2087D1835E7C7006C0EEF /* ShareViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 79E2087B1835E7C7006C0EEF /* ShareViewController.m */; };
 		79E2087F18367402006C0EEF /* Accounts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79E2087E18367402006C0EEF /* Accounts.framework */; };
 		79E2088118368B2C006C0EEF /* Social.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79E2088018368B2C006C0EEF /* Social.framework */; };
-		79E208881838419E006C0EEF /* CBLFacebookSync.m in Sources */ = {isa = PBXBuildFile; fileRef = 79E208871838419E006C0EEF /* CBLFacebookSync.m */; };
-		79E208891838419E006C0EEF /* CBLFacebookSync.m in Sources */ = {isa = PBXBuildFile; fileRef = 79E208871838419E006C0EEF /* CBLFacebookSync.m */; };
+		79E208881838419E006C0EEF /* CBLSyncManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 79E208871838419E006C0EEF /* CBLSyncManager.m */; };
+		79E208891838419E006C0EEF /* CBLSyncManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 79E208871838419E006C0EEF /* CBLSyncManager.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -92,8 +92,8 @@
 		79E2087B1835E7C7006C0EEF /* ShareViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShareViewController.m; sourceTree = "<group>"; };
 		79E2087E18367402006C0EEF /* Accounts.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accounts.framework; path = System/Library/Frameworks/Accounts.framework; sourceTree = SDKROOT; };
 		79E2088018368B2C006C0EEF /* Social.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Social.framework; path = System/Library/Frameworks/Social.framework; sourceTree = SDKROOT; };
-		79E208861838419E006C0EEF /* CBLFacebookSync.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CBLFacebookSync.h; sourceTree = "<group>"; };
-		79E208871838419E006C0EEF /* CBLFacebookSync.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CBLFacebookSync.m; sourceTree = "<group>"; };
+		79E208861838419E006C0EEF /* CBLSyncManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CBLSyncManager.h; sourceTree = "<group>"; };
+		79E208871838419E006C0EEF /* CBLSyncManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CBLSyncManager.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -172,8 +172,8 @@
 			children = (
 				79E2083418353887006C0EEF /* AppDelegate.h */,
 				79E2083518353887006C0EEF /* AppDelegate.m */,
-				79E208861838419E006C0EEF /* CBLFacebookSync.h */,
-				79E208871838419E006C0EEF /* CBLFacebookSync.m */,
+				79E208861838419E006C0EEF /* CBLSyncManager.h */,
+				79E208871838419E006C0EEF /* CBLSyncManager.m */,
 				79E2083718353887006C0EEF /* Main_iPhone.storyboard */,
 				79E2083A18353887006C0EEF /* Main_iPad.storyboard */,
 				79E2087A1835E7C7006C0EEF /* ShareViewController.h */,
@@ -342,7 +342,7 @@
 				79E2084218353887006C0EEF /* DetailViewController.m in Sources */,
 				7945BCE8184D2E7700F1014A /* Titled.m in Sources */,
 				7945BCE7184D2E7700F1014A /* Task.m in Sources */,
-				79E208881838419E006C0EEF /* CBLFacebookSync.m in Sources */,
+				79E208881838419E006C0EEF /* CBLSyncManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -351,7 +351,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				79E2085718353887006C0EEF /* TodoLite7Tests.m in Sources */,
-				79E208891838419E006C0EEF /* CBLFacebookSync.m in Sources */,
+				79E208891838419E006C0EEF /* CBLSyncManager.m in Sources */,
 				79E2087D1835E7C7006C0EEF /* ShareViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

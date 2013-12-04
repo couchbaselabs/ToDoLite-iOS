@@ -9,7 +9,7 @@
 #import "AppDelegate.h"
 #import <Social/Social.h>
 #import <CouchbaseLite/CouchbaseLite.h>
-#import "CBLFacebookSync.h"
+#import "CBLSyncManager.h"
 #import "List.h"
 #import "Task.h"
 #import "Profile.h"
@@ -38,9 +38,8 @@
     [[self.database modelFactory] registerClass: [List class] forDocumentType: @"list"];
     [[self.database modelFactory] registerClass: [Task class] forDocumentType: @"item"];
     
-//    NSString* userID = [[NSUserDefaults standardUserDefaults] objectForKey: @"CBLFBUserID"];
-
-    [self syncIfLoggedIn];
+    // Configure sync and trigger it if the user is already logged in.
+    [self setupCBLSync];
 
     return YES;
 }
@@ -74,31 +73,46 @@
 
 #pragma mark - Sync
 
-- (void) syncIfLoggedIn {
-    if (_cblSync) return;
-//    this one should not set cblsync unless the user is logged in
-    CBLFacebookSync *maybe_cblSync = [[CBLFacebookSync alloc] initSyncForDatabase:_database withURL:[NSURL URLWithString:kSyncUrl] usingFacebookAppID:kFBAppId];
-    if (maybe_cblSync.userID) {
-        _cblSync = maybe_cblSync;
+- (void) setupCBLSync {
+    _cblSync = [[CBLSyncManager alloc] initSyncForDatabase:_database withURL:[NSURL URLWithString:kSyncUrl]];
+    
+    // Tell the Sync Manager to use Facebook for login.
+    _cblSync.authenticator = [[CBLFacebookAuthenticator alloc] initWithAppID:kFBAppId];
+
+    if (_cblSync.userID) {
         [_cblSync start];
+    } else {
+        // Application callback to create the user profile.
+        [_cblSync beforeFirstSync:^(NSString *userID, NSDictionary *userData,  NSError **outError) {
+            // This is a first run, setup the profile but don't save it yet.
+            Profile *myProfile = [[Profile alloc] initCurrentUserProfileInDatabase:self.database withName:userData[@"name"] andUserID:userID];
+            
+            // Now tag all all lists created before the user logged in,
+            // with the userID.
+            
+            [List updateAllListsInDatabase:self.database withOwner:myProfile error:outError];
+            
+            // Sync doesn't start until after this block completes, so
+            // all this data will be tagged.
+            if (!outError) {
+                [myProfile save:outError];
+            }
+        }];
     }
+    
+
 }
 
+
 - (void)loginAndSync: (void (^)())complete {
-    if (_cblSync && _cblSync.userID) {
+    if (_cblSync.userID) {
         complete();
         return;
     }
-    _cblSync = [[CBLFacebookSync alloc] initSyncForDatabase:_database withURL:[NSURL URLWithString:kSyncUrl] usingFacebookAppID:kFBAppId];
-    [_cblSync onUserData:^(NSString *userID, NSDictionary *userData) {
-        Profile *myProfile = [[Profile alloc] initCurrentUserProfileInDatabase:self.database withName:userData[@"name"] andUserId:userID];
-        NSError *e;
-        [List updateAllListsInDatabase:self.database withOwner:myProfile error:&e];
-        if (!e) {
-            [myProfile save:&e];
-        }
+    [_cblSync beforeFirstSync:^(NSString *userID, NSDictionary *userData, NSError **outError) {
+//        todo eventually we want to move to a more transparent model where the sync
+        complete();
     }];
-    [_cblSync onSyncStarted:complete];
     [_cblSync start];
 }
 
