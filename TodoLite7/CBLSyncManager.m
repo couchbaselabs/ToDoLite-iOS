@@ -116,10 +116,60 @@
     push = [_database replicationToURL:_remoteURL];
     push.continuous = YES;
 //    push.persistent = YES;
+
+    [self listenForReplicationEvents: push];
+    [self listenForReplicationEvents: pull];
     
     [_authenticator registerCredentialsWithReplications: @[pull, push]];
 }
 
+- (void) listenForReplicationEvents: (CBLReplication*) repl {
+    [[NSNotificationCenter defaultCenter] addObserver: self
+                                             selector: @selector(replicationProgress:)
+                                                 name: kCBLReplicationChangeNotification
+                                               object: repl];
+}
+
+
+- (void) replicationProgress: (NSNotificationCenter*)n {
+    bool active = false;
+    unsigned completed = 0, total = 0;
+    CBLReplicationMode mode = kCBLReplicationStopped;
+    NSError* error = nil;
+    for (CBLReplication* repl in @[pull, push]) {
+        mode = MAX(mode, repl.mode);
+        if (!error)
+            error = repl.error;
+        if (repl.mode == kCBLReplicationActive) {
+            active = true;
+            completed += repl.completedChangesCount;
+            total += repl.changesCount;
+        }
+    }
+    
+    if (error != _error && error.code == 401) {
+        // Auth needed (or auth is incorrect), ask the _authenticator to get new credentials.
+        [_authenticator getCredentials:^(NSString *newUserID, NSDictionary *userData) {
+//            todo this should call our onSyncAuthError callback
+            NSAssert2([newUserID isEqualToString:_userID], @"can't change userID from %@ to %@, need to reinstall", _userID,  newUserID);
+        }];
+    }
+    
+    if (active != _active || completed != _completed || total != _total || mode != _mode
+        || error != _error) {
+        _active = active;
+        _completed = completed;
+        _total = total;
+        _progress = (completed / (float)MAX(total, 1u));
+        _mode = mode;
+        _error = error;
+        NSLog(@"SYNCMGR: active=%d; mode=%d; %u/%u; %@",
+              active, mode, completed, total, error.localizedDescription); //FIX: temporary logging
+//        [[NSNotificationCenter defaultCenter]
+//         postNotificationName: SyncManagerStateChangedNotification
+//         object: self];
+    }
+}
 
 - (void)startSync {
     //    todo listen for sync errors
