@@ -80,9 +80,11 @@
     _cblSync.authenticator = [[CBLFacebookAuthenticator alloc] initWithAppID:kFBAppId];
 
     if (_cblSync.userID) {
+//        we are logged in, go ahead and sync
         [_cblSync start];
     } else {
         // Application callback to create the user profile.
+        // this will be triggered after we call [_cblSync start]
         [_cblSync beforeFirstSync:^(NSString *userID, NSDictionary *userData,  NSError **outError) {
             // This is a first run, setup the profile but don't save it yet.
             Profile *myProfile = [[Profile alloc] initCurrentUserProfileInDatabase:self.database withName:userData[@"name"] andUserID:userID];
@@ -99,21 +101,17 @@
             }
         }];
     }
-    
-
 }
-
 
 - (void)loginAndSync: (void (^)())complete {
     if (_cblSync.userID) {
         complete();
-        return;
+    } else {
+        [_cblSync beforeFirstSync:^(NSString *userID, NSDictionary *userData, NSError **outError) {
+            complete();
+        }];
+        [_cblSync start];
     }
-    [_cblSync beforeFirstSync:^(NSString *userID, NSDictionary *userData, NSError **outError) {
-//        todo eventually we want to move to a more transparent model where the sync
-        complete();
-    }];
-    [_cblSync start];
 }
 
 @end
