@@ -82,13 +82,10 @@
         NSString* title = [alert textFieldAtIndex: 0].text;
         if (title.length > 0) {
             List* list = [self createListWithTitle: title];
-            Profile *myUser = [Profile profileInDatabase: database forUserID:app.cblSync.userID];
-            if (myUser) {
-                NSLog(@"list owner %@", myUser);
-                list.owner = myUser;
-            }
-//            if (list)
+
+            if (list) {
 //                [self showList: list];
+            }
         }
     }
 }
@@ -96,6 +93,13 @@
 // Actually creates a new List given a title.
 - (List*) createListWithTitle: (NSString*)title {
     List* list = [[List alloc] initInDatabase: database withTitle: title];
+    
+    if (app.cblSync.userID) {
+        NSLog(@"list owner %@", app.cblSync.userID);
+        Profile *myUser = [Profile profileInDatabase: database forUserID:app.cblSync.userID];
+        list.owner = myUser;
+    }
+    
     NSError* error;
     
     if (![list save: &error]) {

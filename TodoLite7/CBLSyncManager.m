@@ -285,9 +285,21 @@
          } else {
              //Fail gracefully...
              NSLog(@"error getting permission %@",e);
-             //             todo should alert to tell the user to go to settings
+
+             [self performSelectorOnMainThread:@selector(showFacebookAlert) withObject:nil waitUntilDone:NO];
+
          }
      }];
+}
+
+-(void) showFacebookAlert {
+    UIAlertView* alert= [[UIAlertView alloc] initWithTitle: @"No Facebook Account"
+                                                   message: @"Please log into your Facebook account in Settings."
+                                                  delegate: nil
+                                         cancelButtonTitle: @"OK"
+                                         otherButtonTitles: nil];
+    alert.alertViewStyle = UIAlertViewStyleDefault;
+    [alert show];
 }
 
 
