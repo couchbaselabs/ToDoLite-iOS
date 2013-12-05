@@ -134,10 +134,10 @@
 - (void) replicationProgress: (NSNotificationCenter*)n {
     bool active = false;
     unsigned completed = 0, total = 0;
-    CBLReplicationStatus mode = kCBLReplicationStopped;
+    CBLReplicationStatus status = kCBLReplicationStopped;
     NSError* error = nil;
     for (CBLReplication* repl in @[pull, push]) {
-        mode = MAX(mode, repl.status);
+        status = MAX(status, repl.status);
         if (!error)
             error = repl.error;
         if (repl.status == kCBLReplicationActive) {
@@ -155,16 +155,16 @@
         }];
     }
     
-    if (active != _active || completed != _completed || total != _total || mode != _mode
+    if (active != _active || completed != _completed || total != _total || status != _status
         || error != _error) {
         _active = active;
         _completed = completed;
         _total = total;
         _progress = (completed / (float)MAX(total, 1u));
-        _mode = mode;
+        _status = status;
         _error = error;
-        NSLog(@"SYNCMGR: active=%d; mode=%d; %u/%u; %@",
-              active, mode, completed, total, error.localizedDescription); //FIX: temporary logging
+        NSLog(@"SYNCMGR: active=%d; status=%d; %u/%u; %@",
+              active, status, completed, total, error.localizedDescription); //FIX: temporary logging
 //        [[NSNotificationCenter defaultCenter]
 //         postNotificationName: SyncManagerStateChangedNotification
 //         object: self];
