@@ -485,8 +485,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					/Users/jchris/code/cb/mobile/TodoLite7,
-					/Users/jchris/code/cb/mobile/TodoLiteNew/Frameworks,
+					"$(SRCROOT)/Frameworks",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TodoLite7/ToDoLite-Prefix.pch";
@@ -508,8 +507,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					/Users/jchris/code/cb/mobile/TodoLite7,
-					/Users/jchris/code/cb/mobile/TodoLiteNew/Frameworks,
+					"$(SRCROOT)/Frameworks",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TodoLite7/ToDoLite-Prefix.pch";
