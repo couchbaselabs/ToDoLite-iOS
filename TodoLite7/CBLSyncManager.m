@@ -134,13 +134,13 @@
 - (void) replicationProgress: (NSNotificationCenter*)n {
     bool active = false;
     unsigned completed = 0, total = 0;
-    CBLReplicationMode mode = kCBLReplicationStopped;
+    CBLReplicationStatus mode = kCBLReplicationStopped;
     NSError* error = nil;
     for (CBLReplication* repl in @[pull, push]) {
-        mode = MAX(mode, repl.mode);
+        mode = MAX(mode, repl.status);
         if (!error)
             error = repl.error;
-        if (repl.mode == kCBLReplicationActive) {
+        if (repl.status == kCBLReplicationActive) {
             active = true;
             completed += repl.completedChangesCount;
             total += repl.changesCount;

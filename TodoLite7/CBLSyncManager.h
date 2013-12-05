@@ -71,7 +71,7 @@
 @property (nonatomic, readonly) unsigned completed, total;
 @property (nonatomic, readonly) float progress;
 @property (nonatomic, readonly) bool active;
-@property (nonatomic, readonly) CBLReplicationMode mode;
+@property (nonatomic, readonly) CBLReplicationStatus mode;
 @property (nonatomic, readonly) NSError* error;
 
 
