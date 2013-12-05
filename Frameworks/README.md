@@ -1,0 +1,1 @@
+Copy CouchbaseLite.framework here
