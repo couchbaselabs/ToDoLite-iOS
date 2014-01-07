@@ -40,7 +40,7 @@
 }
 
 + (void) updateAllListsInDatabase: (CBLDatabase*)database withOwner: (Profile*)owner error: (NSError**)e {
-    CBLQueryEnumerator *myLists = [[List queryListsInDatabase:database] rows:e];
+    CBLQueryEnumerator *myLists = [[List queryListsInDatabase:database] run:e];
     if (*e) {
         return;
     }
