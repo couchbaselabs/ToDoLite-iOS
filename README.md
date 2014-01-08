@@ -37,6 +37,8 @@ That's it! Now that you're set up, you can just use the Run command again after 
 
 In the AppDelegate.m file, there is a constant defined `kSyncUrl` -- by default when you log into the app via Facebook, it will sync with this test database hosted by Couchbase. If you deploy you own Sync Gateway, you may want to change this URL to point at your server.
 
+If you run your own sync gateway, the sync function source code we use is available in the `sync-gateway-config.json` file in the root of this repository.
+
 ## To add the framework to your existing Xcode project
 
 Please see the documentation for [Couchbase Lite][CBL].
