@@ -1,8 +1,8 @@
 ## ToDo Lite for iOS
 
-This is a demo app showing how to use the [Couchbase Lite][CBL] framework to embed a nonrelational ("NoSQL") document-oriented database in an iOS app and sync it with a [Couchbase Server][CBS] in "the cloud".
+This is a demo app showing how to use the [Couchbase Lite][CBL] framework to embed a nonrelational ("NoSQL") document-oriented database in an iOS app and sync it with [Couchbase Server][CBS] in "the cloud".
 
-The app is a simple shared to-do list manager. It lets a user create multiple lists, each with its own items that can be checked off when done. Lists are private by default but can be shared with other users (which is very useful if your housemate is halfway to the grocery store when you remember you're out of pasta.) _[UI support for shared lists isn't ready yet; coming soon]_
+The app is a simple shared to-do list manager. Users can create multiple lists, each with its own items that can be checked off when done. Lists are private by default but can be shared with other users (which is very useful if your housemate is halfway to the grocery store when you remember you're out of pasta.)
 
 Note: Equivalent demo apps are available for [PhoneGap/Cordova][TODO_PHONEGAP], and _[coming soon]_ for Android.
 
@@ -20,18 +20,22 @@ What does Couchbase Lite bring to the table?
 
 ## Building & Running The Demo App
 
-Down to business: You should be familiar with how to build and run an iOS app. And you'll need a copy of Xcode version 4.6 or later.
+Down to business: You should be familiar with how to build and run an iOS app. And you'll need a copy of Xcode version 5 or later.
 
 If you have questions or get stuck or just want to say hi, please visit the [Mobile Couchbase group][LIST] on Google Groups.
 
 1. Clone or download this repository.
-2. Either download a compiled build of Couchbase Lite, or [check out][1] and build it yourself (be sure to follow its README.)
+2. Either download a [compiled build of Couchbase Lite](CBL_DOWNLOAD), or [check out][1] and build it yourself (be sure to follow its README.)
 3. Copy `CouchbaseLite.framework` into the `Frameworks` directory of this repo.
 4. Open ToDoList.xcodeproj.
 5. Select the "ToDoLite" scheme and the appropriate destination (simulator or attached iOS device) from the pop-up menu in the Xcode toolbar.
 6. Click the Run button
 
 That's it! Now that you're set up, you can just use the Run command again after making changes to the demo code.
+
+## Quick modifications you might want to make.
+
+In the AppDelegate.m file, there is a constant defined `kSyncUrl` -- by default when you log into the app via Facebook, it will sync with this test database hosted by Couchbase. If you deploy you own Sync Gateway, you may want to change this URL to point at your server.
 
 ## To add the framework to your existing Xcode project
 
@@ -49,3 +53,4 @@ Copyright 2011-2013, Couchbase, Inc.
 [CBS]: http://www.couchbase.com/couchbase-server/overview
 [TODO_PHONEGAP]: https://github.com/couchbaselabs/TodoLite-PhoneGap
 [LIST]: https://groups.google.com/group/mobile-couchbase
+[CBL_DOWNLOAD]: http://www.couchbase.com/download#cb-mobile
