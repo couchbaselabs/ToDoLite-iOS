@@ -67,6 +67,10 @@
 - (void)start;
 
 
+// for delegates to call
+- (void)restartSync;
+
+
 // These are not KVO-observable; observe SyncManagerStateChangedNotification instead
 @property (nonatomic, readonly) unsigned completed, total;
 @property (nonatomic, readonly) float progress;

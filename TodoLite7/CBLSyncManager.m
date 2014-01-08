@@ -16,6 +16,7 @@
     CBLReplication *push;
     NSArray *beforeSyncBlocks;
     NSArray *onSyncStartedBlocks;
+    NSError *lastAuthError;
 }
 @end
 
@@ -55,13 +56,10 @@
             [self launchSync];
         }];
     } else {
+        NSLog(@"have userID %@", _userID);
         [self launchSync];
     }
 }
-
-//- (void)useFacebookAppID: (NSString *)myAppID {
-//    _authenticator = [[CBLFacebookAuthenticator alloc]initWithAppID: myAppID];
-//}
 
 
 - (void)beforeFirstSync: (void (^)(NSString *userID, NSDictionary *userData, NSError **outError))block {
@@ -75,6 +73,9 @@
 - (void)setAuthenticator:(NSObject<CBLSyncAuthenticator> *)authenticator {
     _authenticator = authenticator;
     _authenticator.syncManager = self;
+    if (lastAuthError) {
+        [self runAuthenticator];
+    }
 }
 
 
@@ -92,13 +93,26 @@
 
 #pragma mark - Sync related
 
+- (void)runAuthenticator {
+    [_authenticator getCredentials:^(NSString *newUserID, NSDictionary *userData) {
+        //            todo this should call our onSyncAuthError callback
+        NSAssert2([newUserID isEqualToString:_userID], @"can't change userID from %@ to %@, need to reinstall", _userID,  newUserID);
+        [self restartSync];
+    }];
+}
+
 - (void) launchSync {
     NSLog(@"launch Sync");
 
     [self defineSync];
     
+    if (lastAuthError) {
+        NSAssert(_authenticator, @"autnenacr");
+        [self runAuthenticator];
+    } else {
+        [self restartSync];
+    }
 
-    [self startSync];
     
 //    void (^onSyncStartedBlock)();
 //    for (onSyncStartedBlock in onSyncStartedBlocks) {
@@ -139,7 +153,7 @@
     for (CBLReplication* repl in @[pull, push]) {
         status = MAX(status, repl.status);
         if (!error)
-            error = repl.error;
+            error = repl.lastError;
         if (repl.status == kCBLReplicationActive) {
             active = true;
             completed += repl.completedChangesCount;
@@ -149,10 +163,16 @@
     
     if (error != _error && error.code == 401) {
         // Auth needed (or auth is incorrect), ask the _authenticator to get new credentials.
-        [_authenticator getCredentials:^(NSString *newUserID, NSDictionary *userData) {
-//            todo this should call our onSyncAuthError callback
-            NSAssert2([newUserID isEqualToString:_userID], @"can't change userID from %@ to %@, need to reinstall", _userID,  newUserID);
-        }];
+        NSLog(@"need credentials %@", _authenticator);
+        if (!_authenticator) {
+            // sync hasn't been triggered yet
+            // we'll retry when sync is triggered
+            lastAuthError = error;
+            return;
+        }
+        
+        [self runAuthenticator];
+
     }
     
     if (active != _active || completed != _completed || total != _total || status != _status
@@ -171,25 +191,28 @@
     }
 }
 
-- (void)startSync {
-    //    todo listen for sync errors
-    NSLog(@"startSync");
+
+- (void)restartSync {
+    NSLog(@"restartSync");
+    [pull stop];
     [pull start];
+    [push stop];
     [push start];
 }
 
 #pragma mark - User ID related
 
 - (void) setupNewUser:(void (^)())complete {
-    if (_userID) return;
+    NSAssert(!_userID, @"already has userID");
     [_authenticator getCredentials: ^(NSString *userID, NSDictionary *userData){
+        NSLog(@"got userID %@", userID);
         if (_userID) return;
+        _userID = userID;
         // Give the app a chance to tag documents with userID before sync starts
         NSError *error = [self runBeforeSyncStartWithUserID: userID andUserData: userData];
         if (error) {
             NSLog(@"error preparing for sync %@", error);
         } else {
-            _userID = userID;
             complete();
         }
     }];
@@ -285,21 +308,9 @@
          } else {
              //Fail gracefully...
              NSLog(@"error getting permission %@",e);
-
-             [self performSelectorOnMainThread:@selector(showFacebookAlert) withObject:nil waitUntilDone:NO];
-
+             //             todo should alert to tell the user to go to settings
          }
      }];
-}
-
--(void) showFacebookAlert {
-    UIAlertView* alert= [[UIAlertView alloc] initWithTitle: @"No Facebook Account"
-                                                   message: @"Please log into your Facebook account in Settings."
-                                                  delegate: nil
-                                         cancelButtonTitle: @"OK"
-                                         otherButtonTitles: nil];
-    alert.alertViewStyle = UIAlertViewStyleDefault;
-    [alert show];
 }
 
 
