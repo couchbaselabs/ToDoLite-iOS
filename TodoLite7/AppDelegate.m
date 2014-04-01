@@ -15,6 +15,7 @@
 #import "Profile.h"
 
 #define kSyncUrl @"http://sync.couchbasecloud.com:4984/todos4"
+//#define kSyncUrl @"http://localhost:4985/todos"
 #define kFBAppId @"501518809925546"
 
 @implementation AppDelegate
@@ -73,6 +74,28 @@
 
 #pragma mark - Sync
 
+- (void)updateMyLists:(NSString *)userID userData:(NSDictionary *)userData outError:(NSError **)outError {
+    // This is a first run, setup the profile but don't save it yet.
+    
+    Profile *myProfile = [[Profile alloc] initCurrentUserProfileInDatabase:self.database withName:userData[@"name"] andUserID:userID];
+    
+    // Now tag all all lists created before the user logged in,
+    // with the userID.
+    
+    [List updateAllListsInDatabase:self.database withOwner:myProfile error:outError];
+    
+    // Sync doesn't start until after this block completes, so
+    // all this data will be tagged.
+    if (!outError) {
+        [myProfile save:outError];
+    }
+}
+
+- (void) runBlock: (void (^)())block {
+    block();
+}
+
+
 - (void) setupCBLSync {
     _cblSync = [[CBLSyncManager alloc] initSyncForDatabase:_database withURL:[NSURL URLWithString:kSyncUrl]];
     
@@ -86,19 +109,9 @@
         // Application callback to create the user profile.
         // this will be triggered after we call [_cblSync start]
         [_cblSync beforeFirstSync:^(NSString *userID, NSDictionary *userData,  NSError **outError) {
-            // This is a first run, setup the profile but don't save it yet.
-            Profile *myProfile = [[Profile alloc] initCurrentUserProfileInDatabase:self.database withName:userData[@"name"] andUserID:userID];
-            
-            // Now tag all all lists created before the user logged in,
-            // with the userID.
-            
-            [List updateAllListsInDatabase:self.database withOwner:myProfile error:outError];
-            
-            // Sync doesn't start until after this block completes, so
-            // all this data will be tagged.
-            if (!outError) {
-                [myProfile save:outError];
-            }
+            [self performSelectorOnMainThread:@selector(runBlock:) withObject:^{
+                [self updateMyLists:userID userData:userData outError:outError];
+            } waitUntilDone:YES];
         }];
     }
 }
