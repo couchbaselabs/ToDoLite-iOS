@@ -22,9 +22,8 @@
 
 @implementation CBLSyncManager
 
-- (instancetype) initSyncForDatabase:(CBLDatabase*)database
-                             withURL:(NSURL*)remoteURL {
-    NSString* userID = [[NSUserDefaults standardUserDefaults] objectForKey: kCBLPrefKeyUserID];
+- (instancetype)initSyncForDatabase:(CBLDatabase *)database withURL:(NSURL *)remoteURL {
+    NSString *userID = [[NSUserDefaults standardUserDefaults] objectForKey:kCBLPrefKeyUserID];
     self = [self initSyncForDatabase:database withURL:remoteURL asUser:userID];
     if (self) {
         [self beforeFirstSync:^(NSString *newUserId, NSDictionary *userData, NSError **outError) {
@@ -34,9 +33,7 @@
     return self;
 }
 
-- (instancetype) initSyncForDatabase:(CBLDatabase*)database
-                      withURL:(NSURL*)remoteURL
-                       asUser:(NSString*)userID {
+- (instancetype)initSyncForDatabase:(CBLDatabase *)database withURL:(NSURL *)remoteURL asUser:(NSString *)userID {
     self = [super init];
     if (self) {
         _database = database;
@@ -49,24 +46,22 @@
 }
 
 #pragma mark - Public Instance API
-
 - (void) start {
     if (!_userID) {
-        [self setupNewUser: ^(){
+        [self setupNewUser:^(){
             [self launchSync];
         }];
     } else {
-        NSLog(@"have userID %@", _userID);
         [self launchSync];
     }
 }
 
 
-- (void)beforeFirstSync: (void (^)(NSString *userID, NSDictionary *userData, NSError **outError))block {
+- (void)beforeFirstSync:(void (^)(NSString *userID, NSDictionary *userData, NSError **outError))block {
     beforeSyncBlocks = [beforeSyncBlocks arrayByAddingObject:block];
 }
 
-- (void)onSyncConnected: (void (^)())block {
+- (void)onSyncConnected:(void (^)())block {
     onSyncStartedBlocks = [onSyncStartedBlocks arrayByAddingObject:block];
 }
 
@@ -78,10 +73,9 @@
     }
 }
 
-
 #pragma mark - Callbacks
 
-- (NSError*) runBeforeSyncStartWithUserID: (NSString *)userID andUserData: (NSDictionary *)userData {
+- (NSError *)runBeforeSyncStartWithUserID: (NSString *)userID andUserData: (NSDictionary *)userData {
     void (^beforeSyncBlock)(NSString *userID, NSDictionary *userData, NSError **outError);
     NSError *error;
     for (beforeSyncBlock in beforeSyncBlocks) {
@@ -95,15 +89,13 @@
 
 - (void)runAuthenticator {
     [_authenticator getCredentials:^(NSString *newUserID, NSDictionary *userData) {
-        //            todo this should call our onSyncAuthError callback
+        // TODO: this should call our onSyncAuthError callback
         NSAssert2([newUserID isEqualToString:_userID], @"can't change userID from %@ to %@, need to reinstall", _userID,  newUserID);
         [self restartSync];
     }];
 }
 
-- (void) launchSync {
-    NSLog(@"launch Sync");
-
+- (void)launchSync {
     [self defineSync];
     
     if (lastAuthError) {
@@ -112,45 +104,35 @@
     } else {
         [self restartSync];
     }
-
-    
-//    void (^onSyncStartedBlock)();
-//    for (onSyncStartedBlock in onSyncStartedBlocks) {
-//        onSyncStartedBlock();
-//    }
-    
 }
 
-- (void)defineSync
-{
-    pull = [_database replicationFromURL:_remoteURL];
+- (void)defineSync {
+    pull = [_database createPullReplication:_remoteURL];
     pull.continuous = YES;
-//    pull.persistent = YES;
     
-    push = [_database replicationToURL:_remoteURL];
+    push = [_database createPushReplication:_remoteURL];
     push.continuous = YES;
-//    push.persistent = YES;
-
+    
     [self listenForReplicationEvents: push];
     [self listenForReplicationEvents: pull];
     
     [_authenticator registerCredentialsWithReplications: @[pull, push]];
 }
 
-- (void) listenForReplicationEvents: (CBLReplication*) repl {
-    [[NSNotificationCenter defaultCenter] addObserver: self
-                                             selector: @selector(replicationProgress:)
-                                                 name: kCBLReplicationChangeNotification
-                                               object: repl];
+- (void)listenForReplicationEvents:(CBLReplication*)repl {
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(replicationProgress:)
+                                                 name:kCBLReplicationChangeNotification
+                                               object:repl];
 }
 
 
-- (void) replicationProgress: (NSNotificationCenter*)n {
+- (void)replicationProgress:(NSNotificationCenter*)n {
     bool active = false;
     unsigned completed = 0, total = 0;
     CBLReplicationStatus status = kCBLReplicationStopped;
-    NSError* error = nil;
-    for (CBLReplication* repl in @[pull, push]) {
+    NSError *error = nil;
+    for (CBLReplication *repl in @[pull, push]) {
         status = MAX(status, repl.status);
         if (!error)
             error = repl.lastError;
@@ -163,7 +145,6 @@
     
     if (error != _error && error.code == 401) {
         // Auth needed (or auth is incorrect), ask the _authenticator to get new credentials.
-        NSLog(@"need credentials %@", _authenticator);
         if (!_authenticator) {
             // sync hasn't been triggered yet
             // we'll retry when sync is triggered
@@ -183,8 +164,10 @@
         _progress = (completed / (float)MAX(total, 1u));
         _status = status;
         _error = error;
+
         NSLog(@"SYNCMGR: active=%d; status=%d; %u/%u; %@",
-              active, status, completed, total, error.localizedDescription); //FIX: temporary logging
+              active, status, completed, total, error.localizedDescription);
+        // FIXME: temporary logging
 //        [[NSNotificationCenter defaultCenter]
 //         postNotificationName: SyncManagerStateChangedNotification
 //         object: self];
@@ -202,14 +185,14 @@
 
 #pragma mark - User ID related
 
-- (void) setupNewUser:(void (^)())complete {
+- (void)setupNewUser:(void (^)())complete {
     NSAssert(!_userID, @"already has userID");
     [_authenticator getCredentials: ^(NSString *userID, NSDictionary *userData){
         NSLog(@"got userID %@", userID);
         if (_userID) return;
         _userID = userID;
         // Give the app a chance to tag documents with userID before sync starts
-        NSError *error = [self runBeforeSyncStartWithUserID: userID andUserData: userData];
+        NSError *error = [self runBeforeSyncStartWithUserID:userID andUserData:userData];
         if (error) {
             NSLog(@"error preparing for sync %@", error);
         } else {
@@ -218,14 +201,13 @@
     }];
 }
 
-
 @end
 
 @implementation CBLFacebookAuthenticator
 
 @synthesize syncManager=_syncManager;
 
-- (instancetype) initWithAppID:(NSString *)appID {
+- (instancetype)initWithAppID:(NSString *)appID {
     self = [super init];
     if (self) {
         _facebookAppID = appID;
@@ -233,29 +215,24 @@
     return self;
 }
 
--(void) getCredentials: (void (^)(NSString *userID, NSDictionary *userData))block {
-    
-    [self getFaceBookAccessToken:^(NSString* accessToken, ACAccount* fbAccount){
-        
-        [self getFacebookUserInfoWithAccessToken:accessToken facebookAccount: fbAccount onCompletion: ^(NSDictionary* userData){
-            
+-(void)getCredentials:(void (^)(NSString *userID, NSDictionary *userData))block {
+    [self getFaceBookAccessToken:^(NSString *accessToken, ACAccount *fbAccount) {
+        [self getFacebookUserInfoWithAccessToken:accessToken facebookAccount:fbAccount onCompletion:^(NSDictionary *userData) {
             NSString *userID = userData[@"email"];
             
             // Store the access_token for later.
-            [[NSUserDefaults standardUserDefaults] setObject: accessToken forKey: [self accessTokenKeyForUserID:userID]];
+            [[NSUserDefaults standardUserDefaults] setObject:accessToken forKey:[self accessTokenKeyForUserID:userID]];
             
             block(userID, userData);
-            
         }];
     }];
 }
 
--(void) registerCredentialsWithReplications: (NSArray *)repls {
-    NSString* userID = _syncManager.userID;
-    NSString* accessToken = [[NSUserDefaults standardUserDefaults] objectForKey: [self accessTokenKeyForUserID:userID]];
+-(void)registerCredentialsWithReplications:(NSArray *)repls {
+    NSString *userID = _syncManager.userID;
+    NSString *accessToken = [[NSUserDefaults standardUserDefaults] objectForKey:[self accessTokenKeyForUserID:userID]];
     if (!userID) return;
-    for (CBLReplication * repl in repls) {
-        NSLog(@"repl %@", repl);
+    for (CBLReplication *repl in repls) {
         [repl setFacebookEmailAddress:userID];
         [repl registerFacebookToken:accessToken forEmailAddress:userID];
     }
@@ -263,8 +240,9 @@
 
 #pragma mark - Facebook API related
 
-- (void)getFacebookUserInfoWithAccessToken: (NSString*)accessToken facebookAccount:(ACAccount *)fbAccount onCompletion: (void (^)(NSDictionary* userData))complete
-{
+- (void)getFacebookUserInfoWithAccessToken:(NSString *)accessToken
+                           facebookAccount:(ACAccount *)fbAccount
+                              onCompletion:(void (^)(NSDictionary *userData))complete {
     SLRequest *request = [SLRequest requestForServiceType:SLServiceTypeFacebook
                                             requestMethod:SLRequestMethodGET
                                                       URL:[NSURL URLWithString:@"https://graph.facebook.com/me"]
@@ -282,19 +260,17 @@
     }];
 }
 
-- (NSString*) accessTokenKeyForUserID: (NSString *)userID {
+- (NSString *)accessTokenKeyForUserID:(NSString *)userID {
     return [@"CBLFBAT-" stringByAppendingString: userID];
 }
 
-- (void)getFaceBookAccessToken: (void (^)(NSString* accessToken, ACAccount* fbAccount))complete
-{
+- (void)getFaceBookAccessToken:(void (^)(NSString *accessToken, ACAccount *fbAccount))complete {
     ACAccountStore *accountStore = [[ACAccountStore alloc]init];
-    
     
     ACAccountType *FBaccountType= [accountStore accountTypeWithAccountTypeIdentifier:ACAccountTypeIdentifierFacebook];
     
-    NSDictionary *dictFB = [NSDictionary dictionaryWithObjectsAndKeys:_facebookAppID, ACFacebookAppIdKey, @[@"email"], ACFacebookPermissionsKey, nil];
-    
+    NSDictionary *dictFB = [NSDictionary dictionaryWithObjectsAndKeys:_facebookAppID, ACFacebookAppIdKey,
+                            @[@"email"], ACFacebookPermissionsKey, nil];
     
     [accountStore requestAccessToAccountsWithType:FBaccountType options:dictFB completion:
      ^(BOOL granted, NSError *e) {
@@ -306,12 +282,17 @@
              NSString *accessToken = [fbCredential oauthToken];
              complete(accessToken, fbAccount);
          } else {
-             //Fail gracefully...
-             NSLog(@"error getting permission %@",e);
-             //             todo should alert to tell the user to go to settings
+             dispatch_async(dispatch_get_main_queue(), ^{
+                 UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Account Error"
+                                                                 message:@"There is no Facebook Accounts configured. You can configure a Facebook acount in Settings."
+                                                                delegate:nil
+                                                       cancelButtonTitle:@"Ok"
+                                                       otherButtonTitles: nil];
+                 [alert show];
+
+             });
          }
      }];
 }
-
 
 @end

@@ -7,20 +7,24 @@
 //
 
 #import "Titled.h"
-@class List;
 
+@class List;
 
 /** Model object for a task item. (See Titled for inherited properties!) */
 @interface Task : Titled
 
 /** Creates a new Task in the given list, with the given title. */
 - (instancetype) initInList: (List*)list
-                  withTitle: (NSString*)title;
+                  withTitle: (NSString*)title
+                  withImage: (NSData*)image
+       withImageContentType: (NSString*)contentType;
 
 /** Is the task checked off / completed? */
 @property bool checked;
 
 /** The List this item belongs to. */
 @property (weak) List* list_id;
+
+- (void) setImage:(NSData*)image contentType: (NSString*)contentType;
 
 @end

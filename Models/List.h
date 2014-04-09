@@ -9,7 +9,6 @@
 #import "Titled.h"
 @class Task, Profile;
 
-
 /** A list of Tasks. (See Titled for inherited properties!) */
 @interface List : Titled
 
@@ -24,9 +23,10 @@
 - (CBLQuery*) queryTasks;
 
 /** Creates a new task. */
-- (Task*) addTaskWithTitle: (NSString*)title;
+- (Task*) addTaskWithTitle: (NSString*)title withImage: (NSData*)image withImageContentType: (NSString*)contentType;
 
 @property (readwrite) Profile* owner;
 
 @property (readwrite) NSArray* members;
+
 @end

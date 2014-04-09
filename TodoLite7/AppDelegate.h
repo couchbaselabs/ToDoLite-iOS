@@ -18,6 +18,6 @@
 @property (strong, nonatomic) CBLDatabase *database;
 @property (strong, nonatomic) CBLSyncManager *cblSync;
 
-- (void)loginAndSync: (void (^)())complete;
+- (void)loginAndSync:(void (^)())complete;
 
 @end

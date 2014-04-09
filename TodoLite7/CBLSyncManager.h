@@ -36,12 +36,12 @@
 
 @interface CBLSyncManager : NSObject
 
-- (instancetype) initSyncForDatabase:(CBLDatabase*)database
-                             withURL:(NSURL*)remoteURL;
+- (instancetype)initSyncForDatabase:(CBLDatabase *)database
+                             withURL:(NSURL *)remoteURL;
 
-- (instancetype) initSyncForDatabase:(CBLDatabase*)database
-                      withURL:(NSURL*)remoteURL
-                       asUser:(NSString*)userID;
+- (instancetype)initSyncForDatabase:(CBLDatabase *)database
+                      withURL:(NSURL *)remoteURL
+                       asUser:(NSString *)userID;
 
 @property (readonly) CBLDatabase *database;
 @property (readonly) NSString *userID;
@@ -54,10 +54,10 @@
 //- (void)useFacebookAppID: (NSString *)myAppID;
 
 // register a callback for when we discover the user info
-- (void)beforeFirstSync: (void (^)(NSString *userID, NSDictionary *userData, NSError **outError))block;
+- (void)beforeFirstSync:(void (^)(NSString *userID, NSDictionary *userData, NSError **outError))block;
 
 // register a callback for after the sync begins making progress
-- (void)onSyncConnected: (void (^)())block;
+- (void)onSyncConnected:(void (^)())block;
 
 // register a callback in case of errors
 // should make errors that can be resolved by refreshing the login
@@ -83,4 +83,4 @@
 
 
 /** Posted by a SyncManager instance when its replication state properties change. */
-extern NSString* const SyncManagerStateChangedNotification;
+extern NSString * const SyncManagerStateChangedNotification;

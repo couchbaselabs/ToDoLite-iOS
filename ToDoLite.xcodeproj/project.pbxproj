@@ -11,7 +11,6 @@
 		7945BCE6184D2E7700F1014A /* Profile.m in Sources */ = {isa = PBXBuildFile; fileRef = 7945BCE0184D2E7700F1014A /* Profile.m */; };
 		7945BCE7184D2E7700F1014A /* Task.m in Sources */ = {isa = PBXBuildFile; fileRef = 7945BCE2184D2E7700F1014A /* Task.m */; };
 		7945BCE8184D2E7700F1014A /* Titled.m in Sources */ = {isa = PBXBuildFile; fileRef = 7945BCE4184D2E7700F1014A /* Titled.m */; };
-		7945BCEA184D2EB900F1014A /* CouchbaseLite.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7945BCE9184D2EB900F1014A /* CouchbaseLite.framework */; };
 		79E2082618353887006C0EEF /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79E2082518353887006C0EEF /* Foundation.framework */; };
 		79E2082818353887006C0EEF /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79E2082718353887006C0EEF /* CoreGraphics.framework */; };
 		79E2082A18353887006C0EEF /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79E2082918353887006C0EEF /* UIKit.framework */; };
@@ -39,6 +38,10 @@
 		79E2088118368B2C006C0EEF /* Social.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79E2088018368B2C006C0EEF /* Social.framework */; };
 		79E208881838419E006C0EEF /* CBLSyncManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 79E208871838419E006C0EEF /* CBLSyncManager.m */; };
 		79E208891838419E006C0EEF /* CBLSyncManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 79E208871838419E006C0EEF /* CBLSyncManager.m */; };
+		93053AE718F36E5100C711E1 /* CouchbaseLite.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93053AE618F36E5100C711E1 /* CouchbaseLite.framework */; };
+		935C6ED318F3EBE1005EB630 /* TaskTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 935C6ED218F3EBE1005EB630 /* TaskTableViewCell.m */; };
+		939D90C118F46A0F00183AC4 /* ImageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 939D90C018F46A0F00183AC4 /* ImageViewController.m */; };
+		939D90C418F4805800183AC4 /* RoundedButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 939D90C318F4805800183AC4 /* RoundedButton.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -60,7 +63,6 @@
 		7945BCE2184D2E7700F1014A /* Task.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Task.m; path = Models/Task.m; sourceTree = "<group>"; };
 		7945BCE3184D2E7700F1014A /* Titled.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Titled.h; path = Models/Titled.h; sourceTree = "<group>"; };
 		7945BCE4184D2E7700F1014A /* Titled.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Titled.m; path = Models/Titled.m; sourceTree = "<group>"; };
-		7945BCE9184D2EB900F1014A /* CouchbaseLite.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CouchbaseLite.framework; path = Frameworks/CouchbaseLite.framework; sourceTree = "<group>"; };
 		79E2082218353887006C0EEF /* ToDoLite.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ToDoLite.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		79E2082518353887006C0EEF /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		79E2082718353887006C0EEF /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -94,6 +96,13 @@
 		79E2088018368B2C006C0EEF /* Social.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Social.framework; path = System/Library/Frameworks/Social.framework; sourceTree = SDKROOT; };
 		79E208861838419E006C0EEF /* CBLSyncManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CBLSyncManager.h; sourceTree = "<group>"; };
 		79E208871838419E006C0EEF /* CBLSyncManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CBLSyncManager.m; sourceTree = "<group>"; };
+		93053AE618F36E5100C711E1 /* CouchbaseLite.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = CouchbaseLite.framework; sourceTree = "<group>"; };
+		935C6ED118F3EBE1005EB630 /* TaskTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TaskTableViewCell.h; sourceTree = "<group>"; };
+		935C6ED218F3EBE1005EB630 /* TaskTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TaskTableViewCell.m; sourceTree = "<group>"; };
+		939D90BF18F46A0F00183AC4 /* ImageViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageViewController.h; sourceTree = "<group>"; };
+		939D90C018F46A0F00183AC4 /* ImageViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageViewController.m; sourceTree = "<group>"; };
+		939D90C218F4805800183AC4 /* RoundedButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoundedButton.h; sourceTree = "<group>"; };
+		939D90C318F4805800183AC4 /* RoundedButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RoundedButton.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -110,7 +119,7 @@
 				79E20864183544F1006C0EEF /* CFNetwork.framework in Frameworks */,
 				79E2082818353887006C0EEF /* CoreGraphics.framework in Frameworks */,
 				79E2082A18353887006C0EEF /* UIKit.framework in Frameworks */,
-				7945BCEA184D2EB900F1014A /* CouchbaseLite.framework in Frameworks */,
+				93053AE718F36E5100C711E1 /* CouchbaseLite.framework in Frameworks */,
 				79E2082618353887006C0EEF /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -151,10 +160,10 @@
 		79E2082418353887006C0EEF /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				93053AE618F36E5100C711E1 /* CouchbaseLite.framework */,
 				79E2088018368B2C006C0EEF /* Social.framework */,
 				79E2087E18367402006C0EEF /* Accounts.framework */,
 				79E2086B18354517006C0EEF /* libz.dylib */,
-				7945BCE9184D2EB900F1014A /* CouchbaseLite.framework */,
 				79E208691835450D006C0EEF /* libsqlite3.dylib */,
 				79E2086718354503006C0EEF /* SystemConfiguration.framework */,
 				79E20865183544F8006C0EEF /* Security.framework */,
@@ -170,6 +179,7 @@
 		79E2082B18353887006C0EEF /* TodoLite7 */ = {
 			isa = PBXGroup;
 			children = (
+				935C6ECD18F3E576005EB630 /* Helpers */,
 				79E2083418353887006C0EEF /* AppDelegate.h */,
 				79E2083518353887006C0EEF /* AppDelegate.m */,
 				79E208861838419E006C0EEF /* CBLSyncManager.h */,
@@ -182,6 +192,8 @@
 				79E2083E18353887006C0EEF /* MasterViewController.m */,
 				79E2084018353887006C0EEF /* DetailViewController.h */,
 				79E2084118353887006C0EEF /* DetailViewController.m */,
+				939D90BF18F46A0F00183AC4 /* ImageViewController.h */,
+				939D90C018F46A0F00183AC4 /* ImageViewController.m */,
 				79E2084318353887006C0EEF /* Images.xcassets */,
 				79E2082C18353887006C0EEF /* Supporting Files */,
 			);
@@ -230,6 +242,17 @@
 				7945BCE4184D2E7700F1014A /* Titled.m */,
 			);
 			name = Models;
+			sourceTree = "<group>";
+		};
+		935C6ECD18F3E576005EB630 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				939D90C218F4805800183AC4 /* RoundedButton.h */,
+				939D90C318F4805800183AC4 /* RoundedButton.m */,
+				935C6ED118F3EBE1005EB630 /* TaskTableViewCell.h */,
+				935C6ED218F3EBE1005EB630 /* TaskTableViewCell.m */,
+			);
+			name = Helpers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -337,9 +360,12 @@
 				79E2083618353887006C0EEF /* AppDelegate.m in Sources */,
 				79E2087C1835E7C7006C0EEF /* ShareViewController.m in Sources */,
 				79E2083F18353887006C0EEF /* MasterViewController.m in Sources */,
+				939D90C118F46A0F00183AC4 /* ImageViewController.m in Sources */,
+				939D90C418F4805800183AC4 /* RoundedButton.m in Sources */,
 				79E2083218353887006C0EEF /* main.m in Sources */,
 				7945BCE6184D2E7700F1014A /* Profile.m in Sources */,
 				79E2084218353887006C0EEF /* DetailViewController.m in Sources */,
+				935C6ED318F3EBE1005EB630 /* TaskTableViewCell.m in Sources */,
 				7945BCE8184D2E7700F1014A /* Titled.m in Sources */,
 				7945BCE7184D2E7700F1014A /* Task.m in Sources */,
 				79E208881838419E006C0EEF /* CBLSyncManager.m in Sources */,
@@ -479,13 +505,17 @@
 		79E2085B18353887006C0EEF /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon";
-				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "LaunchImage";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/Frameworks",
+					"$(PROJECT_DIR)",
+					"$(PROJECT_DIR)/64-bit",
+					"$(PROJECT_DIR)/Frameworks/64-bit",
+					"$(PROJECT_DIR)/Frameworks",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TodoLite7/ToDoLite-Prefix.pch";
@@ -501,13 +531,17 @@
 		79E2085C18353887006C0EEF /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon";
-				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "LaunchImage";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/Frameworks",
+					"$(PROJECT_DIR)",
+					"$(PROJECT_DIR)/64-bit",
+					"$(PROJECT_DIR)/Frameworks/64-bit",
+					"$(PROJECT_DIR)/Frameworks",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TodoLite7/ToDoLite-Prefix.pch";

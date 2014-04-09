@@ -20,8 +20,7 @@
 
 @implementation AppDelegate
 
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
-{
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
     if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
         UISplitViewController *splitViewController = (UISplitViewController *)self.window.rootViewController;
@@ -30,14 +29,14 @@
     }
     CBLManager *manager = [CBLManager sharedInstance];
     NSError *error;
-    self.database = [manager databaseNamed: @"todos" error: &error];
+    self.database = [manager databaseNamed:@"todos" error:&error];
     if (error) {
         NSLog(@"error getting database %@",error);
         exit(-1);
     }
-//    todo validation should go in the model?
-    [[self.database modelFactory] registerClass: [List class] forDocumentType: @"list"];
-    [[self.database modelFactory] registerClass: [Task class] forDocumentType: @"item"];
+    // todo validation should go in the model?
+    [[self.database modelFactory] registerClass:[List class] forDocumentType:@"list"];
+    [[self.database modelFactory] registerClass:[Task class] forDocumentType:@"item"];
     
     // Configure sync and trigger it if the user is already logged in.
     [self setupCBLSync];
@@ -45,30 +44,25 @@
     return YES;
 }
 							
-- (void)applicationWillResignActive:(UIApplication *)application
-{
+- (void)applicationWillResignActive:(UIApplication *)application {
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
     // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
 }
 
-- (void)applicationDidEnterBackground:(UIApplication *)application
-{
+- (void)applicationDidEnterBackground:(UIApplication *)application {
     // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later. 
     // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
 }
 
-- (void)applicationWillEnterForeground:(UIApplication *)application
-{
+- (void)applicationWillEnterForeground:(UIApplication *)application {
     // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
 }
 
-- (void)applicationDidBecomeActive:(UIApplication *)application
-{
+- (void)applicationDidBecomeActive:(UIApplication *)application {
     // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
 }
 
-- (void)applicationWillTerminate:(UIApplication *)application
-{
+- (void)applicationWillTerminate:(UIApplication *)application {
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 }
 
@@ -91,19 +85,18 @@
     }
 }
 
-- (void) runBlock: (void (^)())block {
+- (void)runBlock:(void (^)())block {
     block();
 }
 
-
-- (void) setupCBLSync {
+- (void)setupCBLSync {
     _cblSync = [[CBLSyncManager alloc] initSyncForDatabase:_database withURL:[NSURL URLWithString:kSyncUrl]];
     
     // Tell the Sync Manager to use Facebook for login.
     _cblSync.authenticator = [[CBLFacebookAuthenticator alloc] initWithAppID:kFBAppId];
 
     if (_cblSync.userID) {
-//        we are logged in, go ahead and sync
+        // we are logged in, go ahead and sync
         [_cblSync start];
     } else {
         // Application callback to create the user profile.
@@ -116,7 +109,7 @@
     }
 }
 
-- (void)loginAndSync: (void (^)())complete {
+- (void)loginAndSync:(void (^)())complete {
     if (_cblSync.userID) {
         complete();
     } else {

@@ -25,7 +25,6 @@
     return kListDocType;
 }
 
-
 // Returns a query for all the lists in a database.
 + (CBLQuery*) queryListsInDatabase: (CBLDatabase*)db {
     CBLView* view = [db viewNamed: @"lists"];
@@ -54,12 +53,10 @@
     }
 }
 
-
 // Creates a new task.
-- (Task*) addTaskWithTitle: (NSString*)title {
-    return [[Task alloc] initInList: self withTitle: title];
+- (Task*) addTaskWithTitle: (NSString*)title withImage:(NSData*)image withImageContentType:(NSString *)contentType {
+    return [[Task alloc] initInList: self withTitle: title withImage: image withImageContentType:contentType];
 }
-
 
 // Returns a query for this list's tasks, in reverse chronological order.
 - (CBLQuery*) queryTasks {
@@ -86,6 +83,5 @@
     query.endKey = @[myListId];
     return query;
 }
-
 
 @end
