@@ -33,7 +33,7 @@
     NSString* profileDocId = [@"p:" stringByAppendingString:userID];
     CBLDocument *doc;
     if (profileDocId.length > 0)
-        doc = [db documentWithID: profileDocId];
+        doc = [db existingDocumentWithID: profileDocId];
     return doc ? [Profile modelForDocument: doc] : nil;
 }
 
