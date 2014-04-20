@@ -25,7 +25,7 @@ Down to business: You should be familiar with how to build and run an iOS app. A
 If you have questions or get stuck or just want to say hi, please visit the [Mobile Couchbase group][LIST] on Google Groups.
 
 1. Clone or download this repository.
-2. Either download a [compiled build of Couchbase Lite](CBL_DOWNLOAD), or [check out][1] and build it yourself (be sure to follow its README.)
+2. Download [Couchbase Lite](CBL_DOWNLOAD), or [check out and build it yourself][CBL_BUILD].
 3. Copy `CouchbaseLite.framework` into the `Frameworks` directory of this repo.
 4. Open ToDoList.xcodeproj.
 5. Select the "ToDoLite" scheme and the appropriate destination (simulator or attached iOS device) from the pop-up menu in the Xcode toolbar.
@@ -56,3 +56,4 @@ Copyright 2011-2013, Couchbase, Inc.
 [TODO_PHONEGAP]: https://github.com/couchbaselabs/TodoLite-PhoneGap
 [LIST]: https://groups.google.com/group/mobile-couchbase
 [CBL_DOWNLOAD]: http://www.couchbase.com/download#cb-mobile
+[CBL_BUILD]: https://github.com/couchbase/couchbase-lite-ios/wiki/Building-Couchbase-Lite
