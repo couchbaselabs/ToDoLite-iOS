@@ -282,9 +282,20 @@
              NSString *accessToken = [fbCredential oauthToken];
              complete(accessToken, fbAccount);
          } else {
+//             NSLog(@"error %@",e);
+             NSString *title;
+             NSString *message;
+             if ([e.domain isEqualToString:@"NSURLErrorDomain"]){
+                 title = @"No Connection";
+                 message = @"Please go online to login and sync.";
+             } else {
+                 title = @"Account Error";
+                 message = @"There is no Facebook account configured. You can configure a Facebook account in Settings.";
+                 
+             }
              dispatch_async(dispatch_get_main_queue(), ^{
-                 UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Account Error"
-                                                                 message:@"There is no Facebook Accounts configured. You can configure a Facebook acount in Settings."
+                 UIAlertView *alert = [[UIAlertView alloc] initWithTitle:title
+                                                                 message:message
                                                                 delegate:nil
                                                        cancelButtonTitle:@"Ok"
                                                        otherButtonTitles: nil];
