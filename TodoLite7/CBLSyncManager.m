@@ -233,8 +233,7 @@
     NSString *accessToken = [[NSUserDefaults standardUserDefaults] objectForKey:[self accessTokenKeyForUserID:userID]];
     if (!userID) return;
     for (CBLReplication *repl in repls) {
-        [repl setFacebookEmailAddress:userID];
-        [repl registerFacebookToken:accessToken forEmailAddress:userID];
+        repl.authenticator = [CBLAuthenticator facebookAuthenticatorWithToken:accessToken];
     }
 }
 

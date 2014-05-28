@@ -80,8 +80,9 @@
     
     // Sync doesn't start until after this block completes, so
     // all this data will be tagged.
-    if (!outError) {
-        [myProfile save:outError];
+    [myProfile save:outError];
+    if (*outError){
+        NSLog(@"error updating lists %@", *outError);
     }
 }
 

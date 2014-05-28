@@ -10,6 +10,7 @@
 #import <Accounts/Accounts.h>
 #import <Social/Social.h>
 #import <CouchbaseLite/CouchbaseLite.h>
+#import <CouchbaseLite/CBLAuthenticator.h>
 
 //#import "CBLSyncAuthenticator.h"
 
