@@ -14,8 +14,7 @@
 #import "Task.h"
 #import "Profile.h"
 
-#define kSyncUrl @"http://sync.couchbasecloud.com:4984/todos4"
-//#define kSyncUrl @"http://localhost:4985/todos"
+#define kSyncUrl @"http://demo.sc.couchbase.com/todolite"
 #define kFBAppId @"501518809925546"
 
 @implementation AppDelegate
