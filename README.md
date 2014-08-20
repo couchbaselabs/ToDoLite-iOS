@@ -2,10 +2,11 @@
 
 This is a demo app showing how to use the [Couchbase Lite][CBL] framework to embed a nonrelational ("NoSQL") document-oriented database in an iOS app and sync it with [Couchbase Server][CBS] in "the cloud".
 
+![screenshot](http://cl.ly/image/1K2X1W1W2V2E/ios_todolite.png)
+
 The app is a simple shared to-do list manager. Users can create multiple lists, each with its own items that can be checked off when done. Lists are private by default but can be shared with other users (which is very useful if your housemate is halfway to the grocery store when you remember you're out of pasta.)
 
-Note: Equivalent demo apps are available for [PhoneGap/Cordova][TODO_PHONEGAP], and _[coming soon]_ for Android.
-
+Note: Equivalent demo apps are available for [PhoneGap](https://github.com/couchbaselabs/ToDoLite-Phonegap), and [Android](https://github.com/couchbaselabs/ToDoLite-Android).
 
 ### Benefits of Couchbase Lite
 
@@ -48,7 +49,7 @@ Please see the documentation for [Couchbase Lite][CBL].
 
 Released under the Apache license, 2.0.
 
-Copyright 2011-2013, Couchbase, Inc.
+Copyright 2011-2014, Couchbase, Inc.
 
 
 [CBL]: https://github.com/couchbaselabs/Couchbase-Lite-iOS/
