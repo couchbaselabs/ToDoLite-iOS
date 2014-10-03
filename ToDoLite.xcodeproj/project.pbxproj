@@ -550,7 +550,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
-				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/TodoLite7.app/TodoLite7";
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/TodoLite.app/TodoLite";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TodoLite7/ToDoLite-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -568,7 +568,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
-				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/TodoLite7.app/TodoLite7";
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/TodoLite.app/TodoLite";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TodoLite7/ToDoLite-Prefix.pch";
 				INFOPLIST_FILE = "TodoLite7Tests/ToDoLiteTests-Info.plist";
