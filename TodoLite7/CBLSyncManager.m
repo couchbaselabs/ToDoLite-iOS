@@ -110,6 +110,9 @@
     pull = [_database createPullReplication:_remoteURL];
     pull.continuous = YES;
     
+    // websockets disabled until https://github.com/couchbase/couchbase-lite-ios/issues/480 is fixed
+    pull.customProperties = @{@"websocket": @NO};
+    
     push = [_database createPushReplication:_remoteURL];
     push.continuous = YES;
     
