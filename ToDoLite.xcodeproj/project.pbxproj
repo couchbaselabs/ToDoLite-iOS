@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1512283419E601B5008C95E6 /* libc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 1512283319E601B5008C95E6 /* libc++.dylib */; };
 		7945BCE5184D2E7700F1014A /* List.m in Sources */ = {isa = PBXBuildFile; fileRef = 7945BCDE184D2E7700F1014A /* List.m */; };
 		7945BCE6184D2E7700F1014A /* Profile.m in Sources */ = {isa = PBXBuildFile; fileRef = 7945BCE0184D2E7700F1014A /* Profile.m */; };
 		7945BCE7184D2E7700F1014A /* Task.m in Sources */ = {isa = PBXBuildFile; fileRef = 7945BCE2184D2E7700F1014A /* Task.m */; };
@@ -55,6 +56,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1512283319E601B5008C95E6 /* libc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.dylib"; path = "usr/lib/libc++.dylib"; sourceTree = SDKROOT; };
 		7945BCDD184D2E7700F1014A /* List.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = List.h; path = Models/List.h; sourceTree = "<group>"; };
 		7945BCDE184D2E7700F1014A /* List.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = List.m; path = Models/List.m; sourceTree = "<group>"; };
 		7945BCDF184D2E7700F1014A /* Profile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Profile.h; path = Models/Profile.h; sourceTree = "<group>"; };
@@ -110,6 +112,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1512283419E601B5008C95E6 /* libc++.dylib in Frameworks */,
 				79E2088118368B2C006C0EEF /* Social.framework in Frameworks */,
 				79E2087F18367402006C0EEF /* Accounts.framework in Frameworks */,
 				79E2086C18354517006C0EEF /* libz.dylib in Frameworks */,
@@ -160,6 +163,7 @@
 		79E2082418353887006C0EEF /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				1512283319E601B5008C95E6 /* libc++.dylib */,
 				93053AE618F36E5100C711E1 /* CouchbaseLite.framework */,
 				79E2088018368B2C006C0EEF /* Social.framework */,
 				79E2087E18367402006C0EEF /* Accounts.framework */,
