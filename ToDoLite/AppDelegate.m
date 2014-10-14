@@ -141,6 +141,9 @@
         _pull = [self.database createPullReplication:syncUrl];
         _pull.continuous  = YES;
         
+        // websockets disabled until https://github.com/couchbase/couchbase-lite-ios/issues/480 is fixed
+        _pull.customProperties = @{@"websocket": @NO};
+        
         _push = [self.database createPushReplication:syncUrl];
         _push.continuous = YES;
         
