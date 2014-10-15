@@ -163,7 +163,7 @@
             return;
         }
         
-        if (todosDb.documentCount > 0) {
+        if (todosDb.lastSequenceNumber > 0) {
             NSString *userId = [[NSUserDefaults standardUserDefaults] objectForKey:@"CBLFBUserID"];
             NSString *dbName;
             if (userId) {
