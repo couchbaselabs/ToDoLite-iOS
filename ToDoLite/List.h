@@ -7,6 +7,7 @@
 //
 
 #import "Titled.h"
+
 @class Task, Profile;
 
 /** A list of Tasks. (See Titled for inherited properties!) */

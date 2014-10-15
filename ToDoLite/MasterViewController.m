@@ -63,7 +63,14 @@
         NSIndexPath *indexPath = [self.tableView indexPathForSelectedRow];
         CBLQueryRow *row = [self.dataSource rowAtIndex:indexPath.row];
         List *list = [List modelForDocument:row.document];
-        DetailViewController *controller = (DetailViewController *)[[segue destinationViewController] topViewController];
+        
+        // Support both iOS7 and iOS8
+        DetailViewController *controller;
+        if ([[segue destinationViewController] isKindOfClass:[UINavigationController class]]) {
+            controller = (DetailViewController *)[[segue destinationViewController] topViewController];
+        } else {
+            controller = [segue destinationViewController];
+        }
         controller.list = list;
     }
 }

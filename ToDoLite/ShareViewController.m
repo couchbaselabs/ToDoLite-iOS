@@ -95,7 +95,6 @@
         _list.members = [members filteredArrayUsingPredicate:
                          [NSPredicate predicateWithFormat:@"SELF != %@" argumentArray:@[toggleMemberId]]];
     }
-    NSLog(@"!!!!! %@", [_list.members componentsJoinedByString:@" "]);
     
     // Save changes:
     NSError* error;

@@ -12,8 +12,18 @@
 #import "Profile.h"
 #import "NSString+Additions.h"
 
-#define kSyncUrl @"http://demo.mobile.couchbase.com/todolite"
+// Sync Gateway
+#define kSyncGatewayUrl @"http://demo.mobile.couchbase.com/todolite"
+#define kSyncGatewayWebSocketSupport NO
+
+// Facebook APP ID
 #define kFBAppId @"501518809925546"
+
+// Guest DB Name
+#define kGuestDBName @"guest"
+
+// For Application Migration
+#define kMigrationVersion @"MigrationVersion"
 
 @interface AppDelegate () <UISplitViewControllerDelegate>
 
@@ -26,15 +36,14 @@
 
 @implementation AppDelegate
 
-
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    // Override point for customization after application launch.
+    [self migrateOldVersionApp];
+    
     if ([self isFirstTimeUsed] || self.isGuestLoggedIn) {
         [self loginAsGuest];
     }
     
     if (FBSession.activeSession.state == FBSessionStateCreatedTokenLoaded) {
-        NSLog(@"Found a cached facebook session");
         // If there's one, just open the session silently, without showing the user the login UI
         [self openFacebookSessionWithUIDisplay:NO];
     }
@@ -53,15 +62,24 @@
 // During the Facebook login flow, your app passes control to the Facebook iOS app or Facebook in a mobile browser.
 // After authentication, your app will be called back with the session information.
 // Override application:openURL:sourceApplication:annotation to call the FBsession object that handles the incoming URL
-- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication
+         annotation:(id)annotation {
     return [FBSession.activeSession handleOpenURL:url];
 }
 
 - (void)replaceRootViewController:(UIViewController *)controller {
     if ([controller isKindOfClass:[UISplitViewController class]]) {
+        // Setup SplitViewController to work correctly on both iPhone and iPad
         UISplitViewController *splitViewController = (UISplitViewController *)controller;
-        UINavigationController *navigationController = [splitViewController.viewControllers lastObject];
-        navigationController.topViewController.navigationItem.leftBarButtonItem = splitViewController.displayModeButtonItem;
+        // Support both iOS7 and iOS8
+        UIViewController *targetController = nil;
+        if ([[splitViewController.viewControllers lastObject] isKindOfClass:[UINavigationController class]]) {
+            UINavigationController *navigationController = [splitViewController.viewControllers lastObject];
+            targetController = navigationController.topViewController;
+        } else {
+            targetController = [splitViewController.viewControllers lastObject];
+        }
+        targetController.navigationItem.leftBarButtonItem = splitViewController.displayModeButtonItem;
         splitViewController.delegate = self;
     }
     self.window.rootViewController = controller;
@@ -111,38 +129,88 @@
     [self didChangeValueForKey:@"database"];
 }
 
+- (NSString *)databaseNameForName:(NSString *)name {
+    return [NSString stringWithFormat:@"db%@", [[name MD5] lowercaseString]];
+}
+
 - (CBLDatabase *)databaseForName:(NSString *)name {
-    NSString *dbName = [NSString stringWithFormat:@"db%@", [[name MD5] lowercaseString]];
+    NSString *dbName = [self databaseNameForName:name];
     NSError *error;
     CBLDatabase *database = [[CBLManager sharedInstance] databaseNamed:dbName error:&error];
     if (error) {
-        NSLog(@"Cannot Create Database with Error : %@", [error description]);
+        NSLog(@"Cannot create database with an error : %@", [error description]);
     }
-
     return database;
 }
 
 - (CBLDatabase *)databaseForUser:(NSString *)user {
     if (!user) return nil;
-    return [self databaseForName:[NSString stringWithFormat:@"user_%@", user]];
+    return [self databaseForName:user];
 }
 
 - (CBLDatabase *)databaseForGuest {
-    return [self databaseForName:@"guest"];
+    return [self databaseForName:kGuestDBName];
+}
+
+#pragma mark - Migration
+
+- (void)migrateOldVersionApp {
+    NSString *mVer = [[NSUserDefaults standardUserDefaults] objectForKey:kMigrationVersion];
+    if (!mVer || [mVer compare:@"1.3" options:NSNumericSearch] == NSOrderedAscending) {
+        CBLManager *manager = [CBLManager sharedInstance];
+        CBLDatabase *todosDb = [manager existingDatabaseNamed:@"todos" error:nil];
+        if (!todosDb) {
+            return;
+        }
+        
+        if (todosDb.documentCount > 0) {
+            NSString *userId = [[NSUserDefaults standardUserDefaults] objectForKey:@"CBLFBUserID"];
+            NSString *dbName;
+            if (userId) {
+                dbName = [self databaseNameForName:userId];
+            } else {
+                dbName = [self databaseNameForName:kGuestDBName];
+            }
+            
+            NSString *oldDbPath = [[manager directory] stringByAppendingPathComponent:@"todos.cblite"];
+            NSString *oldDbAttachmentPath = [[oldDbPath stringByDeletingPathExtension]
+                                             stringByAppendingString:@" attachments"];
+            NSError *error;
+            [manager replaceDatabaseNamed:dbName
+                         withDatabaseFile:oldDbPath
+                          withAttachments:oldDbAttachmentPath
+                                    error:&error];
+            if (error) {
+                NSLog(@"Cannot replace database when migrating the app to v1.3 with an error: %@",
+                      [error description]);
+            }
+        }
+        
+        NSError *error;
+        [todosDb deleteDatabase:&error];
+        if (error) {
+            NSLog(@"Cannot delete 'todos' database when migrating the app to v1.3 with an error: %@",
+                  [error description]);
+        }
+        
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"CBLFBUserID"];
+        [[NSUserDefaults standardUserDefaults] setObject:@"1.3" forKey:kMigrationVersion];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+    }
 }
 
 #pragma mark - Replication
 
 - (void)startReplicationWithFacebookAccessToken:(NSString *)token {
-    NSAssert(token, @"Facebook token is nil.");
+    NSAssert(token, @"Facebook token is nil");
     
     if (!_pull) {
-        NSURL *syncUrl = [NSURL URLWithString:kSyncUrl];
+        NSURL *syncUrl = [NSURL URLWithString:kSyncGatewayUrl];
         _pull = [self.database createPullReplication:syncUrl];
         _pull.continuous  = YES;
-        
-        // websockets disabled until https://github.com/couchbase/couchbase-lite-ios/issues/480 is fixed
-        _pull.customProperties = @{@"websocket": @NO};
+        if (!kSyncGatewayWebSocketSupport) {
+            _pull.customProperties = @{@"websocket": @NO};
+        }
         
         _push = [self.database createPushReplication:syncUrl];
         _push.continuous = YES;
@@ -175,7 +243,7 @@
     if (error != _lastSyncError) {
         _lastSyncError = error;
         if (error) {
-            // TODO:
+            // TODO: Handle sync error properly
         }
     }
 }
@@ -254,17 +322,17 @@
     
     Profile *profile = [Profile profileInDatabase:database forUserID:userId];
     if (!profile) {
-        NSError *error;
         profile = [[Profile alloc] initProfileInDatabase:self.database withName:name andUserID:userId];
-        [profile save:&error];
-        if (error) {
+        NSError *error;
+        if ([profile save:&error]) {
+            [self migrateGuestDataToUser:profile];
+        } else {
             NSLog(@"Cannot create a new user profile : %@", [error description]);
             [self showMessage:@"Cannot create a new user profile" withTitle:@"Error"];
         }
     }
     
-    if (profile){
-        [self migrateGuestDataForUserProfile:profile];
+    if (profile) {
         [self startReplicationWithFacebookAccessToken:tokenData.accessToken];
     }
 }
@@ -280,8 +348,81 @@
                afterDelay:0.0];
 }
 
-- (void)migrateGuestDataForUserProfile:(Profile *)profile {
-    // TODO:
+- (void)migrateGuestDataToUser:(Profile *)profile {
+    CBLDatabase *guestDB = [self databaseForGuest];
+    if (guestDB.lastSequenceNumber > 0) {
+        CBLQueryEnumerator *rows = [[guestDB createAllDocumentsQuery] run:nil];
+        if (!rows) {
+            return;
+        }
+        
+        NSError *error;
+        CBLDatabase *userDB = profile.database;
+        for (CBLQueryRow *row in rows) {
+            CBLDocument *doc = row.document;
+            
+            CBLDocument *newDoc = [userDB documentWithID:doc.documentID];
+            [newDoc putProperties:doc.userProperties error:&error];
+            if (error) {
+                NSLog(@"Error when saving a new document during migrating guest data : %@",
+                      [error description]);
+                continue;
+            }
+            
+            NSArray *attachments = doc.currentRevision.attachments;
+            if ([attachments count] > 0) {
+                CBLUnsavedRevision *rev = [newDoc.currentRevision createRevision];
+                for (CBLAttachment *att in attachments) {
+                    [rev setAttachmentNamed:att.name withContentType:att.contentType content:att.content];
+                }
+                
+                CBLSavedRevision *saved = [rev save:&error];
+                if (!saved) {
+                    NSLog(@"Error when saving an attachment during migrating guest data : %@",
+                          [error description]);
+                }
+            }
+        }
+        
+        error = nil;
+        [List updateAllListsInDatabase:profile.database withOwner:profile error:&error];
+        if (error) {
+            NSLog(@"Error when transfering the ownership of the list documents : %@",
+                  [error description]);
+        }
+        
+        error = nil;
+        if (![guestDB deleteDatabase:&error]) {
+            NSLog(@"Error when deleting the guest database during migrating guest data : %@",
+                  [error description]);
+        }
+    }
+}
+
+- (void)migrateGuestDataIfAvailableToUserDatabase:(CBLDatabase *)userDB {
+    CBLManager *manager = [CBLManager sharedInstance];
+    CBLDatabase *guestDB = [self databaseForGuest];
+    if (guestDB.lastSequenceNumber > 0) {
+        NSString *guestDBPath = [[manager directory] stringByAppendingPathComponent:
+                                 [NSString stringWithFormat:@"%@.cblite",
+                                  [self databaseNameForName:kGuestDBName]]];
+        NSString *guestAttPath = [[guestDBPath stringByDeletingPathExtension]
+                                  stringByAppendingString:@" attachments"];
+        NSError *error;
+        [manager replaceDatabaseNamed:userDB.name
+                     withDatabaseFile:guestDBPath
+                      withAttachments:guestAttPath
+                                error:&error];
+        if (error) {
+            NSLog(@"Migrating guest data has an error : %@", [error description]);
+        }
+    }
+    
+    NSError *error;
+    [guestDB deleteDatabase:&error];
+    if (error) {
+        NSLog(@"Migrating guest data, deleting the guest database has an error : %@", [error description]);
+    }
 }
 
 #pragma mark - Facebook
@@ -295,14 +436,15 @@
 
 - (void)facebookSessionStateChanged:(FBSession *)session state:(FBSessionState) state error:(NSError *)error {
     if (!error && state == FBSessionStateOpen){
-        [FBRequestConnection startForMeWithCompletionHandler:^(FBRequestConnection *connection, id result, NSError *error) {
-            if (!error) {
-                [self loginWithFacebookUserInfo:(NSDictionary *)result accessTokenData:session.accessTokenData];
-            } else {
-                [FBSession.activeSession closeAndClearTokenInformation];
-            }
+        [FBRequestConnection startForMeWithCompletionHandler:
+         ^(FBRequestConnection *connection, id result, NSError *error) {
+             if (!error) {
+                 [self loginWithFacebookUserInfo:(NSDictionary *)result accessTokenData:session.accessTokenData];
+             } else {
+                 [FBSession.activeSession closeAndClearTokenInformation];
+             }
             [self notifyFacebookLoginResult:(!error) error:error];
-        }];
+         }];
         return;
     }
     

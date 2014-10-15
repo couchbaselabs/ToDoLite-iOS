@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		936A28B919EE73C300FE0206 /* CouchbaseLite.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 936A28B719EE73C300FE0206 /* CouchbaseLite.framework */; };
+		936A28BA19EE73C300FE0206 /* FacebookSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 936A28B819EE73C300FE0206 /* FacebookSDK.framework */; };
 		9386F56F19EC44AB005AC336 /* ShareViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9386F56E19EC44AB005AC336 /* ShareViewController.m */; };
 		9386F57219EC84F0005AC336 /* LoginViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9386F57119EC84F0005AC336 /* LoginViewController.m */; };
 		93BC251E19EC992A0072AFB7 /* ReplaceRootViewControllerSegue.m in Sources */ = {isa = PBXBuildFile; fileRef = 93BC251D19EC992A0072AFB7 /* ReplaceRootViewControllerSegue.m */; };
@@ -23,7 +25,6 @@
 		93F162B619E981490031E7CB /* Profile.m in Sources */ = {isa = PBXBuildFile; fileRef = 93F162B019E981490031E7CB /* Profile.m */; };
 		93F162B719E981490031E7CB /* Task.m in Sources */ = {isa = PBXBuildFile; fileRef = 93F162B219E981490031E7CB /* Task.m */; };
 		93F162B819E981490031E7CB /* Titled.m in Sources */ = {isa = PBXBuildFile; fileRef = 93F162B419E981490031E7CB /* Titled.m */; };
-		93F162BC19E981A10031E7CB /* CouchbaseLite.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93F162BB19E981A10031E7CB /* CouchbaseLite.framework */; };
 		93F162BE19E982040031E7CB /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93F162BD19E982040031E7CB /* CFNetwork.framework */; };
 		93F162C019E9820C0031E7CB /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93F162BF19E9820C0031E7CB /* Security.framework */; };
 		93F162C219E982160031E7CB /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93F162C119E982160031E7CB /* SystemConfiguration.framework */; };
@@ -33,7 +34,6 @@
 		93F162CE19E982AD0031E7CB /* RoundedButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 93F162CB19E982AD0031E7CB /* RoundedButton.m */; };
 		93F162CF19E982AD0031E7CB /* TaskTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 93F162CD19E982AD0031E7CB /* TaskTableViewCell.m */; };
 		93F162D519E982D40031E7CB /* ImageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 93F162D319E982D40031E7CB /* ImageViewController.m */; };
-		93F162DC19EA448E0031E7CB /* FacebookSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93F162DB19EA448E0031E7CB /* FacebookSDK.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,6 +47,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		936A28B719EE73C300FE0206 /* CouchbaseLite.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CouchbaseLite.framework; path = Framework/CouchbaseLite.framework; sourceTree = SOURCE_ROOT; };
+		936A28B819EE73C300FE0206 /* FacebookSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FacebookSDK.framework; path = Framework/FacebookSDK.framework; sourceTree = SOURCE_ROOT; };
 		9386F56D19EC44AB005AC336 /* ShareViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShareViewController.h; sourceTree = "<group>"; };
 		9386F56E19EC44AB005AC336 /* ShareViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShareViewController.m; sourceTree = "<group>"; };
 		9386F57019EC84F0005AC336 /* LoginViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoginViewController.h; sourceTree = "<group>"; };
@@ -78,7 +80,6 @@
 		93F162B219E981490031E7CB /* Task.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Task.m; sourceTree = "<group>"; };
 		93F162B319E981490031E7CB /* Titled.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Titled.h; sourceTree = "<group>"; };
 		93F162B419E981490031E7CB /* Titled.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Titled.m; sourceTree = "<group>"; };
-		93F162BB19E981A10031E7CB /* CouchbaseLite.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = CouchbaseLite.framework; sourceTree = "<group>"; };
 		93F162BD19E982040031E7CB /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		93F162BF19E9820C0031E7CB /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		93F162C119E982160031E7CB /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
@@ -91,7 +92,6 @@
 		93F162CD19E982AD0031E7CB /* TaskTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TaskTableViewCell.m; sourceTree = "<group>"; };
 		93F162D219E982D40031E7CB /* ImageViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageViewController.h; sourceTree = "<group>"; };
 		93F162D319E982D40031E7CB /* ImageViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageViewController.m; sourceTree = "<group>"; };
-		93F162DB19EA448E0031E7CB /* FacebookSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = FacebookSDK.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -104,9 +104,9 @@
 				93F162C419E9822E0031E7CB /* libsqlite3.dylib in Frameworks */,
 				93F162C219E982160031E7CB /* SystemConfiguration.framework in Frameworks */,
 				93F162C019E9820C0031E7CB /* Security.framework in Frameworks */,
-				93F162DC19EA448E0031E7CB /* FacebookSDK.framework in Frameworks */,
+				936A28BA19EE73C300FE0206 /* FacebookSDK.framework in Frameworks */,
 				93F162BE19E982040031E7CB /* CFNetwork.framework in Frameworks */,
-				93F162BC19E981A10031E7CB /* CouchbaseLite.framework in Frameworks */,
+				936A28B919EE73C300FE0206 /* CouchbaseLite.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -120,6 +120,22 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		936A28B219EE710800FE0206 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				936A28B719EE73C300FE0206 /* CouchbaseLite.framework */,
+				936A28B819EE73C300FE0206 /* FacebookSDK.framework */,
+				93F162C119E982160031E7CB /* SystemConfiguration.framework */,
+				93F162BF19E9820C0031E7CB /* Security.framework */,
+				93F162BD19E982040031E7CB /* CFNetwork.framework */,
+				93F162C719E982640031E7CB /* libc++.dylib */,
+				93F162C519E9824F0031E7CB /* libz.dylib */,
+				93F162C319E9822E0031E7CB /* libsqlite3.dylib */,
+			);
+			name = Frameworks;
+			path = ToDoLite;
+			sourceTree = "<group>";
+		};
 		93BC251F19ECAD400072AFB7 /* Extension */ = {
 			isa = PBXGroup;
 			children = (
@@ -135,7 +151,7 @@
 				93F1627519E97FC40031E7CB /* ToDoLite */,
 				93F1629219E97FC40031E7CB /* ToDoLiteTests */,
 				93F1627419E97FC40031E7CB /* Products */,
-				93F162BA19E981A10031E7CB /* Framework */,
+				936A28B219EE710800FE0206 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -213,21 +229,6 @@
 				93F162B419E981490031E7CB /* Titled.m */,
 			);
 			name = Model;
-			sourceTree = "<group>";
-		};
-		93F162BA19E981A10031E7CB /* Framework */ = {
-			isa = PBXGroup;
-			children = (
-				93F162DB19EA448E0031E7CB /* FacebookSDK.framework */,
-				93F162C119E982160031E7CB /* SystemConfiguration.framework */,
-				93F162BF19E9820C0031E7CB /* Security.framework */,
-				93F162BD19E982040031E7CB /* CFNetwork.framework */,
-				93F162C719E982640031E7CB /* libc++.dylib */,
-				93F162C519E9824F0031E7CB /* libz.dylib */,
-				93F162C319E9822E0031E7CB /* libsqlite3.dylib */,
-				93F162BB19E981A10031E7CB /* CouchbaseLite.framework */,
-			);
-			path = Framework;
 			sourceTree = "<group>";
 		};
 		93F162C919E9829C0031E7CB /* View */ = {
@@ -486,6 +487,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Framework",
+					"$(PROJECT_DIR)/Frameworks",
 				);
 				INFOPLIST_FILE = ToDoLite/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
@@ -502,6 +504,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Framework",
+					"$(PROJECT_DIR)/Frameworks",
 				);
 				INFOPLIST_FILE = ToDoLite/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
