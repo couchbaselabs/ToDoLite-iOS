@@ -6,5 +6,5 @@
 xcuserdata/
 build
 DerivedData
-*.framework
+CouchbaseLite.framework
 *.xccheckout
