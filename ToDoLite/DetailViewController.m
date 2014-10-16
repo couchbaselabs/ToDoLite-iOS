@@ -32,6 +32,12 @@
         _list = list;
         [self configureView];
     }
+    
+    AppDelegate *app = [[UIApplication sharedApplication] delegate];
+    if ([[[UIDevice currentDevice] systemVersion] compare:@"8.0" options:NSNumericSearch] == NSOrderedAscending) {
+        self.navigationItem.leftBarButtonItem = app.displayModeButtonItem;
+    }
+    [[app popoverController] dismissPopoverAnimated:YES];
 }
 
 - (void)configureView {
@@ -131,7 +137,7 @@
     if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad &&
         sourceType == UIImagePickerControllerSourceTypePhotoLibrary) {
         imagePickerPopover = [[UIPopoverController alloc] initWithContentViewController:picker];
-        [imagePickerPopover presentPopoverFromRect:self.view.bounds
+        [imagePickerPopover presentPopoverFromRect:CGRectMake(0, 360, 10, 10)
                                             inView:self.view
                           permittedArrowDirections:UIPopoverArrowDirectionAny
                                           animated:YES];

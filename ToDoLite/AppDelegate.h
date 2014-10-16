@@ -18,6 +18,12 @@
 
 @property (strong, nonatomic, readonly) NSString *currentUserId;
 
+// For UISplitViewController
+@property (readonly, strong, nonatomic) UIPopoverController *popoverController;
+
+// For UISplitViewController (iOS7)
+@property (readonly, strong, nonatomic) UIBarButtonItem *displayModeButtonItem;
+
 - (void)loginAsGuest;
 
 - (void)loginWithFacebook:(void (^)(BOOL success, NSError *error))result;

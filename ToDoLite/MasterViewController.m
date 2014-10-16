@@ -25,6 +25,11 @@
     if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
         self.preferredContentSize = CGSizeMake(320.0, 600.0);
     }
+    
+    // There is a bug in iOS8 UISplitViewController on iPads that doesn't set the main button item
+    // correctly during its first display. A work would be manually setting the master
+    // controller title here.
+    self.title = @"ToDo Lists";
 }
 
 - (void)viewDidLoad {
@@ -64,13 +69,20 @@
         CBLQueryRow *row = [self.dataSource rowAtIndex:indexPath.row];
         List *list = [List modelForDocument:row.document];
         
-        // Support both iOS7 and iOS8
         DetailViewController *controller;
         if ([[segue destinationViewController] isKindOfClass:[UINavigationController class]]) {
             controller = (DetailViewController *)[[segue destinationViewController] topViewController];
         } else {
             controller = [segue destinationViewController];
         }
+        
+        if ([[[UIDevice currentDevice] systemVersion] compare:@"8.0" options:NSNumericSearch] != NSOrderedAscending) {
+            controller.navigationItem.leftBarButtonItem = self.splitViewController.displayModeButtonItem;
+            controller.navigationItem.leftItemsSupplementBackButton = YES;
+        } else {
+            // For iOS7, Setting the display mode is done in DetailViewController.setList: method.
+        }
+        
         controller.list = list;
     }
 }

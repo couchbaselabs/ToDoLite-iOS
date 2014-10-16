@@ -69,33 +69,17 @@
 
 - (void)replaceRootViewController:(UIViewController *)controller {
     if ([controller isKindOfClass:[UISplitViewController class]]) {
-        // Setup SplitViewController to work correctly on both iPhone and iPad
+        // Setup SplitViewController
         UISplitViewController *splitViewController = (UISplitViewController *)controller;
-        // Support both iOS7 and iOS8
-        UIViewController *targetController = nil;
-        if ([[splitViewController.viewControllers lastObject] isKindOfClass:[UINavigationController class]]) {
-            UINavigationController *navigationController = [splitViewController.viewControllers lastObject];
-            targetController = navigationController.topViewController;
-        } else {
-            targetController = [splitViewController.viewControllers lastObject];
+        if ([[[UIDevice currentDevice] systemVersion] compare:@"8.0" options:NSNumericSearch] != NSOrderedAscending) {
+            if ([[splitViewController.viewControllers lastObject] isKindOfClass:[UINavigationController class]]) {
+                UINavigationController *navigationController = [splitViewController.viewControllers lastObject];
+                navigationController.topViewController.navigationItem.leftBarButtonItem = splitViewController.displayModeButtonItem;
+            }
         }
-        targetController.navigationItem.leftBarButtonItem = splitViewController.displayModeButtonItem;
         splitViewController.delegate = self;
     }
     self.window.rootViewController = controller;
-}
-
-#pragma mark - Split view
-
-- (BOOL)splitViewController:(UISplitViewController *)splitViewController collapseSecondaryViewController:(UIViewController *)secondaryViewController ontoPrimaryViewController:(UIViewController *)primaryViewController {
-    if ([secondaryViewController isKindOfClass:[UINavigationController class]] &&
-        [[(UINavigationController *)secondaryViewController topViewController] isKindOfClass:[DetailViewController class]] &&
-        ([(DetailViewController *)[(UINavigationController *)secondaryViewController topViewController] list] == nil)) {
-        // Return YES to indicate that we have handled the collapse by doing nothing; the secondary controller will be discarded.
-        return YES;
-    } else {
-        return NO;
-    }
 }
 
 #pragma mark - Properties
@@ -475,6 +459,33 @@
         [self notifyFacebookLoginResult:NO error:error];
         [FBSession.activeSession closeAndClearTokenInformation];
     }
+}
+
+#pragma mark - Split view
+
+- (BOOL)splitViewController:(UISplitViewController *)splitViewController collapseSecondaryViewController:(UIViewController *)secondaryViewController ontoPrimaryViewController:(UIViewController *)primaryViewController {
+    if ([secondaryViewController isKindOfClass:[UINavigationController class]] &&
+        [[(UINavigationController *)secondaryViewController topViewController] isKindOfClass:[DetailViewController class]] &&
+        ([(DetailViewController *)[(UINavigationController *)secondaryViewController topViewController] list] == nil)) {
+        return YES;
+    } else {
+        return NO;
+    }
+}
+
+- (void)splitViewController:(UISplitViewController *)splitViewController
+     willHideViewController:(UIViewController *)viewController
+          withBarButtonItem:(UIBarButtonItem *)barButtonItem
+       forPopoverController:(UIPopoverController *)popoverController {
+    
+    if ([[[UIDevice currentDevice] systemVersion] compare:@"8.0" options:NSNumericSearch] == NSOrderedAscending) {
+        // For iOS7
+        UINavigationController *navigationController = [splitViewController.viewControllers lastObject];
+        navigationController.topViewController.navigationItem.leftBarButtonItem = barButtonItem;
+    }
+    
+    _popoverController = popoverController;
+    _displayModeButtonItem = barButtonItem;
 }
 
 @end
