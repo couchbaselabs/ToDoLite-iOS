@@ -3,6 +3,7 @@
     <dependencies>
         <deployment defaultVersion="1792" identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6238"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
         <!--Master-->
@@ -242,15 +243,6 @@
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="O58-9d-EbZ" id="SOV-5U-3TI">
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="C4r-v3-xsb">
-                                                    <rect key="frame" x="64" y="17" width="479" height="29"/>
-                                                    <constraints>
-                                                        <constraint firstAttribute="height" constant="29" id="geL-mU-P0B"/>
-                                                    </constraints>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                    <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
-                                                    <nil key="highlightedColor"/>
-                                                </label>
                                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="uAg-Zf-uRZ" customClass="RoundedButton">
                                                     <rect key="frame" x="10" y="10" width="44" height="44"/>
                                                     <constraints>
@@ -264,15 +256,22 @@
                                                         <action selector="imageButtonAction:" destination="O58-9d-EbZ" eventType="touchUpInside" id="uFC-d9-ZOU"/>
                                                     </connections>
                                                 </button>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="C4r-v3-xsb">
+                                                    <rect key="frame" x="64" y="17" width="479" height="29"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="height" constant="29" id="geL-mU-P0B"/>
+                                                    </constraints>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
                                             </subviews>
                                             <constraints>
-                                                <constraint firstItem="C4r-v3-xsb" firstAttribute="leading" secondItem="uAg-Zf-uRZ" secondAttribute="trailing" constant="10" id="QA1-Bw-8Bm"/>
-                                                <constraint firstItem="C4r-v3-xsb" firstAttribute="top" secondItem="SOV-5U-3TI" secondAttribute="top" constant="17" id="Zgu-qr-0JQ"/>
-                                                <constraint firstAttribute="bottom" secondItem="C4r-v3-xsb" secondAttribute="bottom" constant="17" id="eJB-Td-sWB"/>
-                                                <constraint firstItem="uAg-Zf-uRZ" firstAttribute="top" secondItem="SOV-5U-3TI" secondAttribute="top" constant="10" id="j4b-Oo-r7E"/>
-                                                <constraint firstAttribute="trailing" secondItem="C4r-v3-xsb" secondAttribute="trailing" constant="18" id="l2B-rl-Slr"/>
-                                                <constraint firstItem="uAg-Zf-uRZ" firstAttribute="leading" secondItem="SOV-5U-3TI" secondAttribute="leading" constant="10" id="ldw-Q9-163"/>
-                                                <constraint firstAttribute="bottom" secondItem="uAg-Zf-uRZ" secondAttribute="bottom" constant="9" id="xwB-Du-auz"/>
+                                                <constraint firstAttribute="centerY" secondItem="uAg-Zf-uRZ" secondAttribute="centerY" id="9ye-Ul-e1V"/>
+                                                <constraint firstItem="C4r-v3-xsb" firstAttribute="leading" secondItem="uAg-Zf-uRZ" secondAttribute="trailing" constant="10" id="GFm-bf-q9o"/>
+                                                <constraint firstItem="uAg-Zf-uRZ" firstAttribute="leading" secondItem="SOV-5U-3TI" secondAttribute="leading" constant="10" id="JGN-Ze-yqf"/>
+                                                <constraint firstAttribute="trailingMargin" secondItem="C4r-v3-xsb" secondAttribute="trailing" constant="10" id="m95-RM-obv"/>
+                                                <constraint firstAttribute="centerY" secondItem="C4r-v3-xsb" secondAttribute="centerY" id="mTV-0l-bFT"/>
                                             </constraints>
                                         </tableViewCellContentView>
                                         <connections>
