@@ -39,6 +39,10 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+
+    if (!self.database) {
+        [self setup];
+    }
     
     AppDelegate *app = [[UIApplication sharedApplication] delegate];
     [app addObserver:self forKeyPath:@"database"
