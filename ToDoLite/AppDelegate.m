@@ -279,7 +279,7 @@
 }
 
 - (void)openFacebookSessionWithUIDisplay:(BOOL)display {
-    [FBSession openActiveSessionWithReadPermissions:@[@"public_profile"]
+    [FBSession openActiveSessionWithReadPermissions:@[@"public_profile", @"email"]
                                        allowLoginUI:display
                                   completionHandler:
      ^(FBSession *session, FBSessionState state, NSError *error) {
@@ -297,7 +297,12 @@
     
     NSString *userId = [info objectForKey:@"email"];
     NSString *name = [info objectForKey:@"name"];
-    
+
+    if (!userId) {
+        [self showMessage:@"Couldn't access email info from your facebook Account." withTitle:@"Error"];
+        return;
+    }
+
     [self setCurrentUserId:userId];
     
     CBLDatabase *database = [self databaseForUser:userId];
