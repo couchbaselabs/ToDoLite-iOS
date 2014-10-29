@@ -23,7 +23,4 @@
 /** The user_id is usually an email address. */
 @property (readwrite) NSString* user_id;
 
-/** The type is "profile". */
-@property (readwrite) NSString* type;
-
 @end
