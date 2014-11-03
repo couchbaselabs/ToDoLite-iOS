@@ -42,13 +42,20 @@
     if ([self isFirstTimeUsed] || self.isGuestLoggedIn) {
         [self loginAsGuest];
     }
-    
+
+    BOOL shouldShowLogin = NO;
     if (FBSession.activeSession.state == FBSessionStateCreatedTokenLoaded) {
         // If there's one, just open the session silently, without showing the user the login UI
         [self openFacebookSessionWithUIDisplay:NO];
+    } else if (FBSession.activeSession.state == FBSessionStateCreated) {
+        if ([self isUserLoggedIn]) {
+            // This is the state that the user is previously logged in but the session cache is gone
+            // somehow. We need to force showing the login page.
+            shouldShowLogin = YES;
+        }
     }
-    
-    BOOL shouldSkipLogin = [self isUserLoggedIn] || [self isGuestLoggedIn];
+
+    BOOL shouldSkipLogin = !shouldShowLogin && ([self isUserLoggedIn] || [self isGuestLoggedIn]);
     LoginViewController *loginViewController = (LoginViewController *)self.window.rootViewController;
     loginViewController.shouldSkipLogin = shouldSkipLogin;
     
