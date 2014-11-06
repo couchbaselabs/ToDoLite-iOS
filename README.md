@@ -6,7 +6,9 @@ This is a demo app showing how to use the [Couchbase Lite][CBL] framework to emb
 
 The app is a simple shared to-do list manager. Users can create multiple lists, each with its own items that can be checked off when done. Lists are private by default but can be shared with other users (which is very useful if your housemate is halfway to the grocery store when you remember you're out of pasta.)
 
-Note: Equivalent demo apps are available for [PhoneGap](https://github.com/couchbaselabs/ToDoLite-Phonegap), and [Android](https://github.com/couchbaselabs/ToDoLite-Android).
+You can download a pre-buit version from the [iTunes App Store](https://itunes.apple.com/uy/app/todo-lite-sync/id697235451?mt=8).
+
+TodoLite for the [PhoneGap](https://github.com/couchbaselabs/ToDoLite-Phonegap) and [Android](https://github.com/couchbaselabs/ToDoLite-Android) platforms are also available.
 
 ### Benefits of Couchbase Lite
 
