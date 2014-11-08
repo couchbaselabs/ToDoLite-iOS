@@ -18,6 +18,7 @@
     Task *taskToAddImageTo;
     UIImage *imageForNewTask;
     UIImage *imageToDisplay;
+    UIView *imageActionSheetSenderView;
     UIPopoverController *imagePickerPopover;
 }
 
@@ -113,6 +114,7 @@
 
 - (void)displayAddImageActionSheetFor:(UIView *)sender forTask:(Task *)task {
     taskToAddImageTo = task;
+    imageActionSheetSenderView = sender;
 
     UIActionSheet *actionSheet = [[UIActionSheet alloc] init];
 
@@ -126,7 +128,8 @@
     [actionSheet showFromRect:sender.frame inView:[sender superview] animated:YES];
 }
 
-- (void)displayImagePickerForSourceType:(UIImagePickerControllerSourceType)sourceType {
+- (void)displayImagePickerForSender:(UIView *)senderView
+                         sourceType:(UIImagePickerControllerSourceType)sourceType {
     UIImagePickerController *picker = [[UIImagePickerController alloc] init];
     picker.sourceType = sourceType;
     picker.allowsEditing = YES;
@@ -136,11 +139,13 @@
 
     if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad &&
         sourceType == UIImagePickerControllerSourceTypePhotoLibrary) {
-        imagePickerPopover = [[UIPopoverController alloc] initWithContentViewController:picker];
-        [imagePickerPopover presentPopoverFromRect:CGRectMake(0, 360, 10, 10)
-                                            inView:self.view
-                          permittedArrowDirections:UIPopoverArrowDirectionAny
-                                          animated:YES];
+            CGRect displayFrame = [[senderView superview]
+                                   convertRect:senderView.frame toView:self.view];
+            imagePickerPopover = [[UIPopoverController alloc] initWithContentViewController:picker];
+            [imagePickerPopover presentPopoverFromRect:displayFrame
+                                                inView:self.view
+                              permittedArrowDirections:UIPopoverArrowDirectionAny
+                                              animated:YES];
     } else {
         [self presentViewController:picker animated:YES completion:^{ }];
     }
@@ -202,7 +207,10 @@
 
     UIImagePickerControllerSourceType sourceType = ([self hasCamera] && buttonIndex == 0) ?
     UIImagePickerControllerSourceTypeCamera : UIImagePickerControllerSourceTypePhotoLibrary;
-    [self displayImagePickerForSourceType:sourceType];
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self displayImagePickerForSender:imageActionSheetSenderView sourceType:sourceType];
+    });
 }
 
 
