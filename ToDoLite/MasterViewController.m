@@ -182,7 +182,7 @@
     AppDelegate *app = [[UIApplication sharedApplication] delegate];
     NSString *currentUserId = app.currentUserId;
     if (currentUserId) {
-        Profile *owner = [Profile profileInDatabase:self.database forUserID:currentUserId];
+        Profile *owner = [Profile profileInDatabase:self.database forExistingUserId:currentUserId];
         list.owner = owner;
     }
     

@@ -316,9 +316,9 @@
     [self setCurrentDatabase:database];
     [self setGuestLoggedIn:NO];
     
-    Profile *profile = [Profile profileInDatabase:database forUserID:userId];
+    Profile *profile = [Profile profileInDatabase:database forExistingUserId:userId];
     if (!profile) {
-        profile = [[Profile alloc] initProfileInDatabase:self.database withName:name andUserID:userId];
+        profile = [Profile profileInDatabase:database forNewUserId:userId name:name];
         NSError *error;
         if ([profile save:&error]) {
             [self migrateGuestDataToUser:profile];
