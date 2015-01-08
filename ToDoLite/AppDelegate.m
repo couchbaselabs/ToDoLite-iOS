@@ -338,6 +338,7 @@
     [self setCurrentUserId:nil];
     [self stopReplication];
     [self setCurrentDatabase:nil];
+    [self removeSessionCookie];
     
     [self performSelector:@selector(replaceRootViewController:)
                withObject:[self.window.rootViewController.storyboard instantiateInitialViewController]
@@ -418,6 +419,17 @@
     [guestDB deleteDatabase:&error];
     if (error) {
         NSLog(@"Migrating guest data, deleting the guest database has an error : %@", [error description]);
+    }
+}
+
+// Clear the SyncGateway session cookie when logging out
+// In the future the replication object may handle that: https://github.com/couchbase/couchbase-lite-ios/issues/543
+- (void)removeSessionCookie {
+    NSHTTPCookieStorage *cookieJar = NSHTTPCookieStorage.sharedHTTPCookieStorage;
+    for (NSHTTPCookie *aCookie in cookieJar.cookies) {
+        if ([aCookie.name  isEqual: @"SyncGatewaySession"]) {
+            [cookieJar deleteCookie:aCookie];
+        }
     }
 }
 
