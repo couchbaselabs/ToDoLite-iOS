@@ -302,7 +302,7 @@
 - (void)loginWithFacebookUserInfo:(NSDictionary *)info accessTokenData:(FBAccessTokenData *)tokenData {
     NSAssert(tokenData, @"Facebook Access Token Data is nil");
     
-    NSString *userId = [info objectForKey:@"email"];
+    NSString *userId = [info objectForKey:@"id"];
     NSString *name = [info objectForKey:@"name"];
 
     if (!userId) {
