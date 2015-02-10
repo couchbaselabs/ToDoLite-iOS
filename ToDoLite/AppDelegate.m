@@ -16,9 +16,6 @@
 #define kSyncGatewayUrl @"http://demo.mobile.couchbase.com/todolite"
 #define kSyncGatewayWebSocketSupport NO
 
-// Facebook APP ID
-#define kFBAppId @"501518809925546"
-
 // Guest DB Name
 #define kGuestDBName @"guest"
 
