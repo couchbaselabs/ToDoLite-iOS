@@ -54,7 +54,7 @@ Released under the Apache license, 2.0.
 Copyright 2011-2014, Couchbase, Inc.
 
 
-[CBL]: https://github.com/couchbaselabs/Couchbase-Lite-iOS/
+[CBL]: https://github.com/couchbase/Couchbase-Lite-iOS/
 [CBS]: http://www.couchbase.com/couchbase-server/overview
 [TODO_PHONEGAP]: https://github.com/couchbaselabs/TodoLite-PhoneGap
 [LIST]: https://groups.google.com/group/mobile-couchbase
