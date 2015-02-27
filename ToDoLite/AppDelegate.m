@@ -392,32 +392,6 @@
     }
 }
 
-- (void)migrateGuestDataIfAvailableToUserDatabase:(CBLDatabase *)userDB {
-    CBLManager *manager = [CBLManager sharedInstance];
-    CBLDatabase *guestDB = [self databaseForGuest];
-    if (guestDB.lastSequenceNumber > 0) {
-        NSString *guestDBPath = [[manager directory] stringByAppendingPathComponent:
-                                 [NSString stringWithFormat:@"%@.cblite",
-                                  [self databaseNameForName:kGuestDBName]]];
-        NSString *guestAttPath = [[guestDBPath stringByDeletingPathExtension]
-                                  stringByAppendingString:@" attachments"];
-        NSError *error;
-        [manager replaceDatabaseNamed:userDB.name
-                     withDatabaseFile:guestDBPath
-                      withAttachments:guestAttPath
-                                error:&error];
-        if (error) {
-            NSLog(@"Migrating guest data has an error : %@", [error description]);
-        }
-    }
-    
-    NSError *error;
-    [guestDB deleteDatabase:&error];
-    if (error) {
-        NSLog(@"Migrating guest data, deleting the guest database has an error : %@", [error description]);
-    }
-}
-
 // Clear the SyncGateway session cookie when logging out
 // In the future the replication object may handle that: https://github.com/couchbase/couchbase-lite-ios/issues/543
 - (void)removeSessionCookie {
