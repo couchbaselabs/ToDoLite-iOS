@@ -298,10 +298,8 @@
 
 - (void)loginWithFacebookUserInfo:(NSDictionary *)info accessTokenData:(FBAccessTokenData *)tokenData {
     NSAssert(tokenData, @"Facebook Access Token Data is nil");
-    
-    NSString *userId = [info objectForKey:@"id"];
-    NSString *name = [info objectForKey:@"name"];
 
+    NSString *userId = [info objectForKey:@"id"];
     if (!userId) {
         [self showMessage:@"Couldn't access email info from your facebook Account." withTitle:@"Error"];
         return;
@@ -315,6 +313,7 @@
     
     Profile *profile = [Profile profileInDatabase:database forExistingUserId:userId];
     if (!profile) {
+        NSString *name = [info objectForKey:@"name"];
         profile = [Profile profileInDatabase:database forNewUserId:userId name:name];
         NSError *error;
         if ([profile save:&error]) {
@@ -446,7 +445,13 @@
              if (!error) {
                  [self loginWithFacebookUserInfo:(NSDictionary *)result accessTokenData:session.accessTokenData];
              } else {
-                 [FBSession.activeSession closeAndClearTokenInformation];
+                 if ([self currentUserId]) {
+                     // The user has already logined before so use the current user id.
+                     error = nil;
+                     result = @{@"id": [self currentUserId]};
+                     [self loginWithFacebookUserInfo:(NSDictionary *)result accessTokenData:session.accessTokenData];
+                 } else
+                     [FBSession.activeSession closeAndClearTokenInformation];
              }
             [self notifyFacebookLoginResult:(!error) error:error];
          }];
