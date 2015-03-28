@@ -10,6 +10,6 @@
 
 @interface LoginViewController : UIViewController
 
-@property (nonatomic) BOOL shouldSkipLogin;
+@property (nonatomic) BOOL skipLogin;
 
 @end

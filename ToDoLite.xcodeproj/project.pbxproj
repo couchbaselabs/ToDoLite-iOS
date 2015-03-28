@@ -7,8 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9341794A1AC6013A0021FD30 /* FBSDKCoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 934179481AC6013A0021FD30 /* FBSDKCoreKit.framework */; };
+		9341794B1AC6013A0021FD30 /* FBSDKLoginKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 934179491AC6013A0021FD30 /* FBSDKLoginKit.framework */; };
 		936A28BD19EE74A300FE0206 /* CouchbaseLite.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 936A28BB19EE74A300FE0206 /* CouchbaseLite.framework */; };
-		936A28BE19EE74A300FE0206 /* FacebookSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 936A28BC19EE74A300FE0206 /* FacebookSDK.framework */; };
 		9386F56F19EC44AB005AC336 /* ShareViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9386F56E19EC44AB005AC336 /* ShareViewController.m */; };
 		9386F57219EC84F0005AC336 /* LoginViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9386F57119EC84F0005AC336 /* LoginViewController.m */; };
 		93BC251E19EC992A0072AFB7 /* ReplaceRootViewControllerSegue.m in Sources */ = {isa = PBXBuildFile; fileRef = 93BC251D19EC992A0072AFB7 /* ReplaceRootViewControllerSegue.m */; };
@@ -47,8 +48,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		934179481AC6013A0021FD30 /* FBSDKCoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FBSDKCoreKit.framework; path = Frameworks/FBSDKCoreKit.framework; sourceTree = SOURCE_ROOT; };
+		934179491AC6013A0021FD30 /* FBSDKLoginKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FBSDKLoginKit.framework; path = Frameworks/FBSDKLoginKit.framework; sourceTree = SOURCE_ROOT; };
 		936A28BB19EE74A300FE0206 /* CouchbaseLite.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CouchbaseLite.framework; path = Frameworks/CouchbaseLite.framework; sourceTree = SOURCE_ROOT; };
-		936A28BC19EE74A300FE0206 /* FacebookSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FacebookSDK.framework; path = Frameworks/FacebookSDK.framework; sourceTree = SOURCE_ROOT; };
 		9386F56D19EC44AB005AC336 /* ShareViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShareViewController.h; sourceTree = "<group>"; };
 		9386F56E19EC44AB005AC336 /* ShareViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShareViewController.m; sourceTree = "<group>"; };
 		9386F57019EC84F0005AC336 /* LoginViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoginViewController.h; sourceTree = "<group>"; };
@@ -101,10 +103,11 @@
 			files = (
 				93F162C819E982640031E7CB /* libc++.dylib in Frameworks */,
 				93F162C619E9824F0031E7CB /* libz.dylib in Frameworks */,
+				9341794B1AC6013A0021FD30 /* FBSDKLoginKit.framework in Frameworks */,
 				93F162C419E9822E0031E7CB /* libsqlite3.dylib in Frameworks */,
 				93F162C219E982160031E7CB /* SystemConfiguration.framework in Frameworks */,
 				93F162C019E9820C0031E7CB /* Security.framework in Frameworks */,
-				936A28BE19EE74A300FE0206 /* FacebookSDK.framework in Frameworks */,
+				9341794A1AC6013A0021FD30 /* FBSDKCoreKit.framework in Frameworks */,
 				93F162BE19E982040031E7CB /* CFNetwork.framework in Frameworks */,
 				936A28BD19EE74A300FE0206 /* CouchbaseLite.framework in Frameworks */,
 			);
@@ -123,14 +126,15 @@
 		936A28B219EE710800FE0206 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				936A28BB19EE74A300FE0206 /* CouchbaseLite.framework */,
-				936A28BC19EE74A300FE0206 /* FacebookSDK.framework */,
-				93F162C119E982160031E7CB /* SystemConfiguration.framework */,
-				93F162BF19E9820C0031E7CB /* Security.framework */,
-				93F162BD19E982040031E7CB /* CFNetwork.framework */,
 				93F162C719E982640031E7CB /* libc++.dylib */,
-				93F162C519E9824F0031E7CB /* libz.dylib */,
 				93F162C319E9822E0031E7CB /* libsqlite3.dylib */,
+				93F162C519E9824F0031E7CB /* libz.dylib */,
+				93F162BD19E982040031E7CB /* CFNetwork.framework */,
+				936A28BB19EE74A300FE0206 /* CouchbaseLite.framework */,
+				934179481AC6013A0021FD30 /* FBSDKCoreKit.framework */,
+				934179491AC6013A0021FD30 /* FBSDKLoginKit.framework */,
+				93F162BF19E9820C0031E7CB /* Security.framework */,
+				93F162C119E982160031E7CB /* SystemConfiguration.framework */,
 			);
 			name = Frameworks;
 			path = ToDoLite;
