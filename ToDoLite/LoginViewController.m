@@ -18,7 +18,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    if (self.shouldSkipLogin) {
+    if (self.skipLogin) {
         [self start];
     }
 }

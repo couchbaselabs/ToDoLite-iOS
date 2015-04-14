@@ -7,6 +7,8 @@
 //
 
 #import "AppDelegate.h"
+#import <FBSDKCoreKit/FBSDKCoreKit.h>
+#import <FBSDKLoginKit/FBSDKLoginKit.h>
 #import "DetailViewController.h"
 #import "LoginViewController.h"
 #import "Profile.h"
@@ -22,12 +24,13 @@
 // For Application Migration
 #define kMigrationVersion @"MigrationVersion"
 
-@interface AppDelegate () <UISplitViewControllerDelegate>
+@interface AppDelegate () <UISplitViewControllerDelegate, UIAlertViewDelegate>
 
 @property (nonatomic) CBLReplication *push;
 @property (nonatomic) CBLReplication *pull;
 @property (nonatomic) NSError *lastSyncError;
-@property (copy, nonatomic) void (^facebookLoginResultBlock)(BOOL success, NSError *error);
+@property (nonatomic) FBSDKLoginManager *facebookLoginManager;
+@property (nonatomic) UIAlertView *facebookLoginAlertView;
 
 @end
 
@@ -35,50 +38,59 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     [self migrateOldVersionApp];
-    
-    if ([self isFirstTimeUsed] || self.isGuestLoggedIn) {
+
+    LoginViewController *loginViewController =
+        (LoginViewController *)self.window.rootViewController;
+
+    // Guest login:
+    if ([self isFirstTimeUsed] || [self isGuestLoggedIn]) {
+        loginViewController.skipLogin = YES;
         [self loginAsGuest];
+        return YES;
     }
 
-    BOOL shouldShowLogin = NO;
-    if (FBSession.activeSession.state == FBSessionStateCreatedTokenLoaded) {
-        // If there's one, just open the session silently, without showing the user the login UI
-        [self openFacebookSessionWithUIDisplay:NO];
-    } else if (FBSession.activeSession.state == FBSessionStateCreated) {
-        if ([self isUserLoggedIn]) {
-            // This is the state that the user is previously logged in but the session cache is gone
-            // somehow. We need to force showing the login page.
-            shouldShowLogin = YES;
-        }
-    }
+    // Facebook login:
+    // Needs to be called before getting the current access token:
+    [[FBSDKApplicationDelegate sharedInstance] application:application
+                             didFinishLaunchingWithOptions:launchOptions];
 
-    BOOL shouldSkipLogin = !shouldShowLogin && ([self isUserLoggedIn] || [self isGuestLoggedIn]);
-    LoginViewController *loginViewController = (LoginViewController *)self.window.rootViewController;
-    loginViewController.shouldSkipLogin = shouldSkipLogin;
-    
+    // Checking the current access token:
+    FBSDKAccessToken *token = [FBSDKAccessToken currentAccessToken];
+    if (token) {
+        [self observeFacebookAccessTokenChange];
+        [self facebookUserDidLoginWithToken:token userInfo:nil];
+        loginViewController.skipLogin = YES;
+    } else
+        loginViewController.skipLogin = NO;
+
     return YES;
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
-    [FBAppCall handleDidBecomeActive];
+    [FBSDKAppEvents activateApp];
 }
 
-// During the Facebook login flow, your app passes control to the Facebook iOS app or Facebook in a mobile browser.
-// After authentication, your app will be called back with the session information.
-// Override application:openURL:sourceApplication:annotation to call the FBsession object that handles the incoming URL
-- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication
-         annotation:(id)annotation {
-    return [FBSession.activeSession handleOpenURL:url];
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url
+  sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
+    return [[FBSDKApplicationDelegate sharedInstance] application:application
+                                                          openURL:url
+                                                sourceApplication:sourceApplication
+                                                       annotation:annotation];
 }
 
 - (void)replaceRootViewController:(UIViewController *)controller {
     if ([controller isKindOfClass:[UISplitViewController class]]) {
         // Setup SplitViewController
         UISplitViewController *splitViewController = (UISplitViewController *)controller;
-        if ([[[UIDevice currentDevice] systemVersion] compare:@"8.0" options:NSNumericSearch] != NSOrderedAscending) {
-            if ([[splitViewController.viewControllers lastObject] isKindOfClass:[UINavigationController class]]) {
-                UINavigationController *navigationController = [splitViewController.viewControllers lastObject];
-                navigationController.topViewController.navigationItem.leftBarButtonItem = splitViewController.displayModeButtonItem;
+        if ([[[UIDevice currentDevice] systemVersion]
+             compare:@"8.0"
+             options:NSNumericSearch] != NSOrderedAscending) {
+            if ([[splitViewController.viewControllers lastObject]
+                 isKindOfClass:[UINavigationController class]]) {
+                UINavigationController *navigationController =
+                    [splitViewController.viewControllers lastObject];
+                navigationController.topViewController.navigationItem.leftBarButtonItem =
+                    splitViewController.displayModeButtonItem;
             }
         }
         splitViewController.delegate = self;
@@ -104,7 +116,7 @@
 - (void)showMessage:(NSString *)text withTitle:(NSString *)title {
     [[[UIAlertView alloc] initWithTitle:title
                                 message:text
-                               delegate:self
+                               delegate:nil
                       cancelButtonTitle:@"OK"
                       otherButtonTitles:nil] show];
 }
@@ -214,8 +226,13 @@
     id <CBLAuthenticator> auth = [CBLAuthenticator facebookAuthenticatorWithToken:token];
     _pull.authenticator = auth;
     _push.authenticator = auth;
-    
+
+    if (_push.running)
+        [_push stop];
     [_push start];
+
+    if (_pull.running)
+        [_pull stop];
     [_pull start];
 }
 
@@ -276,35 +293,40 @@
     [self setCurrentDatabase:database];
     [self setGuestLoggedIn:YES];
     [self setCurrentUserId:nil];
-    
-    // Found that sometimes facebook session is still open even after remove and reintalling the app.
-    // Ensure that the facebook session is clear.
-    [FBSession.activeSession closeAndClearTokenInformation];
 }
 
-- (void)openFacebookSessionWithUIDisplay:(BOOL)display {
-    [FBSession openActiveSessionWithReadPermissions:@[@"public_profile", @"email"]
-                                       allowLoginUI:display
-                                  completionHandler:
-     ^(FBSession *session, FBSessionState state, NSError *error) {
-         [self facebookSessionStateChanged:session state:state error:error];
-     }];
+- (FBSDKLoginManager *)facebookLoginManager {
+    if (!_facebookLoginManager)
+        _facebookLoginManager = [[FBSDKLoginManager alloc] init];
+    return _facebookLoginManager;
 }
 
 - (void)loginWithFacebook:(void (^)(BOOL success, NSError *error))resultBlock {
-    self.facebookLoginResultBlock = resultBlock;
-    [self openFacebookSessionWithUIDisplay:YES];
+    [self.facebookLoginManager logInWithReadPermissions:@[@"email"] handler:
+        ^(FBSDKLoginManagerLoginResult *loginResult, NSError *error) {
+            if (error || loginResult.isCancelled) {
+                resultBlock(NO, error);
+            } else {
+                [[[FBSDKGraphRequest alloc] initWithGraphPath:@"me" parameters:nil]
+                 startWithCompletionHandler:
+                    ^(FBSDKGraphRequestConnection *connection, id result, NSError *error) {
+                        if (!error) {
+                            [self observeFacebookAccessTokenChange];
+                            [self facebookUserDidLoginWithToken:loginResult.token userInfo:result];
+                            resultBlock(YES, nil);
+                        } else {
+                            [self.facebookLoginManager logOut];
+                            resultBlock(NO, error);
+                        }
+                 }];
+            }
+        }];
 }
 
-- (void)loginWithFacebookUserInfo:(NSDictionary *)info accessTokenData:(FBAccessTokenData *)tokenData {
-    NSAssert(tokenData, @"Facebook Access Token Data is nil");
+- (void)facebookUserDidLoginWithToken:(FBSDKAccessToken *)token userInfo:(NSDictionary *)info {
+    NSAssert(token, @"Facebook Access Token Data is nil");
 
-    NSString *userId = [info objectForKey:@"id"];
-    if (!userId) {
-        [self showMessage:@"Couldn't access email info from your facebook Account." withTitle:@"Error"];
-        return;
-    }
-
+    NSString *userId = token.userID;
     [self setCurrentUserId:userId];
     
     CBLDatabase *database = [self databaseForUser:userId];
@@ -313,24 +335,60 @@
     
     Profile *profile = [Profile profileInDatabase:database forExistingUserId:userId];
     if (!profile) {
-        NSString *name = [info objectForKey:@"name"];
-        profile = [Profile profileInDatabase:database forNewUserId:userId name:name];
-        NSError *error;
-        if ([profile save:&error]) {
-            [self migrateGuestDataToUser:profile];
-        } else {
-            NSLog(@"Cannot create a new user profile : %@", [error description]);
-            [self showMessage:@"Cannot create a new user profile" withTitle:@"Error"];
-        }
+        NSString *name = info[@"name"];
+        if (name) {
+            NSError *error;
+            profile = [Profile profileInDatabase:database forNewUserId:userId name:name];
+            if ([profile save:&error])
+                [self migrateGuestDataToUser:profile];
+            else
+                NSLog(@"Cannot create a new user profile with error : %@", error);
+        } else
+            NSLog(@"Cannot create a new user profile as there is no name information.");
     }
     
-    if (profile) {
-        [self startReplicationWithFacebookAccessToken:tokenData.accessToken];
+    if (profile)
+        [self startReplicationWithFacebookAccessToken:token.tokenString];
+    else
+        [self showMessage:@"Cannot create a new user profile" withTitle:@"Error"];
+}
+
+- (void)observeFacebookAccessTokenChange {
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:FBSDKAccessTokenDidChangeNotification
+                                                  object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(facebookAccessTokenChange:)
+                                                 name:FBSDKAccessTokenDidChangeNotification
+                                               object:nil];
+}
+
+- (void)unobserveFacebookAccessTokenChange {
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:FBSDKAccessTokenDidChangeNotification
+                                                  object:nil];
+}
+
+- (void)facebookAccessTokenChange:(NSNotification *)notification {
+    FBSDKAccessToken *token = notification.userInfo[FBSDKAccessTokenChangeNewKey];
+    if (token) {
+        [self startReplicationWithFacebookAccessToken:token.tokenString];
+    } else {
+        NSString *message = @"Facebook Session is expired. "
+                             "Please login again to review your session.";
+        self.facebookLoginAlertView = [[UIAlertView alloc] initWithTitle:@"Facebook"
+                                                                 message:message
+                                                                delegate:self
+                                                       cancelButtonTitle:@"OK"
+                                                       otherButtonTitles:nil];
+        [self.facebookLoginAlertView show];
     }
 }
 
 - (void)logout {
-    [FBSession.activeSession closeAndClearTokenInformation];
+    [self.facebookLoginManager logOut];
+    [self unobserveFacebookAccessTokenChange];
+
     [self setCurrentUserId:nil];
     [self stopReplication];
     [self setCurrentDatabase:nil];
@@ -403,61 +461,11 @@
     }
 }
 
-#pragma mark - Facebook
+#pragma mark - UIAlertViewDelegate
 
-- (void)notifyFacebookLoginResult:(BOOL)success error:(NSError *)error {
-    if (self.facebookLoginResultBlock) {
-        self.facebookLoginResultBlock(success, error);
-        self.facebookLoginResultBlock = nil;
-    }
-}
-
-- (void)facebookSessionStateChanged:(FBSession *)session state:(FBSessionState) state error:(NSError *)error {
-    if (!error && state == FBSessionStateOpen){
-        [FBRequestConnection startForMeWithCompletionHandler:
-         ^(FBRequestConnection *connection, id result, NSError *error) {
-             if (!error) {
-                 [self loginWithFacebookUserInfo:(NSDictionary *)result accessTokenData:session.accessTokenData];
-             } else {
-                 if ([self currentUserId]) {
-                     // The user has already logined before so use the current user id.
-                     error = nil;
-                     result = @{@"id": [self currentUserId]};
-                     [self loginWithFacebookUserInfo:(NSDictionary *)result accessTokenData:session.accessTokenData];
-                 } else
-                     [FBSession.activeSession closeAndClearTokenInformation];
-             }
-            [self notifyFacebookLoginResult:(!error) error:error];
-         }];
-        return;
-    }
-    
-    if (state == FBSessionStateClosedLoginFailed) {
-        [self notifyFacebookLoginResult:NO error:error];
-        [FBSession.activeSession closeAndClearTokenInformation];
-        return;
-    }
-    
-    if (error) {
-        // If the error requires people using an app to make an action outside of the app in order to recover
-        if ([FBErrorUtility shouldNotifyUserForError:error] == YES){
-            [self showMessage:[FBErrorUtility userMessageForError:error] withTitle:@"Facebook Error"];
-        } else {
-            if ([FBErrorUtility errorCategoryForError:error] == FBErrorCategoryUserCancelled) {
-                // The user cancelled login. Do nothing
-            } else if ([FBErrorUtility errorCategoryForError:error] == FBErrorCategoryAuthenticationReopenSession){
-                [self showMessage:@"Your current facebook session is no longer valid. Please logout and relogin again"
-                        withTitle:@"Session Error"];
-            } else {
-                NSDictionary *info = [[[error.userInfo objectForKey:@"com.facebook.sdk:ParsedJSONResponseKey"]
-                                                   objectForKey:@"body"] objectForKey:@"error"];
-                NSString *mesg = [NSString stringWithFormat:@"Facebook error with code: %@", [info objectForKey:@"message"]];
-                [self showMessage:mesg withTitle:@"Facebook Error"];
-            }
-        }
-        
-        [self notifyFacebookLoginResult:NO error:error];
-        [FBSession.activeSession closeAndClearTokenInformation];
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+    if (alertView == self.facebookLoginAlertView) {
+        [self logout];
     }
 }
 

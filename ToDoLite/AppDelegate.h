@@ -8,7 +8,6 @@
 
 #import <UIKit/UIKit.h>
 #import <CouchbaseLite/CouchbaseLite.h>
-#import <FacebookSDK/FacebookSDK.h>
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 
