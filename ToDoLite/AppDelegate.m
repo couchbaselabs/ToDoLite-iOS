@@ -37,6 +37,9 @@
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    [CBLManager enableLogging:@"Sync"];
+    [CBLManager enableLogging:@"SyncVerbose"];
+
     [self migrateOldVersionApp];
 
     LoginViewController *loginViewController =
@@ -153,7 +156,6 @@
 }
 
 #pragma mark - Migration
-
 - (void)migrateOldVersionApp {
     NSString *mVer = [[NSUserDefaults standardUserDefaults] objectForKey:kMigrationVersion];
     if (!mVer || [mVer compare:@"1.3" options:NSNumericSearch] == NSOrderedAscending) {

@@ -177,7 +177,8 @@
 }
 
 - (List *)createListWithTitle:(NSString*)title {
-    List *list = [[List alloc] initInDatabase:self.database withTitle:title];
+    List *list = [List modelForNewDocumentInDatabase:self.database];
+    list.title = title;
     
     AppDelegate *app = [[UIApplication sharedApplication] delegate];
     NSString *currentUserId = app.currentUserId;
