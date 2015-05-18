@@ -63,6 +63,8 @@ static void *listsQueryContext = &listsQueryContext;
 - (void)viewWillDisappear:(BOOL)animated {
     AppDelegate *app = [[UIApplication sharedApplication] delegate];
     [app removeObserver:self forKeyPath:@"database" context:nil];
+
+    [self.liveQuery removeObserver:self forKeyPath:@"rows" context:listsQueryContext];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -183,6 +185,7 @@ static void *listsQueryContext = &listsQueryContext;
     AppDelegate *app = [[UIApplication sharedApplication] delegate];
     self.database = app.database;
     
+    [self.liveQuery removeObserver:self forKeyPath:@"rows" context:listsQueryContext];
     if (self.database != nil) {
         self.liveQuery = [List queryListsInDatabase:self.database].asLiveQuery;
         [self.liveQuery addObserver:self forKeyPath:@"rows" options:0 context:listsQueryContext];
