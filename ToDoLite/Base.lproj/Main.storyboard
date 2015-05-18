@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6250" systemVersion="14A389" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="PWY-sp-JlJ">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="7702" systemVersion="14E11f" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="PWY-sp-JlJ">
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6244"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7701"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
@@ -128,7 +128,7 @@
                                     </tableViewCell>
                                 </prototypes>
                                 <connections>
-                                    <outlet property="dataSource" destination="ZXK-Fp-26F" id="qhP-eh-m2R"/>
+                                    <outlet property="dataSource" destination="0pl-Gm-9PQ" id="Uhu-oJ-gKc"/>
                                     <outlet property="delegate" destination="0pl-Gm-9PQ" id="16v-Uw-BJh"/>
                                 </connections>
                             </tableView>
@@ -154,17 +154,11 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
-                        <outlet property="dataSource" destination="ZXK-Fp-26F" id="jLx-pE-u0C"/>
                         <outlet property="loginButton" destination="2wq-at-h3o" id="9DC-uY-etN"/>
                         <outlet property="tableView" destination="b4q-Vq-rxR" id="28f-tQ-e43"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="USj-28-9V1" userLabel="First Responder" sceneMemberID="firstResponder"/>
-                <customObject id="ZXK-Fp-26F" customClass="CBLUITableSource">
-                    <connections>
-                        <outlet property="tableView" destination="b4q-Vq-rxR" id="VST-vK-WYQ"/>
-                    </connections>
-                </customObject>
             </objects>
             <point key="canvasLocation" x="657" y="-630"/>
         </scene>

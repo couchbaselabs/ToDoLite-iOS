@@ -12,9 +12,13 @@
 #import "Profile.h"
 #import "List.h"
 
+static void *listsQueryContext = &listsQueryContext;
+
 @interface MasterViewController ()
 
 @property CBLDatabase *database;
+@property CBLLiveQuery *liveQuery;
+@property NSArray *listsResult;
 
 @end
 
@@ -70,7 +74,7 @@
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     if ([[segue identifier] isEqualToString:@"showDetail"]) {
         NSIndexPath *indexPath = [self.tableView indexPathForSelectedRow];
-        CBLQueryRow *row = [self.dataSource rowAtIndex:indexPath.row];
+        CBLQueryRow *row = [self.listsResult objectAtIndex:indexPath.row];
         List *list = [List modelForDocument:row.document];
         
         DetailViewController *controller;
@@ -129,26 +133,31 @@
     }
 }
 
-#pragma mark - Table View
+#pragma mark - Table View Datasource
 
-- (void)couchTableSource:(CBLUITableSource *)source
-         updateFromQuery:(CBLLiveQuery *)query previousRows:(NSArray *)previousRows {
-    [self.tableView reloadData];
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return self.listsResult.count;
 }
 
-// Delegate method to set up a new table cell
-- (void)couchTableSource:(CBLUITableSource*)source
-             willUseCell:(UITableViewCell*)cell forRow:(CBLQueryRow*)row {
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    UITableViewCell* cell = [tableView dequeueReusableCellWithIdentifier:@"List" forIndexPath:indexPath];
+    
     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+    
+    CBLQueryRow* row = [self.listsResult objectAtIndex:indexPath.row];
+    cell.textLabel.text = [row.document propertyForKey:@"title"];
+    
+    return cell;
 }
 
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    [self performSegueWithIdentifier:@"showDetail" sender:self];
-}
+#pragma mark - Table View Delegate
 
-- (bool)couchTableSource:(CBLUITableSource *)source deleteRow:(CBLQueryRow *)row {
-    List *list = [List modelForDocument:row.document];
-    return [list deleteList:nil];
+- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (editingStyle == UITableViewCellEditingStyleDelete) {
+        CBLQueryRow* row = [self.listsResult objectAtIndex:indexPath.row];
+        List *list = [List modelForDocument:row.document];
+        [list deleteList:nil];
+    }
 }
 
 #pragma mark - Observers
@@ -158,19 +167,27 @@
     if (object == app && [keyPath isEqual:@"database"]) {
         [self setup];
     }
+    if (context == listsQueryContext) {
+        self.listsResult = self.liveQuery.rows.allObjects;
+        [self.tableView reloadData];
+    }
 }
 
 #pragma mark - Database
 
+// In this View Controller, we show an example of a Live Query
+// and KVO to update the Table View accordingly when data changed.
+// See DetailViewController and ShareViewController for
+// examples of a Live Query used with the CBLUITableSource api.
 - (void)setup {
     AppDelegate *app = [[UIApplication sharedApplication] delegate];
     self.database = app.database;
     
     if (self.database != nil) {
-        _dataSource.query = [List queryListsInDatabase:self.database].asLiveQuery;
-        _dataSource.labelProperty = @"title";
+        self.liveQuery = [List queryListsInDatabase:self.database].asLiveQuery;
+        [self.liveQuery addObserver:self forKeyPath:@"rows" options:0 context:listsQueryContext];
     } else {
-        _dataSource.query = nil;
+        self.liveQuery = nil;
     }
     
     [self.tableView reloadData];
