@@ -35,26 +35,13 @@
     database = app.database;
     myDocId = [@"p:" stringByAppendingString:app.currentUserId];
     
-    [self configureView];
+    _dataSource.query = [Profile queryProfilesInDatabase:database].asLiveQuery;
+    _dataSource.labelProperty = @"name";
+    _dataSource.deletionAllowed = NO;
 }
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
-}
-
-- (void)configureView {
-    _dataSource.query = [Profile queryProfilesInDatabase:database].asLiveQuery;
-    _dataSource.labelProperty = @"name";    // Document property to display in the cell label
-    _dataSource.deletionAllowed = NO;
-}
-
-#pragma mark - Properties
-
-- (void)setList:(List *)newList {
-    if (_list != newList) {
-        _list = newList;
-        [self configureView];
-    }
 }
 
 #pragma mark - TableView
@@ -100,7 +87,7 @@
     NSError* error;
     if (![_list save: &error]) {
     }
-    [self configureView];
+    [self.tableView reloadData];
 }
 
 @end
