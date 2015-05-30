@@ -38,14 +38,14 @@ static void *listsQueryContext = &listsQueryContext;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    [self setup];
+    [self setupTodoLists];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
 
     if (!self.database) {
-        [self setup];
+        [self setupTodoLists];
     }
     
     AppDelegate *app = [[UIApplication sharedApplication] delegate];
@@ -167,7 +167,7 @@ static void *listsQueryContext = &listsQueryContext;
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     AppDelegate *app = [[UIApplication sharedApplication] delegate];
     if (object == app && [keyPath isEqual:@"database"]) {
-        [self setup];
+        [self setupTodoLists];
     }
     if (context == listsQueryContext) {
         self.listsResult = self.liveQuery.rows.allObjects;
@@ -181,7 +181,7 @@ static void *listsQueryContext = &listsQueryContext;
 // and KVO to update the Table View accordingly when data changed.
 // See DetailViewController and ShareViewController for
 // examples of a Live Query used with the CBLUITableSource api.
-- (void)setup {
+- (void)setupTodoLists {
     AppDelegate *app = [[UIApplication sharedApplication] delegate];
     self.database = app.database;
     
