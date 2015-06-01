@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="7702" systemVersion="14E11f" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="PWY-sp-JlJ">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="7706" systemVersion="14E17e" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="RMx-3f-FxP">
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7701"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7703"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
@@ -20,77 +20,6 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="8fS-aE-onr" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-38" y="-630"/>
-        </scene>
-        <!--Login View Controller-->
-        <scene sceneID="Tof-bl-XRm">
-            <objects>
-                <viewController id="PWY-sp-JlJ" customClass="LoginViewController" sceneMemberID="viewController">
-                    <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="wgd-4p-wMr"/>
-                        <viewControllerLayoutGuide type="bottom" id="Knb-d0-lGS"/>
-                    </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="UOw-h7-td9">
-                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3jj-rw-xxT">
-                                <rect key="frame" x="16" y="278" width="568" height="44"/>
-                                <color key="backgroundColor" red="0.23137254901960785" green="0.34901960784313724" blue="0.59607843137254901" alpha="1" colorSpace="calibratedRGB"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="44" id="UC4-ye-XUN"/>
-                                </constraints>
-                                <state key="normal" title="Login with Facebook">
-                                    <color key="titleColor" red="0.96422809099999995" green="0.96422809099999995" blue="0.96422809099999995" alpha="1" colorSpace="calibratedRGB"/>
-                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                </state>
-                                <connections>
-                                    <action selector="facebookLoginAction:" destination="PWY-sp-JlJ" eventType="touchUpInside" id="QtQ-qE-cgV"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="EoE-QZ-o8p">
-                                <rect key="frame" x="236" y="327" width="128" height="44"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="44" id="f5a-qK-BdZ"/>
-                                </constraints>
-                                <state key="normal" title="Continue as Guest">
-                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                </state>
-                                <connections>
-                                    <action selector="loginAsGuestAction:" destination="PWY-sp-JlJ" eventType="touchUpInside" id="8ro-KY-rRA"/>
-                                </connections>
-                            </button>
-                        </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                        <constraints>
-                            <constraint firstAttribute="trailing" secondItem="3jj-rw-xxT" secondAttribute="trailing" constant="16" id="GSI-Q4-SqR"/>
-                            <constraint firstItem="EoE-QZ-o8p" firstAttribute="top" secondItem="3jj-rw-xxT" secondAttribute="bottom" constant="5" id="Rsb-mo-d0Y"/>
-                            <constraint firstItem="3jj-rw-xxT" firstAttribute="leading" secondItem="UOw-h7-td9" secondAttribute="leading" constant="16" id="U9P-pf-9qg"/>
-                            <constraint firstAttribute="centerX" secondItem="EoE-QZ-o8p" secondAttribute="centerX" id="V6G-Y5-Ymi"/>
-                            <constraint firstAttribute="centerY" secondItem="3jj-rw-xxT" secondAttribute="centerY" id="fis-uu-tZr"/>
-                        </constraints>
-                    </view>
-                    <connections>
-                        <segue destination="H1p-Uh-vWS" kind="custom" identifier="start" customClass="ReplaceRootViewControllerSegue" id="Q2P-9h-SWz"/>
-                    </connections>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="z0Z-rB-rRz" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="-1588" y="-330"/>
-        </scene>
-        <!--Split View Controller-->
-        <scene sceneID="Nki-YV-4Qg">
-            <objects>
-                <splitViewController id="H1p-Uh-vWS" sceneMemberID="viewController">
-                    <toolbarItems/>
-                    <navigationItem key="navigationItem" id="GOM-71-ZoX"/>
-                    <connections>
-                        <segue destination="RMx-3f-FxP" kind="relationship" relationship="masterViewController" id="BlO-5A-QYV"/>
-                        <segue destination="vC3-pB-5Vb" kind="relationship" relationship="detailViewController" id="Tll-UG-LXB"/>
-                    </connections>
-                </splitViewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="cZU-Oi-B1e" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="-856" y="-330"/>
         </scene>
         <!--ToDo Lists-->
         <scene sceneID="uVZ-Eu-5Bd">
@@ -123,7 +52,7 @@
                                             </subviews>
                                         </tableViewCellContentView>
                                         <connections>
-                                            <segue destination="vC3-pB-5Vb" kind="showDetail" identifier="showDetail" id="VoR-tz-aWv"/>
+                                            <segue destination="vC3-pB-5Vb" kind="show" identifier="showDetail" id="VoR-tz-aWv"/>
                                         </connections>
                                     </tableViewCell>
                                 </prototypes>
@@ -142,11 +71,6 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="ToDo Lists" id="CLt-WO-ABc">
-                        <barButtonItem key="leftBarButtonItem" title="Login" id="2wq-at-h3o">
-                            <connections>
-                                <action selector="loginButtonAction:" destination="0pl-Gm-9PQ" id="D1i-k8-ns4"/>
-                            </connections>
-                        </barButtonItem>
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="dbT-nx-rsb">
                             <connections>
                                 <action selector="addButtonAction:" destination="0pl-Gm-9PQ" id="tLS-rv-cz3"/>
@@ -154,7 +78,6 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
-                        <outlet property="loginButton" destination="2wq-at-h3o" id="9DC-uY-etN"/>
                         <outlet property="tableView" destination="b4q-Vq-rxR" id="28f-tQ-e43"/>
                     </connections>
                 </viewController>
@@ -300,7 +223,7 @@
                         <outlet property="addItemTextField" destination="bIT-Er-ctJ" id="gwE-Zo-hGh"/>
                         <outlet property="dataSource" destination="2fZ-FM-ZWF" id="2fb-H4-yof"/>
                         <outlet property="tableView" destination="JcI-2b-brh" id="rqg-TP-tjb"/>
-                        <segue destination="qud-Mm-93v" kind="modal" identifier="showImage" animates="NO" id="xrQ-6k-7Bs"/>
+                        <segue destination="qud-Mm-93v" kind="push" identifier="showImage" id="xrQ-6k-7Bs"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="tS9-Zl-LkM" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -337,6 +260,7 @@
                             <constraint firstItem="fng-Cn-meY" firstAttribute="top" secondItem="9DB-Ai-uQ3" secondAttribute="bottom" id="qhV-Nw-0S6"/>
                         </constraints>
                     </view>
+                    <navigationItem key="navigationItem" id="SMl-aZ-phb"/>
                     <connections>
                         <outlet property="imageView" destination="9DB-Ai-uQ3" id="Dum-CE-yDf"/>
                     </connections>
@@ -410,7 +334,4 @@
         <image name="Camera" width="32" height="32"/>
         <image name="Camera-Light" width="44" height="44"/>
     </resources>
-    <inferredMetricsTieBreakers>
-        <segue reference="VoR-tz-aWv"/>
-    </inferredMetricsTieBreakers>
 </document>

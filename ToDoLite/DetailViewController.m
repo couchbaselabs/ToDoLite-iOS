@@ -33,12 +33,6 @@
         _list = list;
         [self configureView];
     }
-    
-    AppDelegate *app = [[UIApplication sharedApplication] delegate];
-    if ([[[UIDevice currentDevice] systemVersion] compare:@"8.0" options:NSNumericSearch] == NSOrderedAscending) {
-        self.navigationItem.leftBarButtonItem = app.displayModeButtonItem;
-    }
-    [[app popoverController] dismissPopoverAnimated:YES];
 }
 
 - (void)configureView {
@@ -46,9 +40,6 @@
         self.title = self.list.title;
         self.addImageButton.enabled = YES;
         self.addItemTextField.enabled = YES;
-
-        AppDelegate *app = [[UIApplication sharedApplication] delegate];
-        self.navigationItem.rightBarButtonItem.enabled = [app isUserLoggedIn];
 
         _dataSource.labelProperty = @"title";
         _dataSource.query = [[self.list queryTasks] asLiveQuery];

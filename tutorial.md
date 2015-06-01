@@ -1,16 +1,30 @@
 # Couchbase Connect Mobile Workshop iOS
 
-In this workshop, you will learn how to use Couchbase Lite along with Sync Gateway to build a ToDos app with a guest account mode, offline-first capabilities and syncing different ToDo lists to Sync Gateway.
+In this workshop, you will learn how to use Couchbase Lite along with Sync Gateway to build a ToDos app with offline-first capabilities and access control rules for sharing documents with other users.
 
-This paper will guide you through the steps to build the application and know all the tips and tricks to building apps with a great look and feel using Couchbase Mobile.
+This document will guide you through the steps to build the application and know all the tips and tricks to building apps with a great look and feel using Couchbase Mobile.
 
 ## 30 minutes: Couchbase Mobile Presentation
 
-## 120 minutes: Hands on building Todo-Lite
+## 30 minutes: Couchbase Lite in-depth Presentation
+
+## 90 minutes: Hands on building Todo-Lite
 
 ### Getting started
 
-Download the starter project of ToDoLite [here][1]. Open the app in Xcode and run it on the simulator.
+Clone the application from the ToDoLite-iOS repository:
+
+	git clone https://github.com/couchbaselabs/ToDoLite-iOS
+	cd ToDoLite-iOS
+	git checkout workshop/starter
+
+Download and unzip the zip file for the 1.1 release [here][1]. Drag the `CouchbaseLite.framework` file to the Frameworks folder.
+
+![][image-1]
+
+### Getting started
+
+Download the starter project of ToDoLite [here][2]. Open the app in Xcode and run it on the simulator.
 
 In the next section, we’ll start building the data models for the application.
 
@@ -36,17 +50,11 @@ Throughout this tutorial, we will refer to the logs in the Xcode debugger to che
 
 	Gif to show the opening/closing debug draw
 
-### Importing Couchbase Lite 1.1
-
-Download and unzip the zip file for the 1.1 release here. Drag the `CouchbaseLite.framework` file to the Frameworks folder.
-
-	gif
-
 ### ToDoLite Data Model
 
 In ToDoLite, there are 3 types of documents: a profile, a list and a task. The List document has an owner and a members array, the Task document holds a reference to the List it belongs to.
 
-![][image-1]
+![][image-2]
 
 ### Working with Documents and Revisions
 
@@ -60,15 +68,47 @@ Fortunately, the iOS SDK has a CBLModel convenience API that makes it really eas
 
 In the next section, we will learn how to use the CBLModel api to create the List model class.
 
-### STEP 1: Working with CBLModel
+### STEP 1: Create a database
 
-Both the List and Task document have a `title` property. For that reason we created a `Titled` class to use the shared initializer. In the `Titled.m`, mark the `title` and `created_at` properties as dynamic. This will ensure there is a 1:1 mapping between the model properties and document properties (in JSON) persisted to Couchbase Lite.
+Open `AppDelegate.h`, notice there is a property called database of type CBLDatabase. We will use this property throughout the application to get access to our database.
 
-With the newest 1.1 release of Couchbase Mobile, the iOS SDK removed the need to created initialisers for subclasses. We can use the`awakeFromInitializer` method to hook into the initialisation process to set our iVars.
+In `AppDelegate.m`, add a new method called `createDatabase` with the following code:
+
+- use the `databaseNamed:error` method on the CBLManager sharedInstance to create a new database called `todosapp`
+- initialise the `_database` to this database object
+
+Call the createDatabase method in the `application:didFinishLaunchingWithOptions:` method.
+
+The database doesn’t have any documents in it so far. Let’s add the Profile document:
+- initialise `_currentUserId` to the name/user of your choice
+- use the Profile’s `profileInDatabase:forNewUserId:name` passing in the database, current user id and a name of your choice. This will return a new Profile model instance
+- call save on that profile model and log the properties to the console
+
+Launch the app and you should see the properties of the Profile document in the Console:
+
+![][image-3]
+
+### STEP 2: Working with CBLModel
+
+Both the List and Task documents have a `title` property. For that reason we created a `Titled` class to abstract the behaviour for setting both properties.
+
+In `Titled.h`:
+
+- add a property `title` of type NSString
+- add a property `created_at` of type NSDate
+
+In `Titled.m`:
+
+- mark the `title` and `created_at` properties as dynamic
+
+This will ensure there is a 1:1 mapping between the model properties and document properties (in JSON) persisted to Couchbase Lite.
+
+With the newest 1.1 release of Couchbase Mobile, the iOS SDK removed the need to create initialisers for subclasses. We can use the`awakeFromInitializer` method to hook into the initialisation process to set our iVars.
 
 In `awakeFromInitializer`:
+
 - set the `created_at` property to the current time
-- set the `type` property to the return value of the `docType` method
+- set the `type` property to the return value of the `docType` method (`[[self class] docType]`)
 
 Now let’s test this method is working as expected. Open `MasterViewController.m` and complete the `createListWithTitle` method:
 
@@ -84,7 +124,7 @@ Run the app and create a couple lists. Nothing will display in the UI just yet b
 
 The solution is on the `workshop/saving_list_document` branch.
 
-### STEP 2: Creating Views
+### STEP 3: Creating Views
 
 Couchbase views enable indexing and querying of data.
 
@@ -100,7 +140,7 @@ In sudo code, the map function will look like:
 
 The solution is on the `workshop/create_views` branch.
 
-### STEP 3: Query Views
+### STEP 4: Query Views
 
 A query is the action of looking up results from a view's index. In Couchbase Lite, queries are objects of the Query class. To perform a query you create one of these, customise its properties (such as the key range or the maximum number of rows) and then run it. The result is a QueryEnumerator, which provides a list of QueryRow objects, each one describing one row from the view's index.
 
@@ -114,13 +154,13 @@ The solution is on the `workshop/query_views` branch.
 
 At this point, we could pass the result enumerator to a Table View Data Source to display the lists on screen. However, we will jump slightly ahead of ourselves and use a Live Query to have Reactive UI capabilities. 
 
-### STEP 4: A Table View meets a Live Query
+### STEP 5: A Table View meets a Live Query
 
 Couchbase Lite provides live queries. Once created, a live query remains active and monitors changes to the view's index, notifying observers whenever the query results change. Live queries are very useful for driving UI components like lists.
 
 We will use the query to populate a Table View with those documents. To have the UI automatically update when new documents are indexed, we will use a Live Query.
 
-### STEP 5: Using the UITableDataSource
+### STEP 6: Using the UITableDataSource
 
 Back in `setupTodoLists` of `MasterViewController.m`, we will need to make slight changes to accommodate for a live query instead of a simple query. There is a `liveQuery` property on the Main Activity class that we can use in `setupTodoLists`:
 
@@ -135,11 +175,11 @@ Finally, we need to implement the required methods of the `UITableViewDataSource
 
 Run the app on the simulator and start creating ToDo lists, you can see they are persisted and displayed in the Table View.
 
-![][image-2]
+![][image-4]
 
 The solution is on the `workshop/persist_task_document` branch.
 
-### STEP 6: Persist the Task document
+### STEP 7: Persist the Task document
 
 To create a Task model and persist it, open `List.m` and complete the body of the method `addTaskWithTitle:withImage:withImageContentType:`:
 - initialise a Task model with the `modelForNewDocumentInDatabaseMethod:`
@@ -149,11 +189,11 @@ To create a Task model and persist it, open `List.m` and complete the body of th
 
 	need steps on where to call it
 
-![][image-3]
+![][image-5]
 
 However, a Task document can have an image. In Couchbase Lite, all binary properties of documents are called attachments. The Document api doesn’t allow to save an attachment. To do so, we’ll have to go one step further and use the underlying Revision api.
 
-### STEP 7: Working with Attachments and Revisions
+### STEP 8: Working with Attachments and Revisions
 
 - use `setImage:contentType:` on the task using the image (NSData) that was passed in
 
@@ -163,11 +203,11 @@ The solution is on the `workshop/attachments_and_revisions ` branch.
 
 The goal is to add the sync feature to our application. The speaker will go through the steps to install Sync Gateway and get it running with Couchbase Server.
 
-Then, we will all attempt to connect to the same instance of Sync Gateway running [here][2].
+Then, we will all attempt to connect to the same instance of Sync Gateway running [here][3].
 
 ## 30 minutes: Hands-on, Replications
 
-### STEP 8: Replications without authentication
+### STEP 9: Replications without authentication
 
 In `AppDelegate.m`, create a new method called `startReplications` to create the push/pull replications:
 
@@ -176,7 +216,6 @@ In `AppDelegate.m`, create a new method called `startReplications` to create the
 - initialise the push replication with the `createPushReplication` method
 - set the continuous property to true on both replications
 - call the `start` method on each replication
-	  
 Finally, call the `startReplications` method in the `application:didFinishLaunchingWithOptions` method.
 
 If you run the app, nothing is saved to the Sync Gateway. That’s because we disabled the GUEST account in the configuration file.  You can see the 401 HTTP errors in the console:
@@ -185,39 +224,55 @@ If you run the app, nothing is saved to the Sync Gateway. That’s because we di
 
 The solution is on the `workshop/replication` branch.
 
+Run the app, you should see HTTP 401 Unauthorised errors in the Console:
+
+![][image-6]
+
 In the next section, you will add user authentication with Sync Gateway. You can choose to use Facebook Login or Basic Authentication for this workshop.
 
-### STEP 9: Sync Gateway Basic Authentication
+### STEP 10: Sync Gateway Basic Authentication
 
-Currently, the functionality to create a user with a username/password is not implemented in ToDoLite-iOS or ToDoLite-Android. But you can create one using the ToDoLite-Web app, the demo app is available at `http://todolite-web.herokuapp.com` and is connecting to the same Sync Gateway instance.
+Currently, the functionality to create a user with a username/password is not implemented in ToDoLite-iOS or ToDoLite-Android. 
 
-Create a new user account on the [signup page][3]. 
+To register users on Sync Gateway, we can use the Admin REST API `_user` endpoint. The Admin REST API is available on post `4985` and can only be accessed on the internal network that Sync Gateway is running on. That’s a good use case for using an app server to proxy the request to Sync Gateway.
 
-Back in the iOS app in AppDelegate.m, refactor the `startReplications` method to provide a username and password:
+For this workshop, the endpoint is `/signup` on port `8080`:
 
-- rename the `startReplications` method to take the login credentials as arguments `startReplicationsWithUsername:withPassword:`
-- refactor the method to use those credentials to instantiate a new `authenticator` of type Authenticator
+	curl -vX POST -H 'Content-Type: application/json' \
+		-d '{"name": "your username", "password": "your password"}' \
+		http://localhost:8080/signup
+
+You should get a 200 OK if the user was created successfully.
+
+	* Hostname was NOT found in DNS cache
+	*   Trying ::1...
+	* Connected to localhost (::1) port 8080 (#0)
+	> POST /signup HTTP/1.1
+	> User-Agent: curl/7.37.1
+	> Host: localhost:8080
+	> Accept: */*
+	> Content-Type: application/json
+	> Content-Length: 49
+	>
+	* upload completely sent off: 49 out of 49 bytes
+	< HTTP/1.1 200 OK
+	< Content-Type: application/json
+	< Date: Mon, 01 Jun 2015 21:57:32 GMT
+	< Content-Length: 0
+	<
+	* Connection #0 to host localhost left intact
+
+Back in the iOS app in AppDelegate.m, create a new method `startReplicationsWithName:withPassword` method to provide a username and password:
+
+- this time use the CBLAuthenticator class to create an authenticator of type basic auth passing in the name and password
 - wire up the authenticator to the replications using the `authenticator` method
 - call the refactored method in `application:didFinishLaunchingWithOptions`.
 
 Notice in the Console that the documents are now syncing to Sync Gateway.
 
-	Gif TBA
+![][image-7]
 
 The solution is on the `workshop/replication_basic_auth` branch.
-
-### STEP 10: Sync Gateway Facebook Authentication
-
-If you logged into the app with Facebook then the access token should be saved to the NSUserDefaults and we can retrieve it using the \`\` method.
-
-- rename the `startReplications` method to take the Facebook access token as argument `startReplicationsWithFacebook(String accessToken)`
-- refactor the method to use the access token to instantiate a new `authenticator` of type Authenticator
-- wire up the authenticator to the replications using the `setAuthenticator` method
-- call the refactored method in the `onCreate` method
-
-Notice in LogCat that the documents are now syncing to Sync Gateway.
-
-	Gif TBA
 
 ## 30 minutes: Data orchestration with Sync Gateway
 
@@ -274,14 +329,24 @@ Implement the `couchTableSouce:willUseCell:forRow:` method. Notice here that thi
 
 The solution is on the `workshop/final` branch.
 
+### Testing the final result
+
+Run the app, you can now see the different users from the `profiles` channel and share lists with other attendees.
+
+The result is on the `workshop/final` branch.
+
 ## The End
 
 Congratulations on building the main features of ToDoLite. Now you have a deeper understanding of Couchbase Lite and how to use the sync features with Sync Gateway you can start using the SDKs in your own apps.
 
-[1]:	https://github.com/couchbaselabs/ToDoLite-iOS/archive/workshop/starter_project.zip
-[2]:	#
+[1]:	http://packages.couchbase.com/builds/mobile/ios/1.1.0/1.1.0-18/couchbase-lite-ios-community_1.1.0-18.zip%0A
+[2]:	https://github.com/couchbaselabs/ToDoLite-iOS/archive/workshop/starter_project.zip
 [3]:	#
 
-[image-1]:	http://f.cl.ly/items/0r2I3p2C0I041G3P0C0C/Model.png
-[image-2]:	http://i.gyazo.com/e7faa2e8a395a12bf4ce8315372f8a71.gif
-[image-3]:	http://i.gyazo.com/68dfc680dc38813aa0c6ff144697ef4c.gif
+[image-1]:	http://i.gyazo.com/71ba8ac8f36835f86ffc8d570708cec6.gif
+[image-2]:	http://f.cl.ly/items/0r2I3p2C0I041G3P0C0C/Model.png
+[image-3]:	http://i.gyazo.com/58f2f18f3a05651301a96792de7df373.gif
+[image-4]:	http://i.gyazo.com/e7faa2e8a395a12bf4ce8315372f8a71.gif
+[image-5]:	http://i.gyazo.com/68dfc680dc38813aa0c6ff144697ef4c.gif
+[image-6]:	http://i.gyazo.com/8120e39ca0040fd2033d7cfab12197c3.gif
+[image-7]:	http://i.gyazo.com/3de9c203a9b37d57652e2aadef290069.gif

@@ -52,7 +52,7 @@ static void *listsQueryContext = &listsQueryContext;
     [app addObserver:self forKeyPath:@"database"
              options:(NSKeyValueObservingOptionNew |  NSKeyValueObservingOptionOld) context:nil];
 
-    self.loginButton.title = [app isUserLoggedIn] ? @"Logout" : @"Login";
+
 
     NSIndexPath *selected = [self.tableView indexPathForSelectedRow];
     if (selected) {
@@ -63,8 +63,6 @@ static void *listsQueryContext = &listsQueryContext;
 - (void)viewWillDisappear:(BOOL)animated {
     AppDelegate *app = [[UIApplication sharedApplication] delegate];
     [app removeObserver:self forKeyPath:@"database" context:nil];
-
-    [self.liveQuery removeObserver:self forKeyPath:@"rows" context:listsQueryContext];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -107,21 +105,6 @@ static void *listsQueryContext = &listsQueryContext;
                                          otherButtonTitles:@"Create", nil];
     alert.alertViewStyle = UIAlertViewStylePlainTextInput;
     [alert show];
-}
-
-- (IBAction)loginButtonAction:(id)sender {
-    AppDelegate *app = [[UIApplication sharedApplication] delegate];
-    if ([app isUserLoggedIn]) {
-        [app logout];
-    } else {
-        [app loginWithFacebook:^(BOOL success, NSError *error) {
-            if (success) {
-                self.loginButton.title = @"Logout";
-            } else {
-                [app showMessage:@"Facebook Login Error. Please try again." withTitle:@"Error"];
-            }
-        }];
-    }
 }
 
 #pragma mark - UIAlertViewDelegate
@@ -197,11 +180,12 @@ static void *listsQueryContext = &listsQueryContext;
 }
 
 - (List *)createListWithTitle:(NSString*)title {
-    List *list = [List modelForNewDocumentInDatabase:self.database];
-    list.title = title;
-    
     AppDelegate *app = [[UIApplication sharedApplication] delegate];
     NSString *currentUserId = app.currentUserId;
+    
+    
+    List *list = [List modelForNewDocumentInDatabase:self.database];
+    list.title = title;
     if (currentUserId) {
         Profile *owner = [Profile profileInDatabase:self.database forExistingUserId:currentUserId];
         list.owner = owner;
@@ -211,6 +195,8 @@ static void *listsQueryContext = &listsQueryContext;
     if (![list save:&error]) {
         [app showMessage:@"Cannot create a new list" withTitle:@"Error"];
         return nil;
+    } else {
+        NSLog(@"Document was saved with properties %@", [[list document] properties]);
     }
     
     return list;

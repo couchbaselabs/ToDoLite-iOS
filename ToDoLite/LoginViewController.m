@@ -34,21 +34,5 @@
 
 #pragma mark - Buttons
 
-- (IBAction)facebookLoginAction:(id)sender {
-    AppDelegate *app = [[UIApplication sharedApplication] delegate];
-    [app loginWithFacebook:^(BOOL success, NSError *error) {
-        if (success) {
-            [self start];
-        } else {
-            [app showMessage:@"Facebook Login Error. Please try again." withTitle:@"Error"];
-        }
-    }];
-}
-
-- (IBAction)loginAsGuestAction:(id)sender {
-    AppDelegate *app = [[UIApplication sharedApplication] delegate];
-    [app loginAsGuest];
-    [self start];
-}
 
 @end
