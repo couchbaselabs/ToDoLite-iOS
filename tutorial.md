@@ -10,21 +10,21 @@ This paper will guide you through the steps to build the application and know al
 
 ### Getting started
 
-Download the starter project of ToDoLite [here](https://github.com/couchbaselabs/ToDoLite-iOS/archive/workshop/starter_project.zip). Open the app in Xcode and run it on the simulator.
+Download the starter project of ToDoLite [here][1]. Open the app in Xcode and run it on the simulator.
 
 In the next section, we’ll start building the data models for the application.
 
-Every step of the tutorial are saved to a branch on the GitHub repository. If you find yourself in trouble and want to skip a step or catch up, you can just check out to the next branch. For example, to start at `step4`:
+Every step of the tutorial are saved to a branch on the GitHub repository. If you find yourself in trouble and want to skip a step or catch up, you can just check out to the next branch. To start the workshop, checkout on `workshop/starter`:
 
-	git checkout refactor/workshop_prep
+	git checkout workshop/starter
 
 In the source code, you will find comments to help locate where the missing code is meant to go. For example:
 
-	// WORKSHOP STEP 1: missing method to save a new List doc
+	// WORKSHOP STEP 1: creating a database
 
 ### Introduction
 
-The topics below are the fundamental aspects of Couchbase Mobile. If you understand all of them and their purposes, you’ll be in a very good spot after ready this tutorial.
+The topics below are the fundamental aspects of Couchbase Mobile. If you understand all of them and their purposes, you’ll be in a very good spot after reading this tutorial.
 
 - document: the primary entity stored in a database
 - revision: with every change to a document, we get a new revision
@@ -36,11 +36,17 @@ Throughout this tutorial, we will refer to the logs in the Xcode debugger to che
 
 	Gif to show the opening/closing debug draw
 
+### Importing Couchbase Lite 1.1
+
+Download and unzip the zip file for the 1.1 release here. Drag the `CouchbaseLite.framework` file to the Frameworks folder.
+
+	gif
+
 ### ToDoLite Data Model
 
 In ToDoLite, there are 3 types of documents: a profile, a list and a task. The List document has an owner and a members array, the Task document holds a reference to the List it belongs to.
 
-![](http://f.cl.ly/items/0r2I3p2C0I041G3P0C0C/Model.png)
+![][image-1]
 
 ### Working with Documents and Revisions
 
@@ -129,7 +135,7 @@ Finally, we need to implement the required methods of the `UITableViewDataSource
 
 Run the app on the simulator and start creating ToDo lists, you can see they are persisted and displayed in the Table View.
 
-![](http://i.gyazo.com/e7faa2e8a395a12bf4ce8315372f8a71.gif)
+![][image-2]
 
 The solution is on the `workshop/persist_task_document` branch.
 
@@ -143,7 +149,7 @@ To create a Task model and persist it, open `List.m` and complete the body of th
 
 	need steps on where to call it
 
-![](http://i.gyazo.com/68dfc680dc38813aa0c6ff144697ef4c.gif)
+![][image-3]
 
 However, a Task document can have an image. In Couchbase Lite, all binary properties of documents are called attachments. The Document api doesn’t allow to save an attachment. To do so, we’ll have to go one step further and use the underlying Revision api.
 
@@ -157,7 +163,7 @@ The solution is on the `workshop/attachments_and_revisions ` branch.
 
 The goal is to add the sync feature to our application. The speaker will go through the steps to install Sync Gateway and get it running with Couchbase Server.
 
-Then, we will all attempt to connect to the same instance of Sync Gateway running [here](#).
+Then, we will all attempt to connect to the same instance of Sync Gateway running [here][2].
 
 ## 30 minutes: Hands-on, Replications
 
@@ -170,7 +176,7 @@ In `AppDelegate.m`, create a new method called `startReplications` to create the
 - initialise the push replication with the `createPushReplication` method
 - set the continuous property to true on both replications
 - call the `start` method on each replication
-	 
+	  
 Finally, call the `startReplications` method in the `application:didFinishLaunchingWithOptions` method.
 
 If you run the app, nothing is saved to the Sync Gateway. That’s because we disabled the GUEST account in the configuration file.  You can see the 401 HTTP errors in the console:
@@ -185,7 +191,7 @@ In the next section, you will add user authentication with Sync Gateway. You can
 
 Currently, the functionality to create a user with a username/password is not implemented in ToDoLite-iOS or ToDoLite-Android. But you can create one using the ToDoLite-Web app, the demo app is available at `http://todolite-web.herokuapp.com` and is connecting to the same Sync Gateway instance.
 
-Create a new user account on the [signup page](#). 
+Create a new user account on the [signup page][3]. 
 
 Back in the iOS app in AppDelegate.m, refactor the `startReplications` method to provide a username and password:
 
@@ -202,7 +208,7 @@ The solution is on the `workshop/replication_basic_auth` branch.
 
 ### STEP 10: Sync Gateway Facebook Authentication
 
-If you logged into the app with Facebook then the access token should be saved to the NSUserDefaults and we can retrieve it using the `` method.
+If you logged into the app with Facebook then the access token should be saved to the NSUserDefaults and we can retrieve it using the \`\` method.
 
 - rename the `startReplications` method to take the Facebook access token as argument `startReplicationsWithFacebook(String accessToken)`
 - refactor the method to use the access token to instantiate a new `authenticator` of type Authenticator
@@ -271,3 +277,11 @@ The solution is on the `workshop/final` branch.
 ## The End
 
 Congratulations on building the main features of ToDoLite. Now you have a deeper understanding of Couchbase Lite and how to use the sync features with Sync Gateway you can start using the SDKs in your own apps.
+
+[1]:	https://github.com/couchbaselabs/ToDoLite-iOS/archive/workshop/starter_project.zip
+[2]:	#
+[3]:	#
+
+[image-1]:	http://f.cl.ly/items/0r2I3p2C0I041G3P0C0C/Model.png
+[image-2]:	http://i.gyazo.com/e7faa2e8a395a12bf4ce8315372f8a71.gif
+[image-3]:	http://i.gyazo.com/68dfc680dc38813aa0c6ff144697ef4c.gif
