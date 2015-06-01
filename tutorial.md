@@ -16,7 +16,7 @@ In the next section, we’ll start building the data models for the application.
 
 Every step of the tutorial are saved to a branch on the GitHub repository. If you find yourself in trouble and want to skip a step or catch up, you can just check out to the next branch. For example, to start at `step4`:
 
-	git checkout refactor_prep
+	git checkout refactor/workshop_prep
 
 In the source code, you will find comments to help locate where the missing code is meant to go. For example:
 
