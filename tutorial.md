@@ -102,9 +102,11 @@ In `awakeFromInitializer`:
 
 Now let’s test this method is working as expected. Open `MasterViewController.m` and complete the `createListWithTitle` method:
 
-- instantiate a new List model with the `modelForNewDocumentInDatabase` method
+- instantiate a new List model with the `modelForNewDocumentInDatabase` class method
 - set the title property to the parameter that was passed in
-- (if there is a `currentUserId` property, set the owner property on the list to the logged in user)
+- get the Profile object using the `profileInDatabase:forExistingUserId:` method passing in the currentUserId
+- set the owner property on the list to the Profile model
+- use the `save` method to save the List model to Couchbase Lite
 
 Finally, add a log statement to check that the document was saved.
 
