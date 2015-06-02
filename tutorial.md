@@ -143,9 +143,7 @@ Now you have created the view to index List documents, you can query it. In `Mas
 - create a `query` variable of type `CBLQuery` using the List class method you wrote above
 - run the query and create a `results` variable of type `CBLQueryEnumerator`
 
-The CBLQueryEnumerator is an enumerator of CBLQueryRow objects. Iterate on the result and log the title of every List document. 
-
-Use the fast enumeration shortcut to print quickly the title for each CBLQueryRow.
+The CBLQueryEnumerator is an enumerator of CBLQueryRow objects. Iterate on the result and log the title of every List document. Use the fast enumeration shortcut to print quickly the title for each CBLQueryRow.
 
 ![][image-6]
 
@@ -155,23 +153,24 @@ If you saved List documents in Step 2, you should now see the titles in the Cons
 
 At this point, we could pass the result enumerator to a Table View Data Source to display the lists on screen. However, we will jump slightly ahead of ourselves and use a Live Query to have Reactive UI capabilities. 
 
-### STEP 5: A Table View meets a Live Query
+### STEP 5: Table Views and Live Queries
 
 Couchbase Lite provides live queries. Once created, a live query remains active and monitors changes to the view's index, notifying observers whenever the query results change. Live queries are very useful for driving UI components like lists.
 
 We will use the query to populate a Table View with those documents. To have the UI automatically update when new documents are indexed, we will use a Live Query.
 
-### STEP 6: Using the UITableDataSource
+### STEP 6: Wiring the Table View Data Source and Live Query
 
 Back in `setupTodoLists` of `MasterViewController.m`, we will need to make small changes to accommodate for a live query instead of a simple query. There is a `liveQuery` property on the Main Activity class that we can use in `setupTodoLists`:
 
-- initialise the `self.liveQuery` with the query from Step 4 (all queries have a `toLiveQuery` method we can use to convert the query into a Live Query)
-- add a KVO observer on the `rows` property of the liveQuery object
-- in the `observeValueForKeyPath:ofObject:change:context:` handle the changes, set the `self.listsResults` to the new results. The rows result has a `allObjects` method to return an array
+- initialise the `self.liveQuery` property with the query from Step 4 (all queries have a `asLiveQuery` method we can use to convert the query into a Live Query)
+- add self as a KVO observer on the `rows` property of the liveQuery object (pass 0 for options and context)
+- in the `observeValueForKeyPath:ofObject:change:context:` method, handle the changes: set the `self.listsResults` to the new results. `self.liveQuery` has a rows property (CBLQueryEnumerator). And the rows property has a `allObjects` property of type NSArray
 - reload the tableview with the `reloadData` method
 
-Finally, we need to implement the required methods of the `UITableViewDataSource`, that’s `tableView:numberOfRowsInSection:` and `tableView:cellForRowAtIndexPath:`:
-- return the number of elements in the `listsResult` array for the `tableView:numberOfRowsInSection:`
+Finally, we need to implement the required UITableViewDataSource methods, that’s `tableView:numberOfRowsInSection:` and `tableView:cellForRowAtIndexPath:`:
+
+- return the number of elements in the `listsResult` array for `tableView:numberOfRowsInSection:`
 - for the `tableView:cellForRowAtIndexPath:` method, dequeue a table view cell of type "List"
 - create a new variable row of type `CBLQueryRow` that’s the item in `listsResult` at the indexPath.row position
 - default cells in UITableViews have a Text Label (textLabel), set the text property of the cell to the title property of the List. For this simple case, we don’t need to create a new List model, use `[row.document propertyForKey:@"title"]`
@@ -183,13 +182,16 @@ Run the app on the simulator and start creating ToDo lists, you can see the list
 ### STEP 7: Persist the Task document
 
 To create a Task model and persist it, open `List.m` and complete the body of the method `addTaskWithTitle:withImage:withImageContentType:`:
-- initialise a Task model with the `modelForNewDocumentInDatabaseMethod:`
+
+- create a Task object with the `modelForNewDocumentInDatabaseMethod:`, for the database parameter, pass in `self.database`
 - set the title to the parameter that was passed in
 - set the `list_id` to self, notice here again that we are using a relationship between two models, the List and Task. This will translate to the `_id` of the List in the underlying JSON document
-- use the `setAttachmentNamed:withContentType:content:` method on the list object, the name of the attachment is `image`, the contentType and content are the params that were passed in
+- use the `setAttachmentNamed:withContentType:content:` method on the list object, the name of the attachment is `image`, the contentType and content are the parameters that were passed in
 - finally, return the task object
 
-Open `DetailViewController.m` and call this method on self.list passing in the title, image and "image/jpg" for the content type.
+Open `DetailViewController.m` and call this method in `textFieldShouldReturn:`:
+- create a new variable called task using `addTaskWithTitle:withImage:withImageContentType:` on the self.list object and pass in the title, image and "image/jpg" for the content type
+- save the task object using the save method
 
 ![][image-9]
 
@@ -206,11 +208,13 @@ Then, we will all attempt to connect to the same instance of Sync Gateway.
 In `AppDelegate.m`, create a new method called `startReplications` to create the push/pull replications:
 
 - initialise a new NSURL object. The string url for this tutorial is `http://localhost:4984/todos`
-- initialise the pull replication with the `createPullReplication` method
-- initialise the push replication with the `createPushReplication` method
+- initialise the pull replication with the `createPullReplication` method on the database object
+- initialise the push replication with the `createPushReplication` method on the database object
 - set the continuous property to true on both replications
 - call the `start` method on each replication
 Finally, call the `startReplications` method in the `application:didFinishLaunchingWithOptions` method.
+
+**Note:** in the url above, change the hostname from localhost to the hostname available at the workshop.
 
 If you run the app, nothing is saved to the Sync Gateway. That’s because we disabled the GUEST account in the configuration file.  You can see the 401 HTTP errors in the console:
 
@@ -226,11 +230,13 @@ Currently, the functionality to create a user with a username/password is not im
 
 To register users on Sync Gateway, we can use the Admin REST API `_user` endpoint. The Admin REST API is available on post `4985` and can only be accessed on the internal network that Sync Gateway is running on. That’s a good use case for using an app server to proxy the request to Sync Gateway.
 
-For this workshop, the endpoint is `/signup` on port `8080`:
+For this workshop, the endpoint is `/signup` on port `8080`, the name should be the same as the currentUserId you chose in step 1:
 
 	curl -vX POST -H 'Content-Type: application/json' \
 	    -d '{"name": "your username", "password": "your password"}' \
 	    http://localhost:8080/signup
+
+**Note:** in the url above, change the hostname from localhost to the hostname available at the workshop.
 
 You should get a 200 OK if the user was created successfully.
 

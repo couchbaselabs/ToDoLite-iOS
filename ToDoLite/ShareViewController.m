@@ -35,10 +35,7 @@
     database = app.database;
     myDocId = [@"p:" stringByAppendingString:app.currentUserId];
     
-    CBLLiveQuery *liveQuery = [Profile queryProfilesInDatabase:database].asLiveQuery;
-    _dataSource.query = liveQuery;
-    _dataSource.labelProperty = @"name";
-    _dataSource.deletionAllowed = NO;
+    
 }
 
 - (void)didReceiveMemoryWarning {

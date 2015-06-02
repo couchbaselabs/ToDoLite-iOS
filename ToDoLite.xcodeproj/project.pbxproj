@@ -13,7 +13,6 @@
 		9386F56F19EC44AB005AC336 /* ShareViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9386F56E19EC44AB005AC336 /* ShareViewController.m */; };
 		9386F57219EC84F0005AC336 /* LoginViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9386F57119EC84F0005AC336 /* LoginViewController.m */; };
 		93BC251E19EC992A0072AFB7 /* ReplaceRootViewControllerSegue.m in Sources */ = {isa = PBXBuildFile; fileRef = 93BC251D19EC992A0072AFB7 /* ReplaceRootViewControllerSegue.m */; };
-		93BC252219ECAD820072AFB7 /* NSString+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 93BC252119ECAD820072AFB7 /* NSString+Additions.m */; };
 		93F1627919E97FC40031E7CB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 93F1627819E97FC40031E7CB /* main.m */; };
 		93F1627C19E97FC40031E7CB /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 93F1627B19E97FC40031E7CB /* AppDelegate.m */; };
 		93F1627F19E97FC40031E7CB /* MasterViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 93F1627E19E97FC40031E7CB /* MasterViewController.m */; };
@@ -57,8 +56,6 @@
 		9386F57119EC84F0005AC336 /* LoginViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LoginViewController.m; sourceTree = "<group>"; };
 		93BC251C19EC992A0072AFB7 /* ReplaceRootViewControllerSegue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReplaceRootViewControllerSegue.h; sourceTree = "<group>"; };
 		93BC251D19EC992A0072AFB7 /* ReplaceRootViewControllerSegue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReplaceRootViewControllerSegue.m; sourceTree = "<group>"; };
-		93BC252019ECAD820072AFB7 /* NSString+Additions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+Additions.h"; sourceTree = "<group>"; };
-		93BC252119ECAD820072AFB7 /* NSString+Additions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+Additions.m"; sourceTree = "<group>"; };
 		93F1627319E97FC40031E7CB /* ToDoLite.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ToDoLite.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		93F1627719E97FC40031E7CB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		93F1627819E97FC40031E7CB /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -140,15 +137,6 @@
 			path = ToDoLite;
 			sourceTree = "<group>";
 		};
-		93BC251F19ECAD400072AFB7 /* Extension */ = {
-			isa = PBXGroup;
-			children = (
-				93BC252019ECAD820072AFB7 /* NSString+Additions.h */,
-				93BC252119ECAD820072AFB7 /* NSString+Additions.m */,
-			);
-			name = Extension;
-			sourceTree = "<group>";
-		};
 		93F1626A19E97FC40031E7CB = {
 			isa = PBXGroup;
 			children = (
@@ -171,7 +159,6 @@
 		93F1627519E97FC40031E7CB /* ToDoLite */ = {
 			isa = PBXGroup;
 			children = (
-				93BC251F19ECAD400072AFB7 /* Extension */,
 				93F162C919E9829C0031E7CB /* View */,
 				93F162AC19E9813F0031E7CB /* Model */,
 				93F1627A19E97FC40031E7CB /* AppDelegate.h */,
@@ -357,7 +344,6 @@
 				93F162B519E981490031E7CB /* List.m in Sources */,
 				93BC251E19EC992A0072AFB7 /* ReplaceRootViewControllerSegue.m in Sources */,
 				93F162D519E982D40031E7CB /* ImageViewController.m in Sources */,
-				93BC252219ECAD820072AFB7 /* NSString+Additions.m in Sources */,
 				93F1627C19E97FC40031E7CB /* AppDelegate.m in Sources */,
 				93F1627F19E97FC40031E7CB /* MasterViewController.m in Sources */,
 				93F162B619E981490031E7CB /* Profile.m in Sources */,

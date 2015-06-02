@@ -7,26 +7,14 @@
 //
 
 #import "AppDelegate.h"
-#import <FBSDKCoreKit/FBSDKCoreKit.h>
-#import <FBSDKLoginKit/FBSDKLoginKit.h>
 #import "DetailViewController.h"
 #import "LoginViewController.h"
 #import "Profile.h"
-#import "NSString+Additions.h"
 
 // Sync Gateway
 #define kSyncGatewayUrl @"http://<SERVER>:<PORT>/<DBNAME>"
 
-// For Application Migration
-#define kMigrationVersion @"MigrationVersion"
-
 @interface AppDelegate () <UIAlertViewDelegate>
-
-@property (nonatomic) CBLReplication *push;
-@property (nonatomic) CBLReplication *pull;
-@property (nonatomic) NSError *lastSyncError;
-@property (nonatomic) FBSDKLoginManager *facebookLoginManager;
-@property (nonatomic) UIAlertView *facebookLoginAlertView;
 
 @end
 

@@ -52,7 +52,7 @@
                                             </subviews>
                                         </tableViewCellContentView>
                                         <connections>
-                                            <segue destination="vC3-pB-5Vb" kind="show" identifier="showDetail" id="VoR-tz-aWv"/>
+                                            <segue destination="fy2-jN-Qde" kind="show" identifier="showDetail" id="Lj0-iV-Lrw"/>
                                         </connections>
                                     </tableViewCell>
                                 </prototypes>
@@ -84,21 +84,6 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="USj-28-9V1" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="657" y="-630"/>
-        </scene>
-        <!--Navigation Controller-->
-        <scene sceneID="r7l-gg-dq7">
-            <objects>
-                <navigationController id="vC3-pB-5Vb" sceneMemberID="viewController">
-                    <navigationBar key="navigationBar" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" id="DjV-YW-jjY">
-                        <autoresizingMask key="autoresizingMask"/>
-                    </navigationBar>
-                    <connections>
-                        <segue destination="fy2-jN-Qde" kind="relationship" relationship="rootViewController" id="yU6-k0-RWK"/>
-                    </connections>
-                </navigationController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="SLD-UC-DBI" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="-45" y="129"/>
         </scene>
         <!--Detail View Controller-->
         <scene sceneID="jyq-NQ-WcN">
@@ -233,7 +218,7 @@
                     </connections>
                 </customObject>
             </objects>
-            <point key="canvasLocation" x="670" y="129"/>
+            <point key="canvasLocation" x="657" y="131"/>
         </scene>
         <!--Image View Controller-->
         <scene sceneID="4MX-Iz-jIT">
