@@ -47,48 +47,4 @@
 
 #pragma mark - TableView
 
-// Customizes the appearance of table view cells.
-- (void)couchTableSource:(CBLUITableSource*)source willUseCell:(UITableViewCell*)cell forRow:(CBLQueryRow*)row {
-    NSString *personId = row.document.documentID;
-
-    // if the person's id is in the list of members, or is the owner we are happy.
-    bool member = NO;
-    if ([myDocId isEqualToString:personId]) {
-        member = YES;
-    } else {
-        NSMutableSet *intersection = [NSMutableSet setWithArray:_list.members];
-        [intersection intersectSet:[NSSet setWithObject:personId]];
-        if ([intersection count] > 0) {
-            member = YES;
-        }
-    }
-    
-    if (member) {
-        cell.accessoryType = UITableViewCellAccessoryCheckmark;
-    } else {
-        cell.accessoryType = UITableViewCellAccessoryNone;
-    }
-}
-
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    CBLQueryRow *row = [self.dataSource rowAtIndex:indexPath.row];
-    NSString *toggleMemberId = row.document.documentID;
-    NSArray *members = _list.members;
-    if (!members) members = @[];
-    
-    NSUInteger index = [members indexOfObject:toggleMemberId];
-    if (index == NSNotFound) {
-        _list.members = [members arrayByAddingObject:toggleMemberId];
-    } else {
-        _list.members = [members filteredArrayUsingPredicate:
-                         [NSPredicate predicateWithFormat:@"SELF != %@" argumentArray:@[toggleMemberId]]];
-    }
-    
-    // Save changes:
-    NSError* error;
-    if (![_list save: &error]) {
-    }
-    [self.tableView reloadData];
-}
-
 @end

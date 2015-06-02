@@ -82,17 +82,12 @@
         return NO;  // Nothing entered
     }
     [_addItemTextField setText:nil];
-
     NSData *image = imageForNewTask ? [self dataForImage:imageForNewTask] : nil;
-    Task *task = [self.list addTaskWithTitle:title withImage:image withImageContentType:ImageDataContentType];
-    NSError *error;
-    if ([task save:&error]) {
-        imageForNewTask = nil;
-        [self updateAddImageButtonWithImage:nil];
-    } else {
-        AppDelegate *app = [[UIApplication sharedApplication] delegate];
-        [app showMessage:@"Couldn't save new task" withTitle:@"Error"];
-    }
+    
+    
+    
+    imageForNewTask = nil;
+    [self updateAddImageButtonWithImage:nil];
 
     return YES;
 }

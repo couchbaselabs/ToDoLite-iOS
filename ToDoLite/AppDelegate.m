@@ -39,49 +39,13 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     [CBLManager enableLogging:@"Sync"];
 
-    _currentUserId = @"oliver";
-    [self createDatabase];
     
-    Profile *profile = [Profile profileInDatabase:_database forNewUserId:_currentUserId name:@"Oliver Joe"];
-    [profile save:nil];
-    NSLog(@"The Profile document was saved %@", [[profile document] properties]);
     
-    _syncUrl = [[NSURL alloc] initWithString:@"http://localhost:4984/todos"];
-    [self startReplicationsWithName:@"oliver" withPassword:@"letmein"];
-
     return YES;
 }
 
 - (void)createDatabase {
     _database = [[CBLManager sharedInstance] databaseNamed:@"todoapp" error:nil];
-}
-
-- (void)startReplications {
-    CBLReplication *push = [_database createPushReplication:_syncUrl];
-    CBLReplication *pull = [_database createPullReplication:_syncUrl];
-    
-    push.continuous = YES;
-    pull.continuous = YES;
-    
-    [push start];
-    [pull start];
-}
-
-- (void) startReplicationsWithName:(NSString *)name withPassword:(NSString *)password {
-    
-    CBLAuthenticator *authenticator = [CBLAuthenticator basicAuthenticatorWithName:name password:password];
-    
-    CBLReplication *push = [_database createPushReplication:_syncUrl];
-    CBLReplication *pull = [_database createPullReplication:_syncUrl];
-    
-    push.authenticator = authenticator;
-    pull.authenticator = authenticator;
-    
-    push.continuous = YES;
-    pull.continuous = YES;
-    
-    [push start];
-    [pull start];
 }
 
 #pragma mark - Message

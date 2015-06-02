@@ -121,18 +121,11 @@ static void *listsQueryContext = &listsQueryContext;
 #pragma mark - Table View Datasource
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return self.listsResult.count;
+    return nil;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    UITableViewCell* cell = [tableView dequeueReusableCellWithIdentifier:@"List" forIndexPath:indexPath];
-    
-    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-    
-    CBLQueryRow* row = [self.listsResult objectAtIndex:indexPath.row];
-    cell.textLabel.text = [row.document propertyForKey:@"title"];
-    
-    return cell;
+    return nil;
 }
 
 #pragma mark - Table View Delegate
@@ -148,14 +141,8 @@ static void *listsQueryContext = &listsQueryContext;
 #pragma mark - Observers
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
-    AppDelegate *app = [[UIApplication sharedApplication] delegate];
-    if (object == app && [keyPath isEqual:@"database"]) {
-        [self setupTodoLists];
-    }
-    if (context == listsQueryContext) {
-        self.listsResult = self.liveQuery.rows.allObjects;
-        [self.tableView reloadData];
-    }
+    self.listsResult = self.liveQuery.rows.allObjects;
+    [self.tableView reloadData];
 }
 
 #pragma mark - Database
@@ -168,15 +155,7 @@ static void *listsQueryContext = &listsQueryContext;
     AppDelegate *app = [[UIApplication sharedApplication] delegate];
     self.database = app.database;
     
-    [self.liveQuery removeObserver:self forKeyPath:@"rows" context:listsQueryContext];
-    if (self.database != nil) {
-        self.liveQuery = [List queryListsInDatabase:self.database].asLiveQuery;
-        [self.liveQuery addObserver:self forKeyPath:@"rows" options:0 context:listsQueryContext];
-    } else {
-        self.liveQuery = nil;
-    }
     
-    [self.tableView reloadData];
 }
 
 - (List *)createListWithTitle:(NSString*)title {
@@ -191,13 +170,8 @@ static void *listsQueryContext = &listsQueryContext;
         list.owner = owner;
     }
     
-    NSError *error;
-    if (![list save:&error]) {
-        [app showMessage:@"Cannot create a new list" withTitle:@"Error"];
-        return nil;
-    } else {
-        NSLog(@"Document was saved with properties %@", [[list document] properties]);
-    }
+    [list save:nil];
+    NSLog(@"The list was saved %@", [[list document] properties]);
     
     return list;
 }

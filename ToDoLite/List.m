@@ -49,13 +49,7 @@
 }
 
 // Creates a new task.
-- (Task*) addTaskWithTitle: (NSString*)title withImage: (NSData*)image withImageContentType: (NSString*)contentType {
-    Task *task = [Task modelForNewDocumentInDatabase:self.database];
-    task.title = title;
-    task.list_id = self;
-    [task setImage:image contentType:contentType];
-    return task;
-}
+
 
 // Returns a query for this list's tasks, in reverse chronological order.
 - (CBLQuery*) queryTasks {
