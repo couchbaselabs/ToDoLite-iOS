@@ -122,11 +122,13 @@ The main component of a view is its **map function**. This function is written i
 
 You will find the `queryListsInDatabase` method in `List.m` and the objective is to add the missing code to index the List documents. The emit function will emit the List title as key and null as the value.
 
-In sudo code, the map function will look like:
+In pseudo code, the map function will look like:
 
 	var type = document.type;
 	if document.type == "list"
 	    emit(document.title, null)
+
+You can find an example of the map/reduce view api in Objective-C [here][3]. 
 
 ### STEP 4: Query Views
 
@@ -320,6 +322,7 @@ Congratulations on building the main features of ToDoLite. Now you have a deeper
 
 [1]:	http://packages.couchbase.com/builds/mobile/ios/1.1.0/1.1.0-18/couchbase-lite-ios-community_1.1.0-18.zip
 [2]:	http://developer.couchbase.com/mobile/develop/guides/couchbase-lite/native-api/model/index.html
+[3]:	http://developer.couchbase.com/mobile/develop/guides/couchbase-lite/native-api/view/index.html#source_doc
 
 [image-1]:	http://i.gyazo.com/71ba8ac8f36835f86ffc8d570708cec6.gif
 [image-2]:	http://i.gyazo.com/7fa47e35c349c1936f2713acd18327e9.gif
