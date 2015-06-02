@@ -260,7 +260,7 @@ You should get a 200 OK if the user was created successfully.
 
 Back in the iOS app in AppDelegate.m, create a new method `startReplicationsWithName:withPassword` method to provide a username and password:
 
-- this time use the CBLAuthenticator class to create an authenticator of type basic auth passing in the name and password
+- this time use the CBLAuthenticator class to create an authenticator of type basic auth passing in the name and password (remember the name is the currentUserId you picked in step 1)
 - wire up the authenticator to the replications using the `authenticator` method
 - call the refactored method in `application:didFinishLaunchingWithOptions`
 
@@ -287,10 +287,9 @@ The CBLUITableSource class does all the plumbing between the Table View and Data
 This time, we will work in `ShareViewController.m`. Before that, open the header file and notice the dataSource property is of type CBLUITableSource.
 
 In `viewDidLoad:`:
-- create a new variable called `liveQuery` of type LiveQuery. Use the `queryProfilesInDatabase` passing in the current database
+- create a new variable called `liveQuery` of type LiveQuery. Use the Profile `queryProfilesInDatabase` class method passing in the current database
 - set the `query` property on the `dataSource` to the live query you created above
-- set it’s `labelProperty` to `name`
-- set the `deletionAllowed` boolean property to `NO`
+- set it’s `labelProperty` to `name`. Then 
 
 At this point, you’re done! Try running the app and notice the list all the Profiles documents is there.
 
@@ -299,6 +298,7 @@ At this point, you’re done! Try running the app and notice the list all the Pr
 ### STEP 12: Sharing a List
 
 Next, we will have to implement two method:
+
 1. Touching a table row should add the selected Profile `_id` to the members of that list
 2. The Table View should show a checkmark for Profiles in that List
 
