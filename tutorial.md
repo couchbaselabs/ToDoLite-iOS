@@ -289,7 +289,7 @@ This time, we will work in `ShareViewController.m`. Before that, open the header
 In `viewDidLoad:`:
 - create a new variable called `liveQuery` of type LiveQuery. Use the Profile `queryProfilesInDatabase` class method passing in the current database
 - set the `query` property on the `dataSource` to the live query you created above
-- set it’s `labelProperty` to `name`. Then 
+- set it’s `labelProperty` to `name`. The labelProperty corresponds to the document’s property that will be used to populated the cell’s TextLabel
 
 At this point, you’re done! Try running the app and notice the list all the Profiles documents is there.
 
@@ -303,10 +303,12 @@ Next, we will have to implement two method:
 2. The Table View should show a checkmark for Profiles in that List
 
 In `ShareViewController.h`, notice that the class implements the  `CBLUITableDelegate` protocol. Nothing new there, we can implement the `tableView:didSelectRowAtIndexPath:` method:
-- using the `indexPath` of the selected row to fetch the corresponding document from the dataSource
-- create a new variable called `members` storing the members of that List (remember `list` is a property on that class)
-- check if doc id of the selected Profile is in the members array (if YES, remove it, if NO, add it)
-- save the list
+- using the `indexPath` of the selected row to fetch the corresponding document from the dataSource’s rowAtIndexPath method
+- create a new array variable called `members` storing the members of that List (remember `list` is a property on that class)
+- create a new variable named `selectedUserId` that’s the documentID of the user that was selected
+- check if the `selectedUserId` value is in the members array (if YES, remove it, if NO, add it)
+- set the `members` property of the list to the new value
+- save the newly updated list object
 - add a log statement to print the response from the save operation
 - tell the Table View to redraw itself with `reloadData`
 

@@ -40,6 +40,14 @@
     [super didReceiveMemoryWarning];
 }
 
+- (void)couchTableSource:(CBLUITableSource * __nonnull)source willUseCell:(UITableViewCell * __nonnull)cell forRow:(CBLQueryRow * __nonnull)row {
+    
+}
+
 #pragma mark - TableView
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+}
 
 @end
