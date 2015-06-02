@@ -68,16 +68,4 @@
     return [NSString stringWithFormat:@"db%@", [[name MD5] lowercaseString]];
 }
 
-
-// Clear the SyncGateway session cookie when logging out
-// In the future the replication object may handle that: https://github.com/couchbase/couchbase-lite-ios/issues/543
-- (void)removeSessionCookie {
-    NSHTTPCookieStorage *cookieJar = NSHTTPCookieStorage.sharedHTTPCookieStorage;
-    for (NSHTTPCookie *aCookie in cookieJar.cookies) {
-        if ([aCookie.name  isEqual: @"SyncGatewaySession"]) {
-            [cookieJar deleteCookie:aCookie];
-        }
-    }
-}
-
 @end
