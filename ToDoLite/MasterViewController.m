@@ -37,20 +37,7 @@ static void *listsQueryContext = &listsQueryContext;
         CBLQueryRow *row = [self.listsResult objectAtIndex:indexPath.row];
         List *list = [List modelForDocument:row.document];
         
-        DetailViewController *controller;
-        if ([[segue destinationViewController] isKindOfClass:[UINavigationController class]]) {
-            controller = (DetailViewController *)[[segue destinationViewController] topViewController];
-        } else {
-            controller = [segue destinationViewController];
-        }
-        
-        if ([[[UIDevice currentDevice] systemVersion] compare:@"8.0" options:NSNumericSearch] != NSOrderedAscending) {
-            controller.navigationItem.leftBarButtonItem = self.splitViewController.displayModeButtonItem;
-            controller.navigationItem.leftItemsSupplementBackButton = YES;
-        } else {
-            // For iOS7, Setting the display mode is done in DetailViewController.setList: method.
-        }
-        
+        DetailViewController *controller = [segue destinationViewController];
         controller.list = list;
     }
 }
