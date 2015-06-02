@@ -33,6 +33,10 @@
     return [view createQuery];
 }
 
+- (Task *)addTaskWithTitle:(NSString *)title withImage:(NSData *)image withImageContentType:(NSString *)contentType {
+    return nil;
+}
+
 + (void) updateAllListsInDatabase: (CBLDatabase*)database withOwner: (Profile*)owner error: (NSError**)error {
     CBLQueryEnumerator *myLists = [[List queryListsInDatabase:database] run:error];
     if (!myLists) {

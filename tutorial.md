@@ -120,15 +120,20 @@ Couchbase views enable indexing and querying of data.
 
 The main component of a view is its **map function**. This function is written in the same language as your app—most likely Objective-C or Java—so it’s very flexible. It takes a document's JSON as input, and emits (outputs) any number of key/value pairs to be indexed. The view generates a complete index by calling the map function on every document in the database, and adding each emitted key/value pair to the index, sorted by key.
 
-You will find the `queryListsInDatabase` method in `List.m` and the objective is to add the missing code to index the List documents. The emit function will emit the List title as key and null as the value.
+You will find the `queryListsInDatabase` method in `List.m` and the objective is to add the missing code to index the List documents:
+- create a view variable using the `viewNamed` method on the db (you can call this view "lists")
+- set the map/reduce function using the `setMapBlock:version:`
+- check if the type of the doc is "list"
+- emit the List title as key and null as the value
+- the version number is 1.0 because it’s the first time we register this view with the database
 
-In pseudo code, the map function will look like:
+You can find an example of the map/reduce view syntax in Objective-C [here][3]. 
 
-	var type = document.type;
-	if document.type == "list"
-	    emit(document.title, null)
+In pseudo code, the map function does the following:
 
-You can find an example of the map/reduce view api in Objective-C [here][3]. 
+	var type = doc.type;
+	if doc.type == "list"
+	    emit(doc.title, null)
 
 ### STEP 4: Query Views
 
