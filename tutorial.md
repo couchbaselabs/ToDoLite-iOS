@@ -89,7 +89,7 @@ In `Titled.h`:
 
 In `Titled.m`:
 
-- mark the `title` and `created_at` properties as dynamic
+- mark the `title` and `created_at` properties as @dynamic
 
 You can read more about the usage of dynamic properties in CBLModel subclasses and how to use them [here][2].
 

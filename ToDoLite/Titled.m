@@ -8,7 +8,7 @@
 
 #import "Titled.h"
 
-@implementation Titledx
+@implementation Titled
 
 // Subclasses must override this to return the value of their documents' "type" property.
 + (NSString*) docType {
@@ -17,13 +17,7 @@
 }
 
 - (void)awakeFromInitializer {
-    self.type = [[self class] docType];
-    self.created_at = [NSDate date];
-}
 
-- (NSString*) description {
-    return [NSString stringWithFormat: @"%@[%@ '%@']",
-            self.class, self.document.abbreviatedID, self.title];
 }
 
 @end

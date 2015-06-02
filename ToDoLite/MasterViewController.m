@@ -24,18 +24,6 @@ static void *listsQueryContext = &listsQueryContext;
 
 @implementation MasterViewController
 
-- (void)awakeFromNib {
-    [super awakeFromNib];
-    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
-        self.preferredContentSize = CGSizeMake(320.0, 600.0);
-    }
-    
-    // There is a bug in iOS8 UISplitViewController on iPads that doesn't set the main button item
-    // correctly during its first display. A work would be manually setting the master
-    // controller title here.
-    self.title = @"ToDo Lists";
-}
-
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self setupTodoLists];
@@ -147,33 +135,15 @@ static void *listsQueryContext = &listsQueryContext;
 
 #pragma mark - Database
 
-// In this View Controller, we show an example of a Live Query
-// and KVO to update the Table View accordingly when data changed.
-// See DetailViewController and ShareViewController for
-// examples of a Live Query used with the CBLUITableSource api.
 - (void)setupTodoLists {
     AppDelegate *app = [[UIApplication sharedApplication] delegate];
     self.database = app.database;
-    
-    
 }
 
 - (List *)createListWithTitle:(NSString*)title {
     AppDelegate *app = [[UIApplication sharedApplication] delegate];
     NSString *currentUserId = app.currentUserId;
-    
-    
-    List *list = [List modelForNewDocumentInDatabase:self.database];
-    list.title = title;
-    if (currentUserId) {
-        Profile *owner = [Profile profileInDatabase:self.database forExistingUserId:currentUserId];
-        list.owner = owner;
-    }
-    
-    [list save:nil];
-    NSLog(@"The list was saved %@", [[list document] properties]);
-    
-    return list;
+    return nil;
 }
 
 @end
