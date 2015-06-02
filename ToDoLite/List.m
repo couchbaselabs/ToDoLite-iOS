@@ -22,15 +22,7 @@
 
 // Returns a query for all the lists in a database.
 + (CBLQuery*) queryListsInDatabase: (CBLDatabase*)db {
-    CBLView* view = [db viewNamed: @"lists"];
-    if (!view.mapBlock) {
-        // Register the map function, the first time we access the view:
-        [view setMapBlock: MAPBLOCK({
-            if ([doc[@"type"] isEqualToString:kListDocType])
-                emit(doc[@"title"], nil);
-        }) reduceBlock: nil version: @"1"]; // bump version any time you change the MAPBLOCK body!
-    }
-    return [view createQuery];
+    return nil;
 }
 
 - (Task *)addTaskWithTitle:(NSString *)title withImage:(NSData *)image withImageContentType:(NSString *)contentType {
