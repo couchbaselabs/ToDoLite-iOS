@@ -22,11 +22,25 @@
 
 // Returns a query for all the lists in a database.
 + (CBLQuery*) queryListsInDatabase: (CBLDatabase*)db {
-    return nil;
+    
+    CBLView *lists = [db viewNamed:@"lists"];
+    [lists setMapBlock: MAPBLOCK({
+        if ([doc[@"type"] isEqual: @"list"]) {
+            NSString* title = doc[@"title"];
+            emit(title, nil);
+        }
+    }) version: @"1"];
+    
+    CBLQuery *query  = [lists createQuery];
+    return query;
 }
 
 - (Task *)addTaskWithTitle:(NSString *)title withImage:(NSData *)image withImageContentType:(NSString *)contentType {
-    return nil;
+    Task *task = [Task modelForNewDocumentInDatabase:self.database];
+    task.title = title;
+    task.list_id = self;
+    [task setAttachmentNamed:@"image" withContentType:contentType content:image];
+    return task;
 }
 
 + (void) updateAllListsInDatabase: (CBLDatabase*)database withOwner: (Profile*)owner error: (NSError**)error {

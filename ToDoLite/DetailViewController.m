@@ -82,12 +82,17 @@
         return NO;  // Nothing entered
     }
     [_addItemTextField setText:nil];
+    
     NSData *image = imageForNewTask ? [self dataForImage:imageForNewTask] : nil;
+    Task *task = [self.list addTaskWithTitle:title withImage:image withImageContentType:@"image/jpg"];
+    NSError *error;
+    BOOL ok = [task save:&error];
     
-    
-    
-    imageForNewTask = nil;
-    [self updateAddImageButtonWithImage:nil];
+    if (ok) {
+        NSLog(@"The list was saved %@", [[self.list document] properties]);
+        imageForNewTask = nil;
+        [self updateAddImageButtonWithImage:nil];
+    }
 
     return YES;
 }

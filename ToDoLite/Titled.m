@@ -9,6 +9,7 @@
 #import "Titled.h"
 
 @implementation Titled
+@dynamic title, created_at;
 
 // Subclasses must override this to return the value of their documents' "type" property.
 + (NSString*) docType {
@@ -17,7 +18,9 @@
 }
 
 - (void)awakeFromInitializer {
-
+    self.created_at = [NSDate new];
+    self.type =  [[self class] docType];
+    
 }
 
 @end

@@ -66,11 +66,15 @@
 #pragma mark - Table View Datasource
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return 0;
+    return self.listsResult.count;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    return nil;
+    TaskTableViewCell *cell = (TaskTableViewCell *) [tableView dequeueReusableCellWithIdentifier:@"List" forIndexPath:indexPath];
+    CBLQueryRow *row=self.listsResult[indexPath.row];
+    cell.textLabel.text = [row.document propertyForKey:@"title"];
+    
+    return cell;
 }
 
 #pragma mark - Table View Delegate
@@ -85,21 +89,51 @@
 
 #pragma mark - Observers
 
+
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
-    
+    self.listsResult = self.liveQuery.rows.allObjects;
+    [self.tableView reloadData];
+}
+
+- (void)dealloc {
+    [self.liveQuery removeObserver:self forKeyPath:@"row"];
 }
 
 #pragma mark - Database
 
 - (void)setupTodoLists {
+    NSError *error;
     AppDelegate *app = [[UIApplication sharedApplication] delegate];
     self.database = app.database;
+    CBLQuery *query = [List queryListsInDatabase:self.database];
+    self.liveQuery = [query asLiveQuery];
+    
+    [self.liveQuery addObserver:self forKeyPath:@"rows" options:0 context:nil];
+    CBLQueryEnumerator *results = [query run:&error];
+    for (CBLQueryRow *row in results) {
+        NSLog(@"This list title is %@", [[row document] propertyForKey:@"title"]);
+    }
+    
 }
 
 - (List *)createListWithTitle:(NSString*)title {
     AppDelegate *app = [[UIApplication sharedApplication] delegate];
     NSString *currentUserId = app.currentUserId;
-    return nil;
+
+    List *list = [List modelForNewDocumentInDatabase:app.database];
+    list.title = title;
+    Profile *profile = [Profile profileInDatabase:app.database forExistingUserId:currentUserId];
+    list.owner = profile;
+    NSError *error;
+    BOOL ok = [list save:&error];
+    if (ok) {
+        NSLog(@"Saved %@", list.document.properties);
+    }
+    else {
+        NSLog(@"error: %@", error);
+    }
+    
+    return list;
 }
 
 @end

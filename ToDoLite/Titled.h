@@ -15,5 +15,6 @@
 + (NSString*) docType;
 
 @property NSString* title;
+@property NSDate* created_at;
 
 @end
