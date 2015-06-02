@@ -16,23 +16,11 @@ Clone the application from the ToDoLite-iOS repository:
 
 	git clone https://github.com/couchbaselabs/ToDoLite-iOS
 	cd ToDoLite-iOS
-	git checkout workshop/starter
+	git checkout workshop/start
 
 Download and unzip the zip file for the 1.1 release [here][1]. Drag the `CouchbaseLite.framework` file to the Frameworks folder.
 
 ![][image-1]
-
-### Getting started
-
-In the next section, we’ll start building the data models for the application.
-
-Every step of the tutorial are saved to a branch on the GitHub repository. If you find yourself in trouble and want to skip a step or catch up, you can just check out to the next branch. To start the workshop, checkout on `workshop/start`:
-
-	git checkout workshop/start
-
-In the source code, you will find comments to help locate where the missing code is meant to go. For example:
-
-	// WORKSHOP STEP 1: creating a database
 
 ### Introduction
 
@@ -44,7 +32,7 @@ The topics below are the fundamental aspects of Couchbase Mobile. If you underst
 - query: the action of looking up results from a view’s index
 - attachment: stores data associated with a document, but are not part of the document’s JSON object
 
-Throughout this tutorial, we will refer to the logs in the Xcode debugger to check that things are working as expected. You can open the Xcode debugger with the sliding panel button and `paste shortcut here`.
+Throughout this tutorial, we will refer to the logs in the Xcode debugger to check that things are working as expected. You can open the Xcode debugger with the sliding panel button and `⌘ + ⇧ + Y`.
 
 	Gif to show the opening/closing debug draw
 

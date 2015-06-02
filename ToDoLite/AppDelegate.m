@@ -38,8 +38,6 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     [CBLManager enableLogging:@"Sync"];
-
-    
     
     return YES;
 }
