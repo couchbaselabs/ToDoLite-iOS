@@ -88,8 +88,7 @@ static void *listsQueryContext = &listsQueryContext;
 #pragma mark - Observers
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
-    self.listsResult = self.liveQuery.rows.allObjects;
-    [self.tableView reloadData];
+    
 }
 
 #pragma mark - Database
