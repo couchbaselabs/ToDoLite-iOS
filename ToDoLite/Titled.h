@@ -14,6 +14,8 @@
 /** The "type" property value for documents that belong to this class. Abstract. */
 + (NSString*) docType;
 
-@property NSString* title;
+@property NSString * title;
+
+@property NSDate * created_at;
 
 @end

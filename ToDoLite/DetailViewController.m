@@ -83,8 +83,10 @@
     }
     [_addItemTextField setText:nil];
     NSData *image = imageForNewTask ? [self dataForImage:imageForNewTask] : nil;
-    
-    
+
+    NSError *error;
+    Task *task = [self.list addTaskWithTitle:title withImage:image withImageContentType:@"image/jpg"];
+    [task save: &error];
     
     imageForNewTask = nil;
     [self updateAddImageButtonWithImage:nil];

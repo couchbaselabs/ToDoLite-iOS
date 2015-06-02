@@ -7,26 +7,15 @@
 //
 
 #import "AppDelegate.h"
-#import <FBSDKCoreKit/FBSDKCoreKit.h>
-#import <FBSDKLoginKit/FBSDKLoginKit.h>
 #import "DetailViewController.h"
 #import "LoginViewController.h"
 #import "Profile.h"
-#import "NSString+Additions.h"
 
 // Sync Gateway
-#define kSyncGatewayUrl @"http://<SERVER>:<PORT>/<DBNAME>"
+#define kSyncGatewayUrl @"http://10.17.3.228:4984/todos"
 
-// For Application Migration
-#define kMigrationVersion @"MigrationVersion"
 
 @interface AppDelegate () <UIAlertViewDelegate>
-
-@property (nonatomic) CBLReplication *push;
-@property (nonatomic) CBLReplication *pull;
-@property (nonatomic) NSError *lastSyncError;
-@property (nonatomic) FBSDKLoginManager *facebookLoginManager;
-@property (nonatomic) UIAlertView *facebookLoginAlertView;
 
 @end
 
@@ -34,8 +23,41 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     [CBLManager enableLogging:@"Sync"];
-    
+
+    [self createDatabase];
+
+    _currentUserId = @"pasin";
+
+    NSError *error;
+    Profile *userProfile = [Profile profileInDatabase:_database
+                                         forNewUserId:_currentUserId name:@"Pasin"];
+    [userProfile save: &error];
+
+    NSLog(@"User Profile %@", userProfile.document.properties);
+
+    [self startReplications];
+
     return YES;
+}
+
+- (void)createDatabase {
+    NSError *error;
+    _database = [[CBLManager sharedInstance] databaseNamed:@"todosapp" error:&error];
+}
+
+- (void)startReplications {
+    NSURL *url = [NSURL URLWithString:kSyncGatewayUrl];
+
+    CBLReplication *push = [self.database createPushReplication:url];
+    push.continuous = YES;
+    push.authenticator = [CBLAuthenticator basicAuthenticatorWithName:@"pasin" password:@"123"];
+
+    CBLReplication *pull = [self.database createPullReplication:url];
+    pull.continuous = YES;
+    pull.authenticator = [CBLAuthenticator basicAuthenticatorWithName:@"pasin" password:@"123"];
+
+    [pull start];
+    [push start];
 }
 
 #pragma mark - Message

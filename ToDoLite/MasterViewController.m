@@ -66,11 +66,16 @@
 #pragma mark - Table View Datasource
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return 0;
+    return [self.listsResult count];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    return nil;
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"List" forIndexPath:indexPath];
+
+    CBLQueryRow *row = [self.listsResult objectAtIndex:indexPath.row];
+    cell.textLabel.text = [row.document propertyForKey:@"title"];
+
+    return cell;
 }
 
 #pragma mark - Table View Delegate
@@ -86,7 +91,8 @@
 #pragma mark - Observers
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
-    
+    self.listsResult = self.liveQuery.rows.allObjects;
+    [self.tableView reloadData];
 }
 
 #pragma mark - Database
@@ -94,12 +100,26 @@
 - (void)setupTodoLists {
     AppDelegate *app = [[UIApplication sharedApplication] delegate];
     self.database = app.database;
+
+    CBLQuery *query = [List queryListsInDatabase:self.database];
+    self.liveQuery = [query asLiveQuery];
+    [self.liveQuery addObserver:self forKeyPath:@"rows" options:0 context:nil];
 }
 
 - (List *)createListWithTitle:(NSString*)title {
     AppDelegate *app = [[UIApplication sharedApplication] delegate];
     NSString *currentUserId = app.currentUserId;
-    return nil;
+
+    List *list = [List modelForNewDocumentInDatabase:self.database];
+    list.title = title;
+    list.owner = [Profile profileInDatabase:self.database forExistingUserId:currentUserId];
+
+    NSError *error;
+    [list save:&error];
+
+    NSLog(@"List : %@", list.document.properties);
+
+    return list;
 }
 
 @end

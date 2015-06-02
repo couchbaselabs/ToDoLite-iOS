@@ -35,10 +35,10 @@
     database = app.database;
     myDocId = [@"p:" stringByAppendingString:app.currentUserId];
     
-    CBLLiveQuery *liveQuery = [Profile queryProfilesInDatabase:database].asLiveQuery;
-    _dataSource.query = liveQuery;
-    _dataSource.labelProperty = @"name";
-    _dataSource.deletionAllowed = NO;
+    CBLLiveQuery *query = [[Profile queryProfilesInDatabase:database] asLiveQuery];
+    self.dataSource.query = query;
+    self.dataSource.labelProperty = @"name";
+    self.dataSource.deletionAllowed = NO;
 }
 
 - (void)didReceiveMemoryWarning {
@@ -46,5 +46,44 @@
 }
 
 #pragma mark - TableView
+
+- (NSString *)docIdForId:(NSString *)idStr {
+    return [NSString stringWithFormat:@"p:%@", idStr];
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    CBLQueryRow *row = [self.dataSource rowAtIndexPath:indexPath];
+    NSString *currentId = row.document.documentID;
+
+    if ([currentId isEqualToString:[self docIdForId:app.currentUserId]]) {
+        [tableView reloadData];
+        return;
+    }
+
+    NSMutableArray *members = [NSMutableArray arrayWithArray:[self.list.document propertyForKey:@"members"]];
+    if ([members containsObject:currentId]) {
+        [members removeObject:currentId];
+    } else {
+        [members addObject:currentId];
+    }
+    self.list.members = members;
+
+    [self.list save:nil];
+
+    [tableView reloadData];
+}
+
+- (void)couchTableSource:(CBLUITableSource *)source willUseCell:(UITableViewCell *)cell forRow:(CBLQueryRow *)row {
+    if ([row.documentID isEqualToString:[self docIdForId:app.currentUserId]]) {
+        cell.accessoryType = UITableViewCellAccessoryCheckmark;
+        return;
+    }
+
+    if ([self.list.members containsObject:row.documentID]) {
+        cell.accessoryType = UITableViewCellAccessoryCheckmark;
+    } else {
+        cell.accessoryType = UITableViewCellAccessoryNone;
+    }
+}
 
 @end

@@ -20,17 +20,24 @@
     return kListDocType;
 }
 
+- (Task*) addTaskWithTitle: (NSString*)title withImage: (NSData*)image withImageContentType: (NSString*)contentType {
+    Task *task = [Task modelForNewDocumentInDatabase:self.database];
+    task.title = title;
+    task.list_id = self;
+    [task setAttachmentNamed:@"image" withContentType:contentType content:image];
+    return task;
+}
+
 // Returns a query for all the lists in a database.
 + (CBLQuery*) queryListsInDatabase: (CBLDatabase*)db {
-    CBLView* view = [db viewNamed: @"lists"];
-    if (!view.mapBlock) {
-        // Register the map function, the first time we access the view:
-        [view setMapBlock: MAPBLOCK({
-            if ([doc[@"type"] isEqualToString:kListDocType])
-                emit(doc[@"title"], nil);
-        }) reduceBlock: nil version: @"1"]; // bump version any time you change the MAPBLOCK body!
-    }
-    return [view createQuery];
+    CBLView *view = [db viewNamed:@"lists"];
+
+    [view setMapBlock: MAPBLOCK({
+        if ([doc[@"type"] isEqualToString:kListDocType])
+            emit(doc[@"title"], nil);
+    }) version: @"1.0"];
+
+    return view.createQuery;
 }
 
 + (void) updateAllListsInDatabase: (CBLDatabase*)database withOwner: (Profile*)owner error: (NSError**)error {
