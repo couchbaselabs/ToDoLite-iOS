@@ -34,13 +34,13 @@ The topics below are the fundamental aspects of Couchbase Mobile. If you underst
 
 Throughout this tutorial, we will refer to the logs in the Xcode debugger to check that things are working as expected. You can open the Xcode debugger with the sliding panel button and `⌘ + ⇧ + Y`.
 
-	Gif to show the opening/closing debug draw
+![][image-2]
 
 ### ToDoLite Data Model
 
 In ToDoLite, there are 3 types of documents: a profile, a list and a task. The List document has an owner and a members array, the Task document holds a reference to the List it belongs to.
 
-![][image-2]
+![][image-3]
 
 ### Working with Documents and Revisions
 
@@ -66,13 +66,17 @@ In `AppDelegate.m`, add a new method called `createDatabase` with the following 
 Call the createDatabase method in the `application:didFinishLaunchingWithOptions:` method.
 
 The database doesn’t have any documents in it so far. Let’s add the Profile document:
+
 - initialise `_currentUserId` to the name/user of your choice
+
+As you can see in the Data Model diagram, the List document has an owner property which is the `_id` of the Profile document owning that List. You need to create the Profile document before creating Lists:
+
 - use the Profile’s `profileInDatabase:forNewUserId:name` passing in the database, current user id and a name of your choice. This will return a new Profile model instance
 - call save on that profile model and log the properties to the console
 
 Launch the app and you should see the properties of the Profile document in the Console:
 
-![][image-3]
+![][image-4]
 
 ### STEP 2: Working with CBLModel
 
@@ -87,9 +91,9 @@ In `Titled.m`:
 
 - mark the `title` and `created_at` properties as dynamic
 
-This will ensure there is a 1:1 mapping between the model properties and document properties (in JSON) persisted to Couchbase Lite.
+You can read more about the usage of dynamic properties in CBLModel subclasses and how to use them [here][2].
 
-With the newest 1.1 release of Couchbase Mobile, the iOS SDK removed the need to create initialisers for subclasses. We can use the`awakeFromInitializer` method to hook into the initialisation process to set our iVars.
+Next, we can use the `awakeFromInitializer` method to hook into the initialisation process to set our iVars.
 
 In `awakeFromInitializer`:
 
@@ -106,7 +110,7 @@ Finally, add a log statement to check that the document was saved.
 
 Run the app and create a couple lists. Nothing will display in the UI just yet but you see the Log statement you added above. In the next section, you will learn how to query those documents.
 
-![][image-4]
+![][image-5]
 
 The solution is on the `workshop/saving_list_document` branch.
 
@@ -136,7 +140,7 @@ Now you have created the view to index List documents, you can query it. In `Mas
 
 Iterate on the result and log the title of every List document. If you saved List documents in Step 1, you should now see the titles in the Console:
 
-![][image-5]
+![][image-6]
 
 The solution is on the `workshop/query_views` branch.
 
@@ -165,7 +169,7 @@ Finally, we need to implement the required methods of the `UITableViewDataSource
 
 Run the app on the simulator and start creating ToDo lists, you can see the lists are now displayed in the Table View.
 
-![][image-6]
+![][image-7]
 
 The solution is on the `workshop/persist_task_document` branch.
 
@@ -180,7 +184,7 @@ To create a Task model and persist it, open `List.m` and complete the body of th
 
 Open `DetailViewController.m` and call this method on self.list passing in the title, image and "image/jpg" for the content type.
 
-![][image-7]
+![][image-8]
 
 The solution is on the `workshop/attachments_and_revisions ` branch.
 
@@ -207,7 +211,7 @@ If you run the app, nothing is saved to the Sync Gateway. That’s because we di
 
 Run the app, you should see HTTP 401 Unauthorised errors in the Console:
 
-![][image-8]
+![][image-9]
 
 In the next section, you will add user authentication with Sync Gateway. You can choose to use Facebook Login or Basic Authentication for this workshop.
 
@@ -251,7 +255,7 @@ Back in the iOS app in AppDelegate.m, create a new method `startReplicationsWith
 
 Notice in the Console that the documents are now syncing to Sync Gateway.
 
-![][image-9]
+![][image-10]
 
 The solution is on the `workshop/replication_basic_auth` branch.
 
@@ -281,7 +285,7 @@ In `viewDidLoad:`:
 
 At this point, you’re done! Try running the app and notice the list all the Profiles documents is there.
 
-![][image-10]
+![][image-11]
 
 ### STEP 12: Sharing a List
 
@@ -299,7 +303,7 @@ In `ShareViewController.h`, notice that the class implements the  `CBLUITableDel
 
 Run the app and when clicking a particular cell, you should see the update properties logged to the Console.
 
-![][image-11]
+![][image-12]
 
 The solution is on the `populating_list_items` branch.
 
@@ -310,7 +314,7 @@ In the next section, we will use the appropriate CBLUITableSource hook to add a 
 Implement the `couchTableSouce:willUseCell:forRow:` method. Notice here that this method has a row parameter of type `CBLQueryRow`. That’s the document for the cell that was clicked:
 - check if the doc id of the row object is in the members array of the list document (if YES, set the cell’s accessoryType to checkmark, if NO, set the cell’s accessoryType to None)
 
-![][image-12]
+![][image-13]
 
 The solution is on the `workshop/final` branch.
 
@@ -318,7 +322,7 @@ The solution is on the `workshop/final` branch.
 
 Run the app, you can now see the different users from the `profiles` channel and share lists with other attendees.
 
-![][image-13]
+![][image-14]
 
 The result is on the `workshop/final` branch.
 
@@ -327,17 +331,19 @@ The result is on the `workshop/final` branch.
 Congratulations on building the main features of ToDoLite. Now you have a deeper understanding of Couchbase Lite and how to use the sync features with Sync Gateway you can start using the SDKs in your own apps.
 
 [1]:	http://packages.couchbase.com/builds/mobile/ios/1.1.0/1.1.0-18/couchbase-lite-ios-community_1.1.0-18.zip
+[2]:	http://developer.couchbase.com/mobile/develop/guides/couchbase-lite/native-api/model/index.html
 
 [image-1]:	http://i.gyazo.com/71ba8ac8f36835f86ffc8d570708cec6.gif
-[image-2]:	http://f.cl.ly/items/0r2I3p2C0I041G3P0C0C/Model.png
-[image-3]:	http://i.gyazo.com/58f2f18f3a05651301a96792de7df373.gif
-[image-4]:	http://i.gyazo.com/11fa6533027e17d316d64c059b8c42f5.gif
-[image-5]:	http://i.gyazo.com/20e60cb13ba987f42970c5d04a495423.gif
-[image-6]:	http://i.gyazo.com/359ac7a252f57f889649d74c2228e675.gif
-[image-7]:	http://i.gyazo.com/bb951a6b846793c0bb38532c22d6f90b.gif
-[image-8]:	http://i.gyazo.com/c874e2e1f48242eb93fb8ec1d843c30f.gif
-[image-9]:	http://i.gyazo.com/3de9c203a9b37d57652e2aadef290069.gif
-[image-10]:	http://i.gyazo.com/755327503b7f5c3e36dd2d816fedae62.gif
-[image-11]:	http://i.gyazo.com/6ad24bd77513506a6869a1ce78c0a242.gif
-[image-12]:	http://i.gyazo.com/22dd85add78a4283938fab9bb955161e.gif
-[image-13]:	http://i.gyazo.com/80c7dda4371ecf2343d2fe36c59890e1.gif
+[image-2]:	http://i.gyazo.com/7fa47e35c349c1936f2713acd18327e9.gif
+[image-3]:	http://f.cl.ly/items/0r2I3p2C0I041G3P0C0C/Model.png
+[image-4]:	http://i.gyazo.com/58f2f18f3a05651301a96792de7df373.gif
+[image-5]:	http://i.gyazo.com/11fa6533027e17d316d64c059b8c42f5.gif
+[image-6]:	http://i.gyazo.com/20e60cb13ba987f42970c5d04a495423.gif
+[image-7]:	http://i.gyazo.com/359ac7a252f57f889649d74c2228e675.gif
+[image-8]:	http://i.gyazo.com/bb951a6b846793c0bb38532c22d6f90b.gif
+[image-9]:	http://i.gyazo.com/c874e2e1f48242eb93fb8ec1d843c30f.gif
+[image-10]:	http://i.gyazo.com/3de9c203a9b37d57652e2aadef290069.gif
+[image-11]:	http://i.gyazo.com/755327503b7f5c3e36dd2d816fedae62.gif
+[image-12]:	http://i.gyazo.com/6ad24bd77513506a6869a1ce78c0a242.gif
+[image-13]:	http://i.gyazo.com/22dd85add78a4283938fab9bb955161e.gif
+[image-14]:	http://i.gyazo.com/80c7dda4371ecf2343d2fe36c59890e1.gif

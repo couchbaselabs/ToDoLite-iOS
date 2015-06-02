@@ -15,16 +15,12 @@
 #import "NSString+Additions.h"
 
 // Sync Gateway
-#define kSyncGatewayUrl @"http://demo.mobile.couchbase.com/todolite"
-#define kSyncGatewayWebSocketSupport NO
-
-// Guest DB Name
-#define kGuestDBName @"guest"
+#define kSyncGatewayUrl @"http://<SERVER>:<PORT>/<DBNAME>"
 
 // For Application Migration
 #define kMigrationVersion @"MigrationVersion"
 
-@interface AppDelegate () <UISplitViewControllerDelegate, UIAlertViewDelegate>
+@interface AppDelegate () <UIAlertViewDelegate>
 
 @property (nonatomic) CBLReplication *push;
 @property (nonatomic) CBLReplication *pull;
@@ -50,18 +46,6 @@
                                delegate:nil
                       cancelButtonTitle:@"OK"
                       otherButtonTitles:nil] show];
-}
-
-#pragma mark - Database
-
-- (void)setCurrentDatabase:(CBLDatabase *)database {
-    [self willChangeValueForKey:@"database"];
-    _database = database;
-    [self didChangeValueForKey:@"database"];
-}
-
-- (NSString *)databaseNameForName:(NSString *)name {
-    return [NSString stringWithFormat:@"db%@", [[name MD5] lowercaseString]];
 }
 
 @end
