@@ -203,7 +203,7 @@ Then, we will all attempt to connect to the same instance of Sync Gateway.
 
 ## 30 minutes: Hands-on, Replications
 
-### STEP 9: Replications without authentication
+### STEP 8: Replications without authentication
 
 In `AppDelegate.m`, create a new method called `startReplications` to create the push/pull replications:
 
@@ -224,7 +224,7 @@ Run the app, you should see HTTP 401 Unauthorised errors in the Console:
 
 In the next section, you will add user authentication with Sync Gateway. You can choose to use Facebook Login or Basic Authentication for this workshop.
 
-### STEP 10: Sync Gateway Basic Authentication
+### STEP 9: Sync Gateway Basic Authentication
 
 Currently, the functionality to create a user with a username/password is not implemented in ToDoLite-iOS or ToDoLite-Android. 
 
@@ -274,7 +274,7 @@ So far, you’ve learned how to use the Replication and Authenticator classes to
 
 ## 30 minutes: Hands-on, Data orchestration
 
-### STEP 11: Using the CBLUITableSource
+### STEP 10: Using the CBLUITableSource
 
 As we saw in the presentation, a List document is mapped to a channel to which the Tasks are also added. The List model has a `members` property of type NSArray holding the ids of the users to share the list with.
 
@@ -295,7 +295,7 @@ At this point, you’re done! Try running the app and notice the list all the Pr
 
 ![][image-12]
 
-### STEP 12: Sharing a List
+### STEP 11: Sharing a List
 
 Next, we will have to implement two method:
 
