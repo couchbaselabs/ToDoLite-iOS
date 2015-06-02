@@ -14,7 +14,6 @@
 @interface ShareViewController () {
     CBLDatabase *database;
     AppDelegate *app;
-    NSString* myDocId;
 }
 
 @end
@@ -33,7 +32,6 @@
     [super viewDidLoad];
     app = [[UIApplication sharedApplication] delegate];
     database = app.database;
-    myDocId = [@"p:" stringByAppendingString:app.currentUserId];
     
     
 }
