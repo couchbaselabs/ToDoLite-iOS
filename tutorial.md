@@ -107,8 +107,8 @@ Now let’s test this method is working as expected. Open `MasterViewController.
 - get the Profile object using the `profileInDatabase:forExistingUserId:` method passing in the currentUserId
 - set the owner property on the list to the Profile model
 - use the `save` method to save the List model to Couchbase Lite
-
-Finally, add a log statement to check that the document was saved.
+- to check that the model was saved, log the properties to the Console using the document property on the model class (`[[list document] properties]`)
+- return the list object
 
 Run the app and create a couple lists. Nothing will display in the UI just yet but you see the Log statement you added above. In the next section, you will learn how to query those documents.
 
