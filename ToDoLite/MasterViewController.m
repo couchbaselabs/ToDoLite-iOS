@@ -12,8 +12,6 @@
 #import "Profile.h"
 #import "List.h"
 
-static void *listsQueryContext = &listsQueryContext;
-
 @interface MasterViewController ()
 
 @property CBLDatabase *database;
