@@ -114,8 +114,6 @@ Run the app and create a couple lists. Nothing will display in the UI just yet b
 
 ![][image-5]
 
-The solution is on the `workshop/saving_list_document` branch.
-
 ### STEP 3: Creating Views
 
 Couchbase views enable indexing and querying of data.
@@ -129,8 +127,6 @@ In sudo code, the map function will look like:
 	var type = document.type;
 	if document.type == "list"
 	    emit(document.title, null)
-
-The solution is on the `workshop/create_views` branch.
 
 ### STEP 4: Query Views
 
@@ -173,8 +169,6 @@ Run the app on the simulator and start creating ToDo lists, you can see the list
 
 ![][image-7]
 
-The solution is on the `workshop/persist_task_document` branch.
-
 ### STEP 7: Persist the Task document
 
 To create a Task model and persist it, open `List.m` and complete the body of the method `addTaskWithTitle:withImage:withImageContentType:`:
@@ -187,8 +181,6 @@ To create a Task model and persist it, open `List.m` and complete the body of th
 Open `DetailViewController.m` and call this method on self.list passing in the title, image and "image/jpg" for the content type.
 
 ![][image-8]
-
-The solution is on the `workshop/attachments_and_revisions ` branch.
 
 ## 30 minutes: Sync Gateway in-depth
 
@@ -259,8 +251,6 @@ Notice in the Console that the documents are now syncing to Sync Gateway.
 
 ![][image-10]
 
-The solution is on the `workshop/replication_basic_auth` branch.
-
 ## 30 minutes: Data orchestration with Sync Gateway Presentation
 
 So far, you’ve learned how to use the Replication and Authenticator classes to authenticate as a user with Sync Gateway. The last component we will discuss is the Sync Function. It’s part of Sync Gateway’s configuration file and defines the access rules for users.
@@ -307,8 +297,6 @@ Run the app and when clicking a particular cell, you should see the update prope
 
 ![][image-12]
 
-The solution is on the `populating_list_items` branch.
-
 In the next section, we will use the appropriate CBLUITableSource hook to add a checkmark to members.
 
 ### STEP 12: Adding a Checkmark for members
@@ -317,8 +305,6 @@ Implement the `couchTableSouce:willUseCell:forRow:` method. Notice here that thi
 - check if the doc id of the row object is in the members array of the list document (if YES, set the cell’s accessoryType to checkmark, if NO, set the cell’s accessoryType to None)
 
 ![][image-13]
-
-The solution is on the `workshop/final` branch.
 
 ### Testing the final result
 
