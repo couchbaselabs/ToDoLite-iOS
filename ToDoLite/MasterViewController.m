@@ -29,34 +29,6 @@ static void *listsQueryContext = &listsQueryContext;
     [self setupTodoLists];
 }
 
-- (void)viewWillAppear:(BOOL)animated {
-    [super viewWillAppear:animated];
-
-    if (!self.database) {
-        [self setupTodoLists];
-    }
-    
-    AppDelegate *app = [[UIApplication sharedApplication] delegate];
-    [app addObserver:self forKeyPath:@"database"
-             options:(NSKeyValueObservingOptionNew |  NSKeyValueObservingOptionOld) context:nil];
-
-
-
-    NSIndexPath *selected = [self.tableView indexPathForSelectedRow];
-    if (selected) {
-        [self.tableView deselectRowAtIndexPath:selected animated:NO];
-    }
-}
-
-- (void)viewWillDisappear:(BOOL)animated {
-    AppDelegate *app = [[UIApplication sharedApplication] delegate];
-    [app removeObserver:self forKeyPath:@"database" context:nil];
-}
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-}
-
 #pragma mark - Segues
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
