@@ -24,13 +24,11 @@ Download and unzip the zip file for the 1.1 release [here][1]. Drag the `Couchba
 
 ### Getting started
 
-Download the starter project of ToDoLite [here][2]. Open the app in Xcode and run it on the simulator.
-
 In the next section, we’ll start building the data models for the application.
 
-Every step of the tutorial are saved to a branch on the GitHub repository. If you find yourself in trouble and want to skip a step or catch up, you can just check out to the next branch. To start the workshop, checkout on `workshop/starter`:
+Every step of the tutorial are saved to a branch on the GitHub repository. If you find yourself in trouble and want to skip a step or catch up, you can just check out to the next branch. To start the workshop, checkout on `workshop/start`:
 
-	git checkout workshop/starter
+	git checkout workshop/start
 
 In the source code, you will find comments to help locate where the missing code is meant to go. For example:
 
@@ -234,8 +232,8 @@ To register users on Sync Gateway, we can use the Admin REST API `_user` endpoin
 For this workshop, the endpoint is `/signup` on port `8080`:
 
 	curl -vX POST -H 'Content-Type: application/json' \
-		-d '{"name": "your username", "password": "your password"}' \
-		http://localhost:8080/signup
+	    -d '{"name": "your username", "password": "your password"}' \
+	    http://localhost:8080/signup
 
 You should get a 200 OK if the user was created successfully.
 
@@ -340,8 +338,7 @@ The result is on the `workshop/final` branch.
 
 Congratulations on building the main features of ToDoLite. Now you have a deeper understanding of Couchbase Lite and how to use the sync features with Sync Gateway you can start using the SDKs in your own apps.
 
-[1]:	http://packages.couchbase.com/builds/mobile/ios/1.1.0/1.1.0-18/couchbase-lite-ios-community_1.1.0-18.zip%0A
-[2]:	https://github.com/couchbaselabs/ToDoLite-iOS/archive/workshop/starter_project.zip
+[1]:	http://packages.couchbase.com/builds/mobile/ios/1.1.0/1.1.0-18/couchbase-lite-ios-community_1.1.0-18.zip
 
 [image-1]:	http://i.gyazo.com/71ba8ac8f36835f86ffc8d570708cec6.gif
 [image-2]:	http://f.cl.ly/items/0r2I3p2C0I041G3P0C0C/Model.png
