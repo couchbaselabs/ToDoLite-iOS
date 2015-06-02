@@ -42,10 +42,6 @@
     return YES;
 }
 
-- (void)createDatabase {
-    _database = [[CBLManager sharedInstance] databaseNamed:@"todoapp" error:nil];
-}
-
 #pragma mark - Message
 
 - (void)showMessage:(NSString *)text withTitle:(NSString *)title {
