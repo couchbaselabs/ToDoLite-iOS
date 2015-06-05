@@ -63,12 +63,14 @@ static void *listsQueryContext = &listsQueryContext;
 - (void)viewWillDisappear:(BOOL)animated {
     AppDelegate *app = [[UIApplication sharedApplication] delegate];
     [app removeObserver:self forKeyPath:@"database" context:nil];
-
-    [self.liveQuery removeObserver:self forKeyPath:@"rows" context:listsQueryContext];
 }
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
+}
+
+- (void)dealloc {
+    [self.liveQuery removeObserver:self forKeyPath:@"rows" context:listsQueryContext];
 }
 
 #pragma mark - Segues
