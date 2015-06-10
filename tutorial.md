@@ -4,9 +4,9 @@ In this workshop, you will learn how to use Couchbase Lite along with Sync Gatew
 
 This document will guide you through the steps to build the application and know all the tips and tricks to building apps with a great look and feel using Couchbase Mobile.
 
-## 30 minutes: Couchbase Mobile Presentation
+## Couchbase Lite in-depth Presentation
 
-## 30 minutes: Couchbase Lite in-depth Presentation
+See presentation slides [here](http://www.slideshare.net/Couchbase/mobile-workshop-couchbase-lite-indepth).
 
 ## 90 minutes: Hands on building Todo-Lite
 
@@ -195,11 +195,13 @@ Open `DetailViewController.m` and call this method in `textFieldShouldReturn:`:
 
 ![][image-9]
 
-## 30 minutes: Sync Gateway in-depth
+## Sync Gateway in-depth Presentation
 
 The goal is to add the sync feature to our application. The speaker will go through the steps to install Sync Gateway and get it running with Couchbase Server.
 
 Then, we will all attempt to connect to the same instance of Sync Gateway.
+
+See presentation slides [here](http://www.slideshare.net/Couchbase/mobile-workshop-sync-gateway-indepth-couchbase-connect-2015).
 
 ## 30 minutes: Hands-on, Replications
 
@@ -268,9 +270,11 @@ Notice in the Console that the documents are now syncing to Sync Gateway.
 
 ![][image-11]
 
-## 30 minutes: Data orchestration with Sync Gateway Presentation
+## Data orchestration with Sync Gateway Presentation
 
 So far, you’ve learned how to use the Replication and Authenticator classes to authenticate as a user with Sync Gateway. The last component we will discuss is the Sync Function. It’s part of Sync Gateway’s configuration file and defines the access rules for users.
+
+See presentation slides [here](http://www.slideshare.net/Couchbase/mobile-workshop-data-orchestration).
 
 ## 30 minutes: Hands-on, Data orchestration
 
