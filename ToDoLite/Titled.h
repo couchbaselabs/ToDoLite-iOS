@@ -14,6 +14,10 @@
 /** The "type" property value for documents that belong to this class. Abstract. */
 + (NSString*) docType;
 
+/** Designated initializer. The "type" parameter sets the document type, which is used by
+    views and the CBLModelFactory. */
+- (instancetype) initInDatabase: (CBLDatabase*)database withTitle: (NSString*)title;
+
 /** The object's user-visible title. */
 @property (copy) NSString* title;
 

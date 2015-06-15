@@ -153,6 +153,7 @@
 }
 
 #pragma mark - Migration
+
 - (void)migrateOldVersionApp {
     NSString *mVer = [[NSUserDefaults standardUserDefaults] objectForKey:kMigrationVersion];
     if (!mVer || [mVer compare:@"1.3" options:NSNumericSearch] == NSOrderedAscending) {
@@ -256,13 +257,11 @@
     NSNotificationCenter *nctr = [NSNotificationCenter defaultCenter];
     if (_pull) {
         [_pull stop];
-        [_pull deleteCookieNamed:@"SyncGatewaySession"];
         [nctr removeObserver:self name:kCBLReplicationChangeNotification object:_pull];
         _pull = nil;
     }
     if (_push) {
         [_push stop];
-        [_push deleteCookieNamed:@"SyncGatewaySession"];
         [nctr removeObserver:self name:kCBLReplicationChangeNotification object:_push];
         _pull = nil;
     }
@@ -393,6 +392,7 @@
     [self setCurrentUserId:nil];
     [self stopReplication];
     [self setCurrentDatabase:nil];
+    [self removeSessionCookie];
     
     [self performSelector:@selector(replaceRootViewController:)
                withObject:[self.window.rootViewController.storyboard instantiateInitialViewController]
@@ -450,6 +450,16 @@
     }
 }
 
+// Clear the SyncGateway session cookie when logging out
+// In the future the replication object may handle that: https://github.com/couchbase/couchbase-lite-ios/issues/543
+- (void)removeSessionCookie {
+    NSHTTPCookieStorage *cookieJar = NSHTTPCookieStorage.sharedHTTPCookieStorage;
+    for (NSHTTPCookie *aCookie in cookieJar.cookies) {
+        if ([aCookie.name  isEqual: @"SyncGatewaySession"]) {
+            [cookieJar deleteCookie:aCookie];
+        }
+    }
+}
 
 #pragma mark - UIAlertViewDelegate
 

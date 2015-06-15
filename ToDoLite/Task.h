@@ -13,6 +13,12 @@
 /** Model object for a task item. (See Titled for inherited properties!) */
 @interface Task : Titled
 
+/** Creates a new Task in the given list, with the given title. */
+- (instancetype) initInList: (List*)list
+                  withTitle: (NSString*)title
+                  withImage: (NSData*)image
+       withImageContentType: (NSString*)contentType;
+
 /** Is the task checked off / completed? */
 @property bool checked;
 
