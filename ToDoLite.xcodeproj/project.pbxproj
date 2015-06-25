@@ -48,6 +48,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		27B086CF1B3C747200D3D9D8 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		934179481AC6013A0021FD30 /* FBSDKCoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FBSDKCoreKit.framework; path = Frameworks/FBSDKCoreKit.framework; sourceTree = SOURCE_ROOT; };
 		934179491AC6013A0021FD30 /* FBSDKLoginKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FBSDKLoginKit.framework; path = Frameworks/FBSDKLoginKit.framework; sourceTree = SOURCE_ROOT; };
 		936A28BB19EE74A300FE0206 /* CouchbaseLite.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CouchbaseLite.framework; path = Frameworks/CouchbaseLite.framework; sourceTree = SOURCE_ROOT; };
@@ -152,6 +153,7 @@
 		93F1626A19E97FC40031E7CB = {
 			isa = PBXGroup;
 			children = (
+				27B086CF1B3C747200D3D9D8 /* README.md */,
 				93F1627519E97FC40031E7CB /* ToDoLite */,
 				93F1629219E97FC40031E7CB /* ToDoLiteTests */,
 				93F1627419E97FC40031E7CB /* Products */,
