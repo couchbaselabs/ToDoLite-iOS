@@ -161,7 +161,7 @@ We will use the query to populate a Table View with those documents. To have the
 
 ### STEP 6: Wiring the Table View Data Source and Live Query
 
-Back in `setupTodoLists` of `MasterViewController.m`, we will need to make small changes to accommodate for a live query instead of a simple query. There is a `liveQuery` property on the Main Activity class that we can use in `setupTodoLists`:
+Back in `setupTodoLists` of `MasterViewController.m`, we will need to make small changes to accommodate for a live query instead of a simple query. There is a `liveQuery` property on the MasterViewController class that we can use in `setupTodoLists`:
 
 - initialise the `self.liveQuery` property with the query from Step 4 (all queries have a `asLiveQuery` method we can use to convert the query into a Live Query)
 - add self as a KVO observer on the `rows` property of the liveQuery object (pass 0 for options and context)
@@ -186,7 +186,7 @@ To create a Task model and persist it, open `List.m` and complete the body of th
 - create a Task object with the `modelForNewDocumentInDatabaseMethod:`, for the database parameter, pass in `self.database`
 - set the title to the parameter that was passed in
 - set the `list_id` to self, notice here again that we are using a relationship between two models, the List and Task. This will translate to the `_id` of the List in the underlying JSON document
-- use the `setAttachmentNamed:withContentType:content:` method on the list object, the name of the attachment is `image`, the contentType and content are the parameters that were passed in
+- use the `setAttachmentNamed:withContentType:content:` method on the task object, the name of the attachment is `image`, the contentType and content are the parameters that were passed in
 - finally, return the task object
 
 Open `DetailViewController.m` and call this method in `textFieldShouldReturn:`:
