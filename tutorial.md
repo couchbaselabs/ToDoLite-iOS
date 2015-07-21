@@ -18,9 +18,9 @@ Clone the application from the ToDoLite-iOS repository:
 	cd ToDoLite-iOS
 	git checkout workshop/start
 
-Download and unzip the zip file for the 1.1 release [here][1]. Drag the `CouchbaseLite.framework` file to the Frameworks folder.
+Download and unzip the zip file for the 1.1 release [here](http://packages.couchbase.com/builds/mobile/ios/1.1.0/1.1.0-18/couchbase-lite-ios-community_1.1.0-18.zip). Drag the `CouchbaseLite.framework` file to the Frameworks folder.
 
-![][image-1]
+![](http://i.gyazo.com/71ba8ac8f36835f86ffc8d570708cec6.gif)
 
 ### Introduction
 
@@ -34,13 +34,13 @@ The topics below are the fundamental aspects of Couchbase Mobile. If you underst
 
 Throughout this tutorial, we will refer to the logs in the Xcode debugger to check that things are working as expected. You can open the Xcode debugger with the sliding panel button and `⌘ + ⇧ + Y`.
 
-![][image-2]
+![](http://i.gyazo.com/7fa47e35c349c1936f2713acd18327e9.gif)
 
 ### ToDoLite Data Model
 
 In ToDoLite, there are 3 types of documents: a profile, a list and a task. The List document has an owner and a members array, the Task document holds a reference to the List it belongs to.
 
-![][image-3]
+![](http://f.cl.ly/items/0r2I3p2C0I041G3P0C0C/Model.png)
 
 ### Working with Documents and Revisions
 
@@ -76,7 +76,7 @@ As you can see in the Data Model diagram, the List document has an owner propert
 
 Launch the app and you should see the properties of the Profile document in the Console:
 
-![][image-4]
+![](http://i.gyazo.com/58f2f18f3a05651301a96792de7df373.gif)
 
 ### STEP 2: Working with CBLModel
 
@@ -91,7 +91,7 @@ In `Titled.m`:
 
 - mark the `title` and `created_at` properties as @dynamic
 
-You can read more about the usage of dynamic properties in CBLModel subclasses and how to use them [here][2].
+You can read more about the usage of dynamic properties in CBLModel subclasses and how to use them [here](http://developer.couchbase.com/mobile/develop/guides/couchbase-lite/native-api/model/index.html).
 
 Next, we can use the `awakeFromInitializer` method to hook into the initialisation process to set our iVars.
 
@@ -112,7 +112,7 @@ Now let’s test this method is working as expected. Open `MasterViewController.
 
 Run the app and create a couple lists. Nothing will display in the UI just yet but you see the Log statement you added above. In the next section, you will learn how to query those documents.
 
-![][image-5]
+![](http://i.gyazo.com/11fa6533027e17d316d64c059b8c42f5.gif)
 
 ### STEP 3: Creating Views
 
@@ -127,7 +127,7 @@ You will find the `queryListsInDatabase` method in `List.m` and the objective is
 - emit the List title as key and null as the value
 - the version number is 1.0 because it’s the first time we register this view with the database
 
-You can find an example of the map/reduce view syntax in Objective-C [here][3]. 
+You can find an example of the map/reduce view syntax in Objective-C [here](http://developer.couchbase.com/mobile/develop/guides/couchbase-lite/native-api/view/index.html#source_doc). 
 
 In pseudo code, the map function does the following:
 
@@ -145,11 +145,11 @@ Now you have created the view to index List documents, you can query it. In `Mas
 
 The CBLQueryEnumerator is an enumerator of CBLQueryRow objects. Iterate on the result and log the title of every List document. Use the fast enumeration shortcut to print quickly the title for each CBLQueryRow.
 
-![][image-6]
+![](http://i.gyazo.com/71f90e71e87e7ae9eccd545d41384b2a.gif)
 
 If you saved List documents in Step 2, you should now see the titles in the Console:
 
-![][image-7]
+![](http://i.gyazo.com/20e60cb13ba987f42970c5d04a495423.gif)
 
 At this point, we could pass the result enumerator to a Table View Data Source to display the lists on screen. However, we will jump slightly ahead of ourselves and use a Live Query to have Reactive UI capabilities. 
 
@@ -177,7 +177,7 @@ Finally, we need to implement the required UITableViewDataSource methods, that�
 
 Run the app on the simulator and start creating ToDo lists, you can see the lists are now displayed in the Table View.
 
-![][image-8]
+![](http://i.gyazo.com/359ac7a252f57f889649d74c2228e675.gif)
 
 ### STEP 7: Persist the Task document
 
@@ -193,7 +193,7 @@ Open `DetailViewController.m` and call this method in `textFieldShouldReturn:`:
 - create a new variable called task using `addTaskWithTitle:withImage:withImageContentType:` on the self.list object and pass in the title, image and "image/jpg" for the content type
 - save the task object using the save method
 
-![][image-9]
+![](http://i.gyazo.com/bb951a6b846793c0bb38532c22d6f90b.gif)
 
 ## Sync Gateway in-depth Presentation
 
@@ -222,7 +222,7 @@ If you run the app, nothing is saved to the Sync Gateway. That’s because we di
 
 Run the app, you should see HTTP 401 Unauthorised errors in the Console:
 
-![][image-10]
+![](http://i.gyazo.com/c874e2e1f48242eb93fb8ec1d843c30f.gif)
 
 In the next section, you will add user authentication with Sync Gateway. You can choose to use Facebook Login or Basic Authentication for this workshop.
 
@@ -268,7 +268,7 @@ Back in the iOS app in AppDelegate.m, create a new method `startReplicationsWith
 
 Notice in the Console that the documents are now syncing to Sync Gateway.
 
-![][image-11]
+![](http://i.gyazo.com/3de9c203a9b37d57652e2aadef290069.gif)
 
 ## Data orchestration with Sync Gateway Presentation
 
@@ -297,7 +297,7 @@ In `viewDidLoad:`:
 
 At this point, you’re done! Try running the app and notice the list all the Profiles documents is there.
 
-![][image-12]
+![](http://i.gyazo.com/755327503b7f5c3e36dd2d816fedae62.gif)
 
 ### STEP 11: Sharing a List
 
@@ -318,7 +318,7 @@ In `ShareViewController.h`, notice that the class implements the  `CBLUITableDel
 
 Run the app and when clicking a particular cell, you should see the update properties logged to the Console.
 
-![][image-13]
+![](http://i.gyazo.com/6ad24bd77513506a6869a1ce78c0a242.gif)
 
 In the next section, we will use the appropriate CBLUITableSource hook to add a checkmark to members.
 
@@ -327,36 +327,16 @@ In the next section, we will use the appropriate CBLUITableSource hook to add a 
 Implement the `couchTableSouce:willUseCell:forRow:` method. Notice here that this method has a row parameter of type `CBLQueryRow`. That’s the document for the cell that was clicked:
 - check if the doc id of the row object is in the members array of the list document (if YES, set the cell’s accessoryType to checkmark, if NO, set the cell’s accessoryType to None)
 
-![][image-14]
+![](http://i.gyazo.com/22dd85add78a4283938fab9bb955161e.gif)
 
 ### Testing the final result
 
 Run the app, you can now see the different users from the `profiles` channel and share lists with other attendees.
 
-![][image-15]
+![](http://i.gyazo.com/80c7dda4371ecf2343d2fe36c59890e1.gif)
 
 The result is on the `workshop/final` branch.
 
 ## The End
 
 Congratulations on building the main features of ToDoLite. Now you have a deeper understanding of Couchbase Lite and how to use the sync features with Sync Gateway you can start using the SDKs in your own apps.
-
-[1]:	http://packages.couchbase.com/builds/mobile/ios/1.1.0/1.1.0-18/couchbase-lite-ios-community_1.1.0-18.zip
-[2]:	http://developer.couchbase.com/mobile/develop/guides/couchbase-lite/native-api/model/index.html
-[3]:	http://developer.couchbase.com/mobile/develop/guides/couchbase-lite/native-api/view/index.html#source_doc
-
-[image-1]:	http://i.gyazo.com/71ba8ac8f36835f86ffc8d570708cec6.gif
-[image-2]:	http://i.gyazo.com/7fa47e35c349c1936f2713acd18327e9.gif
-[image-3]:	http://f.cl.ly/items/0r2I3p2C0I041G3P0C0C/Model.png
-[image-4]:	http://i.gyazo.com/58f2f18f3a05651301a96792de7df373.gif
-[image-5]:	http://i.gyazo.com/11fa6533027e17d316d64c059b8c42f5.gif
-[image-6]:	http://i.gyazo.com/71f90e71e87e7ae9eccd545d41384b2a.gif
-[image-7]:	http://i.gyazo.com/20e60cb13ba987f42970c5d04a495423.gif
-[image-8]:	http://i.gyazo.com/359ac7a252f57f889649d74c2228e675.gif
-[image-9]:	http://i.gyazo.com/bb951a6b846793c0bb38532c22d6f90b.gif
-[image-10]:	http://i.gyazo.com/c874e2e1f48242eb93fb8ec1d843c30f.gif
-[image-11]:	http://i.gyazo.com/3de9c203a9b37d57652e2aadef290069.gif
-[image-12]:	http://i.gyazo.com/755327503b7f5c3e36dd2d816fedae62.gif
-[image-13]:	http://i.gyazo.com/6ad24bd77513506a6869a1ce78c0a242.gif
-[image-14]:	http://i.gyazo.com/22dd85add78a4283938fab9bb955161e.gif
-[image-15]:	http://i.gyazo.com/80c7dda4371ecf2343d2fe36c59890e1.gif
