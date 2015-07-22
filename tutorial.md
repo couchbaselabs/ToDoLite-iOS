@@ -233,7 +233,7 @@ Currently, the functionality to create a user with a username/password is not im
 To register users on Sync Gateway, we can use the Admin REST API `_user` endpoint. The Admin REST API is available on post `4985` and can only be accessed on the internal network that Sync Gateway is running on. That’s a good use case for using an app server to proxy the request to Sync Gateway.
 
 For this workshop, the endpoint is `/signup` on port `8080`, the name should be the same as the currentUserId you chose in step 1:
-	curl -vX POST <hostname>:4985/todos/_user/
+	curl -vX POST http://localhost:4985/todos/_user/
 	     -H 'Content-Type: application/json'
 	     -d '{"name": "jens", "password": "letmein"}'
 
