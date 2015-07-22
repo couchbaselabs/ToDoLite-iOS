@@ -16,7 +16,7 @@ Clone the application from the ToDoLite-iOS repository:
 
 	git clone https://github.com/couchbaselabs/ToDoLite-iOS
 	cd ToDoLite-iOS
-	git checkout workshop/start
+	git checkout origin/workshop/start
 
 Download and unzip the zip file for the 1.1 release [here](http://packages.couchbase.com/builds/mobile/ios/1.1.0/1.1.0-18/couchbase-lite-ios-community_1.1.0-18.zip). Drag the `CouchbaseLite.framework` file to the Frameworks folder.
 
