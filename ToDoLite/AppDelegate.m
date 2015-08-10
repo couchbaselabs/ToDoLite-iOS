@@ -13,7 +13,7 @@
 #import <CouchbaseLite/CBLAuthenticator.h>
 
 // Sync Gateway
-#define kSyncGatewayUrl @"http://10.21.52.95:4984/todos"
+#define kSyncGatewayUrl @"http://192.168.2.99:4984/todos"
 
 
 @interface AppDelegate () <UIAlertViewDelegate>
@@ -57,7 +57,11 @@
     NSError *error;
     _database = [[CBLManager sharedInstance] databaseNamed:@"todosapp" error:&error];
     [_database setFilterNamed:@"ignoreShakes" asBlock:FILTERBLOCK({
-        return ![revision[@"type"] isEqualToString: @"shake"];
+        BOOL isShake = [revision[@"type"] isEqualToString: @"shake"];
+        if (isShake ) {
+            NSLog(@">>> Dropping shake data.");
+        }
+        return !isShake;
     })];
 }
 
