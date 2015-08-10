@@ -8,6 +8,8 @@
 
 #import "Titled.h"
 
+#define kTaskDocType @"task"
+
 @class List;
 
 /** Model object for a task item. (See Titled for inherited properties!) */
@@ -21,5 +23,8 @@
 
 /** Attach an image to the task */
 - (void) setImage: (NSData*)image contentType: (NSString*)contentType;
+
+/** The type is "task". */
+@property (copy, nonatomic) NSString* type;
 
 @end

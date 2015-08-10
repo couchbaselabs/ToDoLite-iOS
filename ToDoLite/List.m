@@ -9,12 +9,11 @@
 #import "List.h"
 #import "Task.h"
 #import "Profile.h"
-
-#define kListDocType @"list"
+#import <CouchbaseLite/CBLModel.h>
 
 @implementation List
 
-@dynamic owner, members;
+@dynamic owner, members, type;
 
 + (NSString*) docType {
     return kListDocType;
@@ -24,6 +23,7 @@
     Task *task = [Task modelForNewDocumentInDatabase:self.database];
     task.title = title;
     task.list_id = self;
+    task.type = kTaskDocType;
     [task setAttachmentNamed:@"image" withContentType:contentType content:image];
     return task;
 }
@@ -63,7 +63,6 @@
     CBLView* view = [self.document.database viewNamed: @"tasksByDate"];
     if (!view.mapBlock) {
         // On first query after launch, register the map function:
-        NSString* const kTaskDocType = [Task docType];
         [view setMapBlock: MAPBLOCK({
             if ([doc[@"type"] isEqualToString: kTaskDocType]) {
                 id date = doc[@"created_at"];

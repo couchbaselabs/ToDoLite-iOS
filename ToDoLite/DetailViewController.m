@@ -86,12 +86,20 @@
 
     NSError *error;
     Task *task = [self.list addTaskWithTitle:title withImage:image withImageContentType:@"image/jpg"];
-    [task save: &error];
+    BOOL didUpdate = [task save: &error];
     
+    if (!didUpdate) {
+        NSLog(@"No updates saved to %@", task.title);
+    } else if (error) {
+        NSLog(@"Error while updating %@: %@", task.title, error.debugDescription);
+        didUpdate = NO;
+    } else {
+        [self.tableView reloadData];
+    }
     imageForNewTask = nil;
     [self updateAddImageButtonWithImage:nil];
 
-    return YES;
+    return didUpdate;
 }
 
 #pragma mark - UIImagePicker

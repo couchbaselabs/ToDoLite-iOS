@@ -10,7 +10,7 @@
 
 @implementation Titled
 
-@dynamic title, created_at;
+@dynamic title, created_at, type;
 
 // Subclasses must override this to return the value of their documents' "type" property.
 + (NSString*) docType {

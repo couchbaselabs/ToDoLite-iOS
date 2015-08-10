@@ -9,12 +9,11 @@
 #import "Task.h"
 #import "List.h"
 
-#define kTaskDocType @"task"
 #define kTaskImageName @"image"
 
 @implementation Task
 
-@dynamic checked, list_id;
+@dynamic checked, list_id, type;
 
 + (NSString*) docType {
     return kTaskDocType;

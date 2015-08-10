@@ -10,9 +10,10 @@
 #import "DetailViewController.h"
 #import "LoginViewController.h"
 #import "Profile.h"
+#import <CouchbaseLite/CBLAuthenticator.h>
 
 // Sync Gateway
-#define kSyncGatewayUrl @"http://10.17.3.228:4984/todos"
+#define kSyncGatewayUrl @"http://10.21.52.95:4984/todos"
 
 
 @interface AppDelegate () <UIAlertViewDelegate>
@@ -29,11 +30,21 @@
     _currentUserId = @"pasin";
 
     NSError *error;
-    Profile *userProfile = [Profile profileInDatabase:_database
-                                         forNewUserId:_currentUserId name:@"Pasin"];
-    [userProfile save: &error];
-
-    NSLog(@"User Profile %@", userProfile.document.properties);
+    NSArray *profiles = @[
+                        @{ @"username": @"pasin", @"name": @"Pasin"},
+                        @{ @"username": @"vilma", @"name": @"Vilma"},
+                        @{ @"username": @"levi", @"name": @"Levi"}
+                        ];
+    for (NSDictionary *profile in profiles) {
+        NSString *name = profile[@"name"];
+        NSString *userName = profile[@"username"];
+        
+        Profile *userProfile = [Profile profileInDatabase:_database
+                                             forNewUserId:userName name:name];
+        [userProfile save: &error];
+        
+        NSLog(@"User Profile %@", userProfile.document.properties);
+    }
 
     [self startReplications];
 

@@ -8,6 +8,8 @@
 
 #import "Titled.h"
 
+#define kListDocType @"list"
+
 @class Task, Profile;
 
 /** A list of Tasks. (See Titled for inherited properties!) */
@@ -31,5 +33,8 @@
 @property (readwrite) Profile* owner;
 
 @property (readwrite) NSArray* members;
+
+/** The type is "list". */
+@property (copy, nonatomic) NSString* type;
 
 @end

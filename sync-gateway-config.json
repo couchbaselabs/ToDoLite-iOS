@@ -5,7 +5,10 @@
     "todos": {
       "server": "walrus:",
       "users": {
-        "GUEST": {"disabled": true}
+        "GUEST": {"disabled": true},
+        "pasin": {"disabled": false, "password": "123", "admin_channels": ["*"]},
+        "vilma": {"disabled": false, "password": "123", "admin_channels": ["*"]},
+        "levi": {"disabled": false, "password": "123", "admin_channels": ["*"]}
       },
       "sync": `
 function(doc, oldDoc) {
