@@ -27,6 +27,25 @@
     [self setupTodoLists];
 }
 
+#pragma mark - Shake
+
+- (void)viewDidAppear:(BOOL)animated {
+    [self becomeFirstResponder];
+}
+
+-(void)motionEnded:(UIEventSubtype)motion withEvent:(UIEvent *)event {
+    if (motion == UIEventSubtypeMotionShake) {
+        NSError *err;
+        [[self.database createDocument] putProperties:@{ @"type": @"shake", @"event": event.debugDescription }
+                                                error:&err];
+    }
+}
+
+-(BOOL)canBecomeFirstResponder {
+    return YES;
+}
+
+
 #pragma mark - Segues
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {

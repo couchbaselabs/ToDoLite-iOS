@@ -48,12 +48,17 @@
 
     [self startReplications];
 
+    [self addShakeHandler:application];
+    
     return YES;
 }
 
 - (void)createDatabase {
     NSError *error;
     _database = [[CBLManager sharedInstance] databaseNamed:@"todosapp" error:&error];
+    [_database setFilterNamed:@"ignoreShakes" asBlock:FILTERBLOCK({
+        return ![revision[@"type"] isEqualToString: @"shake"];
+    })];
 }
 
 - (void)startReplications {
@@ -62,13 +67,20 @@
     CBLReplication *push = [self.database createPushReplication:url];
     push.continuous = YES;
     push.authenticator = [CBLAuthenticator basicAuthenticatorWithName:@"pasin" password:@"123"];
-
+    //push.filter = @"ignoreShakes";
+    
     CBLReplication *pull = [self.database createPullReplication:url];
     pull.continuous = YES;
     pull.authenticator = [CBLAuthenticator basicAuthenticatorWithName:@"pasin" password:@"123"];
 
     [pull start];
     [push start];
+}
+
+#pragma mark - Shake
+
+- (void)addShakeHandler:(UIApplication *)application {
+    [application setApplicationSupportsShakeToEdit:YES];
 }
 
 #pragma mark - Message
