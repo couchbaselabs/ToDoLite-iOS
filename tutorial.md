@@ -12,7 +12,7 @@ See presentation slides [here](http://www.slideshare.net/Couchbase/mobile-worksh
 
 ### Getting started
 
-Clone the application from the ToDoLite-iOS repository:
+Clone the `ToDoLite-iOS` repository from GitHub:
 
 	git clone https://github.com/couchbaselabs/ToDoLite-iOS
 	cd ToDoLite-iOS
