@@ -478,7 +478,6 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks",
-					"/Users/jamesnocentini/Downloads/couchbase-lite-ios-community_1.1.0-18",
 				);
 				INFOPLIST_FILE = ToDoLite/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
@@ -498,7 +497,6 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks",
-					"/Users/jamesnocentini/Downloads/couchbase-lite-ios-community_1.1.0-18",
 				);
 				INFOPLIST_FILE = ToDoLite/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
