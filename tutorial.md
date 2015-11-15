@@ -1,8 +1,8 @@
-# Couchbase Connect Mobile Workshop iOS
+# Couchbase Mobile Day Workshop iOS
 
-In this workshop, you will learn how to use Couchbase Lite along with Sync Gateway to build a ToDos app with offline-first capabilities and access control rules for sharing documents with other users.
+In this workshop, you will learn how to use Couchbase Lite along with Sync Gateway using a ToDos app with offline-first capabilities and access control rules for sharing documents with other users.
 
-This document will guide you through the steps to build the application and know all the tips and tricks to building apps with a great look and feel using Couchbase Mobile.
+This document will guide you through the steps to build the application using Couchbase Mobile.
 
 ## 30 minutes: Couchbase Mobile Presentation
 
@@ -16,15 +16,18 @@ Clone the application from the ToDoLite-iOS repository:
 
 	git clone https://github.com/couchbaselabs/ToDoLite-iOS
 	cd ToDoLite-iOS
-	git checkout workshop/start
+        Open initial/ToDoLite.xcodeproj
 
-Download and unzip the zip file for the 1.1 release [here][1]. Drag the `CouchbaseLite.framework` file to the Frameworks folder.
+Download and unzip the latest zip file for the 1.1 release
+[from the Couchbase website][1]. Drag the `CouchbaseLite.framework` file to the Frameworks folder.
 
 ![][image-1]
 
 ### Introduction
 
-The topics below are the fundamental aspects of Couchbase Mobile. If you understand all of them and their purposes, you’ll be in a very good spot after reading this tutorial.
+The topics below are the fundamental aspects of Couchbase Mobile. If
+you understand all of them and their purposes, you’ll be in a very
+good spot after walking through this tutorial.
 
 - document: the primary entity stored in a database
 - revision: with every change to a document, we get a new revision
@@ -91,7 +94,9 @@ In `Titled.m`:
 
 - mark the `title` and `created_at` properties as @dynamic
 
-You can read more about the usage of dynamic properties in CBLModel subclasses and how to use them [here][2].
+You can read more about the usage of dynamic properties in CBLModel
+subclasses and how to use them [in the model documentation][2] on the
+Couchbase Developer website.
 
 Next, we can use the `awakeFromInitializer` method to hook into the initialisation process to set our iVars.
 
@@ -330,7 +335,7 @@ The result is on the `workshop/final` branch.
 
 Congratulations on building the main features of ToDoLite. Now you have a deeper understanding of Couchbase Lite and how to use the sync features with Sync Gateway you can start using the SDKs in your own apps.
 
-[1]:	http://packages.couchbase.com/builds/mobile/ios/1.1.0/1.1.0-18/couchbase-lite-ios-community_1.1.0-18.zip
+[1]:   http://www.couchbase.com/nosql-databases/downloads
 [2]:	http://developer.couchbase.com/mobile/develop/guides/couchbase-lite/native-api/model/index.html
 
 [image-1]:	http://i.gyazo.com/71ba8ac8f36835f86ffc8d570708cec6.gif
