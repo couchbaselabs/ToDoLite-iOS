@@ -66,10 +66,12 @@
 #pragma mark - Table View Datasource
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    // Step 5: return the listsResult count from here
     return 0;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    // Step 5: dequeue a table cell view for the list, create a CBLQueryRow and set the label text from the title of the row
     return nil;
 }
 
@@ -86,7 +88,7 @@
 #pragma mark - Observers
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
-    
+    // STEP 5: set the listsResult  to the live query and have the tableView reloadData
 }
 
 #pragma mark - Database
@@ -94,11 +96,14 @@
 - (void)setupTodoLists {
     AppDelegate *app = [[UIApplication sharedApplication] delegate];
     self.database = app.database;
+    // Step 4: query the view, iterate and log the results
+    // Step 5: remove the iteration/logging and set self.liveQuery to the query results, add an observer
 }
 
 - (List *)createListWithTitle:(NSString*)title {
     AppDelegate *app = [[UIApplication sharedApplication] delegate];
     NSString *currentUserId = app.currentUserId;
+    // Step 2: create a new List for the `title` with the list owner from the properties, log and return it
     return nil;
 }
 

@@ -84,7 +84,7 @@
     [_addItemTextField setText:nil];
     NSData *image = imageForNewTask ? [self dataForImage:imageForNewTask] : nil;
     
-    
+    // Step 6: Create a new task and call the addTaskWithTitle method already created
     
     imageForNewTask = nil;
     [self updateAddImageButtonWithImage:nil];

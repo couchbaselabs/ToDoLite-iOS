@@ -14,4 +14,5 @@
 /** The "type" property value for documents that belong to this class. Abstract. */
 + (NSString*) docType;
 
+// Step 2: add properties title and created_at
 @end

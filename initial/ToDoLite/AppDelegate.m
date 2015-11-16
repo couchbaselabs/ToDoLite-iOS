@@ -23,6 +23,8 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     [CBLManager enableLogging:@"Sync"];
     
+    // Step 1: call the createDatabase, initialize the _currentUserId and set and save the Profile
+
     return YES;
 }
 
@@ -35,5 +37,7 @@
                       cancelButtonTitle:@"OK"
                       otherButtonTitles:nil] show];
 }
+
+// Step 1: add a method `createDatabase`
 
 @end

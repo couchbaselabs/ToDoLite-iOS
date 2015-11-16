@@ -22,10 +22,12 @@
 
 // Returns a query for all the lists in a database.
 + (CBLQuery*) queryListsInDatabase: (CBLDatabase*)db {
+    // Step 3: Create a view over the lists in the database and return the createQuery property of that view
     return nil;
 }
 
 - (Task *)addTaskWithTitle:(NSString *)title withImage:(NSData *)image withImageContentType:(NSString *)contentType {
+    // Step 6: initialize a task model, set the properties (title list_id, attachment) and return it
     return nil;
 }
 

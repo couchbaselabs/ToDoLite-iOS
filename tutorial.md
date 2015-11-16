@@ -10,13 +10,44 @@ This document will guide you through the steps to build the application using Co
 
 ## 90 minutes: Hands on building Todo-Lite
 
+### What is Included
+
+This tutorial is based on a demo application, ToDo Lite, designed to show the
+features of Couchbase Lite.  The full demo application is on the
+master branch and is updated from time to time as new features are
+added to Couchbase Lite.
+
+You may be viewing this tutorial from a browser on github or on your
+local system after cloning the repository or openining a zipfile.  in
+Any case, you should find the following layout in the tutorial:
+
+	CONTRIBUTING.md
+        finished/
+        tutorial.md
+	README.md
+        initial/
+
+The CONTRIBUTING.md and README.md are a simple copy of the master
+branch overview and contribution instructions.  The tutorial.md is the
+file containing these instructions.  The initial/ directory contains
+the basic scaffolding of ToDo Lite which you will edit to add
+functionality to.  The finished/ directory contains a completed
+version of the application.  You will use the completed version in a
+later portion of the lab with Couchbase Sync Gateway and you may want
+to refer to it if you get stuck when going through the lab steps.
+
 ### Getting started
 
-Clone the application from the ToDoLite-iOS repository:
+If needed, clone the application from the ToDoLite-iOS repository:
 
 	git clone https://github.com/couchbaselabs/ToDoLite-iOS
+        git checkout workshop/CouchbaseDay
+
+Once you have the files from either the repository or a zipfile open
+the project.
+
 	cd ToDoLite-iOS
-        Open initial/ToDoLite.xcodeproj
+        open initial/ToDoLite.xcodeproj
 
 Download and unzip the latest zip file for the 1.1 release
 [from the Couchbase website][1]. Drag the `CouchbaseLite.framework` file to the Frameworks folder.
@@ -117,7 +148,8 @@ Run the app and create a couple lists. Nothing will display in the UI just yet b
 
 ![][image-5]
 
-The solution is on the `workshop/saving_list_document` branch.
+The solution is shown in the `Titled.h` and `Titled.m` files in the
+finished directory.
 
 ### STEP 3: Creating Views
 
@@ -127,41 +159,60 @@ The main component of a view is its **map function**. This function is written i
 
 You will find the `queryListsInDatabase` method in `List.m` and the objective is to add the missing code to index the List documents. The emit function will emit the List title as key and null as the value.
 
-In sudo code, the map function will look like:
+In pseudo code, the map function will look like:
 
 	var type = document.type;
 	if document.type == "list"
 	    emit(document.title, null)
 
-The solution is on the `workshop/create_views` branch.
+Note that you will need specify a version string.  This is used to
+detect when the view code changes.  Use "1.0" for the version string.
+
+The solution is also available in the `List.m` file in the finished directory.
 
 ### STEP 4: Query Views
 
 A query is the action of looking up results from a view's index. In Couchbase Lite, queries are objects of the Query class. To perform a query you create one of these, customise its properties (such as the key range or the maximum number of rows) and then run it. The result is a QueryEnumerator, which provides a list of QueryRow objects, each one describing one row from the view's index.
 
-Now you have created the view to index List documents, you can query it. In `MasterViewController.m`, add the missing code to `setupTodoLists`:
+Since in the previous step you created the view to index List documents, you can query it. In `MasterViewController.m`, add the missing code to `setupTodoLists`:
 - create a `query` variable of type `CBLQuery` using the List class method you wrote above
 - run the query and create a `results` variable of type `CBLQueryEnumerator`
 
-Iterate on the result and log the title of every List document. If you saved List documents in Step 1, you should now see the titles in the Console:
+Iterate on the result and log the title of every List document. If you
+saved List documents in Step 1, you should now see the titles in the
+Console whenever you launch the application:
 
 ![][image-6]
 
-The solution is on the `workshop/query_views` branch.
+Note that simply saving a new list won't display your iteration
+because the `setupTodoLists` is called when the view is loaded.
+
+The code you would have added to the method is as follows:
+    CBLQuery *query = [List queryListsInDatabase:self.database];
+    CBLQueryEnumerator *result = [query run:nil];
+
+    for (CBLQueryRow *row in result) {
+        NSLog(@"The list title is %@", [[row document] propertyForKey:@"title"]);
+    }
 
 At this point, we could pass the result enumerator to a Table View Data Source to display the lists on screen. However, we will jump slightly ahead of ourselves and use a Live Query to have Reactive UI capabilities. 
 
-### STEP 5: A Table View meets a Live Query
 
-Couchbase Lite provides live queries. Once created, a live query remains active and monitors changes to the view's index, notifying observers whenever the query results change. Live queries are very useful for driving UI components like lists.
+### STEP 5: Adding Live Query to Table Views
 
-We will use the query to populate a Table View with those documents. To have the UI automatically update when new documents are indexed, we will use a Live Query.
+Couchbase Lite provides a feature called live queries. Once created, a live query
+remains active and monitors changes to the view's index, notifying
+observers whenever the query results change. Live queries are very
+useful for driving UI components like lists.
 
-### STEP 6: Using the UITableDataSource
+We need a query to populate a Table View with those
+documents. To have the UI automatically update when new documents are
+indexed, we will use a Live Query using UITableDataSource.
 
 Back in `setupTodoLists` of `MasterViewController.m`, we will need to make small changes to accommodate for a live query instead of a simple query. There is a `liveQuery` property on the Main Activity class that we can use in `setupTodoLists`:
 
-- initialise the `self.liveQuery` with the query from Step 4 (all queries have a `toLiveQuery` method we can use to convert the query into a Live Query)
+- Remove the code for iterating over the list from earlier
+- Initialize the already defined `self.liveQuery` with the query from Step 4 (all queries have an `asLiveQuery` method we can use to convert the query into a Live Query)
 - add a KVO observer on the `rows` property of the liveQuery object
 - in the `observeValueForKeyPath:ofObject:change:context:` handle the changes, set the `self.listsResults` to the new results. The rows result has a `allObjects` method to return an array
 - reload the tableview with the `reloadData` method
@@ -176,9 +227,9 @@ Run the app on the simulator and start creating ToDo lists, you can see the list
 
 ![][image-7]
 
-The solution is on the `workshop/persist_task_document` branch.
+The solution is also available in the `MasterViewController.m` file in the finished directory.
 
-### STEP 7: Persist the Task document
+### STEP 6: Persist the Task document
 
 To create a Task model and persist it, open `List.m` and complete the body of the method `addTaskWithTitle:withImage:withImageContentType:`:
 - initialise a Task model with the `modelForNewDocumentInDatabaseMethod:`
@@ -191,7 +242,8 @@ Open `DetailViewController.m` and call this method on self.list passing in the t
 
 ![][image-8]
 
-The solution is on the `workshop/attachments_and_revisions ` branch.
+The solution is in the `List.m` and `DetailViewController.m` files in
+the finished directory.
 
 ## 30 minutes: Sync Gateway in-depth
 
