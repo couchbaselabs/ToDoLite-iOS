@@ -22,10 +22,10 @@ local system after cloning the repository or openining a zipfile.  in
 Any case, you should find the following layout in the tutorial:
 
 	CONTRIBUTING.md
-        finished/
-        tutorial.md
+	finished/
+	tutorial.md
 	README.md
-        initial/
+	initial/
 
 The CONTRIBUTING.md and README.md are a simple copy of the master
 branch overview and contribution instructions.  The tutorial.md is the
@@ -188,9 +188,9 @@ Note that simply saving a new list won't display your iteration
 because the `setupTodoLists` is called when the view is loaded.
 
 The code you would have added to the method is as follows:
+
     CBLQuery *query = [List queryListsInDatabase:self.database];
     CBLQueryEnumerator *result = [query run:nil];
-
     for (CBLQueryRow *row in result) {
         NSLog(@"The list title is %@", [[row document] propertyForKey:@"title"]);
     }
