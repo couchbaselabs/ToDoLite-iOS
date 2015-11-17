@@ -4,12 +4,6 @@ In this workshop, you will learn how to use Couchbase Lite along with Sync Gatew
 
 This document will guide you through the steps to build the application using Couchbase Mobile.
 
-## 30 minutes: Couchbase Mobile Presentation
-
-## 30 minutes: Couchbase Lite in-depth Presentation
-
-## 90 minutes: Hands on building Todo-Lite
-
 ### What is Included
 
 This tutorial is based on a demo application, ToDo Lite, designed to show the
