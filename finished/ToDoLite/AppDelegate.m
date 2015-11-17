@@ -12,7 +12,7 @@
 #import "Profile.h"
 
 // Sync Gateway
-#define kSyncGatewayUrl @"http://10.17.3.228:4984/todos"
+#define kSyncGatewayUrl @"http://10.111.72.101:4984/todos"
 
 
 @interface AppDelegate () <UIAlertViewDelegate>
@@ -26,11 +26,11 @@
 
     [self createDatabase];
 
-    _currentUserId = @"pasin";
+    _currentUserId = @"oliver";
 
     NSError *error;
     Profile *userProfile = [Profile profileInDatabase:_database
-                                         forNewUserId:_currentUserId name:@"Pasin"];
+                                         forNewUserId:_currentUserId name:@"Oliver"];
     [userProfile save: &error];
 
     NSLog(@"User Profile %@", userProfile.document.properties);
@@ -50,11 +50,11 @@
 
     CBLReplication *push = [self.database createPushReplication:url];
     push.continuous = YES;
-    push.authenticator = [CBLAuthenticator basicAuthenticatorWithName:@"pasin" password:@"123"];
+    push.authenticator = [CBLAuthenticator basicAuthenticatorWithName:@"oliver" password:@"letmein"];
 
     CBLReplication *pull = [self.database createPullReplication:url];
     pull.continuous = YES;
-    pull.authenticator = [CBLAuthenticator basicAuthenticatorWithName:@"pasin" password:@"123"];
+    pull.authenticator = [CBLAuthenticator basicAuthenticatorWithName:@"oliver" password:@"letmein"];
 
     [pull start];
     [push start];
