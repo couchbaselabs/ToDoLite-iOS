@@ -164,6 +164,7 @@
 }
 
 - (IBAction)addImageButtonAction:(UIButton *)sender {
+    [self.addItemTextField resignFirstResponder];
     [self displayAddImageActionSheetFor:sender forTask:nil];
 }
 
@@ -242,6 +243,8 @@
 }
 
 - (void)didSelectImageButton:(UIButton *)imageButton ofTask:(Task *)task {
+    [self.addItemTextField resignFirstResponder];
+    
     CBLAttachment *attachment = [task attachmentNamed:@"image"];
     if (attachment) {
         imageToDisplay = [UIImage imageWithData:attachment.content];
