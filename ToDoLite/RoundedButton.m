@@ -30,9 +30,10 @@
     CAShapeLayer *maskLayer = [[CAShapeLayer alloc] init];
     
     maskLayer.bounds = maskBounds;
-    maskLayer.path = CGPathCreateWithEllipseInRect(maskBounds, NULL);
+    CGPathRef path = CGPathCreateWithEllipseInRect(maskBounds, NULL);
+    maskLayer.path = path;
+    CGPathRelease(path);
     maskLayer.position = CGPointMake(maskBounds.size.width/2, maskBounds.size.height/2);
-    
     maskLayer.shouldRasterize = YES;
     maskLayer.rasterizationScale = [UIScreen mainScreen].scale;
     
