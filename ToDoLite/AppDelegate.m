@@ -15,7 +15,7 @@
 #import "NSString+Additions.h"
 
 // Sync Gateway
-#define kSyncGatewayUrl @"http://demo.mobile.couchbase.com/todolite"
+#define kSyncGatewayUrl @"http://demo-mobile.couchbase.com/todolite"
 #define kSyncGatewayWebSocketSupport NO
 
 // Guest DB Name
