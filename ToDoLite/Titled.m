@@ -25,7 +25,8 @@
 
 - (void)awakeFromInitializer {
     self.type = [[self class] docType];
-    self.created_at = [NSDate date];
+    if (!self.created_at)
+        self.created_at = [NSDate date];
 }
 
 - (NSString*) description {

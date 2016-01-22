@@ -103,6 +103,8 @@
         [app showMessage:@"Couldn't save new task" withTitle:@"Error"];
     }
 
+    [textField resignFirstResponder];
+
     return YES;
 }
 

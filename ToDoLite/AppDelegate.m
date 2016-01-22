@@ -14,12 +14,16 @@
 #import "Profile.h"
 #import "NSString+Additions.h"
 
-// Sync Gateway
-#define kSyncGatewayUrl @"http://demo-mobile.couchbase.com/todolite"
+// Sync Gateway:
+//#define kSyncGatewayUrl @"http://demo-mobile.couchbase.com/todolite"
+#define kSyncGatewayUrl @"http://10.17.2.133:4984/todos"
 #define kSyncGatewayWebSocketSupport NO
 
-// Guest DB Name
+// Guest DB Name:
 #define kGuestDBName @"guest"
+
+// Storage Type: kCBLSQLiteStorage or kCBLForestDBStorage
+#define kStorageType kCBLSQLiteStorage
 
 @interface AppDelegate () <UISplitViewControllerDelegate, UIAlertViewDelegate>
 
@@ -131,7 +135,15 @@
 - (CBLDatabase *)databaseForName:(NSString *)name {
     NSString *dbName = [self databaseNameForName:name];
     NSError *error;
-    CBLDatabase *database = [[CBLManager sharedInstance] databaseNamed:dbName error:&error];
+
+    [CBLManager enableLogging:@"CBLDatabase"];
+
+    CBLDatabaseOptions *option = [[CBLDatabaseOptions alloc] init];
+    option.create = YES;
+    option.storageType = kStorageType;
+    CBLDatabase *database = [[CBLManager sharedInstance] openDatabaseNamed:dbName
+                                                               withOptions:option
+                                                                     error:&error];
     if (error) {
         NSLog(@"Cannot create database with an error : %@", [error description]);
     }
@@ -257,7 +269,8 @@
             if (error || loginResult.isCancelled) {
                 resultBlock(NO, error);
             } else {
-                [[[FBSDKGraphRequest alloc] initWithGraphPath:@"me" parameters:nil]
+                [[[FBSDKGraphRequest alloc] initWithGraphPath:@"me"
+                                                   parameters:@{@"fields": @"name"}]
                  startWithCompletionHandler:
                     ^(FBSDKGraphRequestConnection *connection, id result, NSError *error) {
                         if (!error) {
