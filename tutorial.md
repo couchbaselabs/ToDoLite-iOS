@@ -44,7 +44,7 @@ the project.
 	cd ToDoLite-iOS
         open initial/ToDoLite.xcodeproj
 
-Download and unzip the latest zip file for the 1.1 release
+Download and unzip the latest ZIP file for the Couchbase Lite 1.1 release
 [from the Couchbase website][1]. Drag the `CouchbaseLite.framework` file to the Frameworks folder.
 
 ![][image-1]
