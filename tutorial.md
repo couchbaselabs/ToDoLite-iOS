@@ -35,6 +35,7 @@ to refer to it if you get stuck when going through the lab steps.
 If needed, clone the application from the ToDoLite-iOS repository:
 
 	git clone https://github.com/couchbaselabs/ToDoLite-iOS
+	cd ToDoLite-iOS
         git checkout workshop/CouchbaseDay
 
 Once you have the files from either the repository or a zipfile open
