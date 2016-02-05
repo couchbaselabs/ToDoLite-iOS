@@ -15,8 +15,10 @@
 #import "NSString+Additions.h"
 
 // Sync Gateway:
-//#define kSyncGatewayUrl @"http://demo-mobile.couchbase.com/todolite"
-#define kSyncGatewayUrl @"http://10.17.2.133:4984/todos"
+#define kSyncGatewayUrl @"http://demo-mobile.couchbase.com/todolite"
+//#define kSyncGatewayUrl @"http://<IP>:4984/todos"
+
+// Enable/disable WebSocket in pull replication:
 #define kSyncGatewayWebSocketSupport NO
 
 // Guest DB Name:
@@ -24,6 +26,9 @@
 
 // Storage Type: kCBLSQLiteStorage or kCBLForestDBStorage
 #define kStorageType kCBLSQLiteStorage
+
+// Enable or disable logging:
+#define kLoggingEnabled YES
 
 @interface AppDelegate () <UISplitViewControllerDelegate, UIAlertViewDelegate>
 
@@ -38,6 +43,8 @@
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    [self enableLogging];
+    
     LoginViewController *loginViewController =
         (LoginViewController *)self.window.rootViewController;
 
@@ -120,6 +127,19 @@
                       otherButtonTitles:nil] show];
 }
 
+#pragma mark - Logging
+- (void)enableLogging {
+    if (kLoggingEnabled) {
+        [CBLManager enableLogging:@"CBLDatabase"];
+        [CBLManager enableLogging:@"View"];
+        [CBLManager enableLogging:@"ViewVerbose"];
+        [CBLManager enableLogging:@"Query"];
+        [CBLManager enableLogging:@"Sync"];
+        [CBLManager enableLogging:@"SyncVerbose"];
+        [CBLManager enableLogging:@"ChangeTracker"];
+    }
+}
+
 #pragma mark - Database
 
 - (void)setCurrentDatabase:(CBLDatabase *)database {
@@ -135,8 +155,6 @@
 - (CBLDatabase *)databaseForName:(NSString *)name {
     NSString *dbName = [self databaseNameForName:name];
     NSError *error;
-
-    [CBLManager enableLogging:@"CBLDatabase"];
 
     CBLDatabaseOptions *option = [[CBLDatabaseOptions alloc] init];
     option.create = YES;
