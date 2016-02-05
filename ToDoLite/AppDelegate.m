@@ -15,8 +15,13 @@
 #import "NSString+Additions.h"
 
 // Sync Gateway:
-//#define kSyncGatewayUrl @"http://demo-mobile.couchbase.com/todolite"
-#define kSyncGatewayUrl @"http://10.17.2.133:4984/todos"
+// #define kSyncGatewayUrl @"http://ec2-54-145-244-2.compute-1.amazonaws.com:4984/todolite12rc2b-cc/"
+// #define kSyncGatewayUrl @"http://10.17.2.133:4984/todos"
+#define kSyncGatewayUrl @"http://demo-mobile.couchbase.com/todolite"
+
+// #define kSyncGatewayUrl @"http://ec2-54-197-148-230.compute-1.amazonaws.com:4984/todos"
+// #define kSyncGatewayUrl @"http://localhost:4984/todolite"
+
 #define kSyncGatewayWebSocketSupport NO
 
 // Guest DB Name:
@@ -38,6 +43,22 @@
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    
+    // Register for push notifications
+    if ([application respondsToSelector:@selector(isRegisteredForRemoteNotifications)])
+    {
+        // iOS 8 Notifications
+        [application registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:(UIUserNotificationTypeSound | UIUserNotificationTypeAlert | UIUserNotificationTypeBadge) categories:nil]];
+        
+        [application registerForRemoteNotifications];
+    }
+    else
+    {
+        // iOS < 8 Notifications
+        [application registerForRemoteNotificationTypes:
+         (UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeAlert | UIRemoteNotificationTypeSound)];
+    }
+    
     LoginViewController *loginViewController =
         (LoginViewController *)self.window.rootViewController;
 
@@ -59,9 +80,10 @@
         [self observeFacebookAccessTokenChange];
         [self facebookUserDidLoginWithToken:token userInfo:nil];
         loginViewController.skipLogin = YES;
-    } else
+    } else {
         loginViewController.skipLogin = NO;
-
+    }
+    
     return YES;
 }
 
@@ -447,5 +469,31 @@
     _popoverController = popoverController;
     _displayModeButtonItem = barButtonItem;
 }
+
+
+#pragma mark - Push notifications
+
+- (void)application:(UIApplication *)app didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
+{
+    
+    NSString *deviceTokenStr = [NSString stringWithFormat:@"%@",deviceToken];
+    NSLog(@"didRegisterForRemoteNotificationsWithDeviceToken, Device token: %@", deviceTokenStr);
+    
+    NSString* deviceTokenCleaned = [[[[deviceToken description]
+                                      stringByReplacingOccurrencesOfString: @"<" withString: @""]
+                                     stringByReplacingOccurrencesOfString: @">" withString: @""]
+                                    stringByReplacingOccurrencesOfString: @" " withString: @""];
+    
+     NSLog(@"didRegisterForRemoteNotificationsWithDeviceToken, Cleaned device token token: %@", deviceTokenCleaned);
+
+}
+
+- (void)application:(UIApplication *)app didFailToRegisterForRemoteNotificationsWithError:(NSError *)err
+{
+    NSString *str = [NSString stringWithFormat: @"Error: %@", err];
+    NSLog(@"Error registering device token.  Push notifications will not work%@", str);
+}
+
+
 
 @end

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		150DD44E1C585028003ADEAF /* libCBLForestDBStorage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 150DD44D1C585028003ADEAF /* libCBLForestDBStorage.a */; };
 		9341794A1AC6013A0021FD30 /* FBSDKCoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 934179481AC6013A0021FD30 /* FBSDKCoreKit.framework */; };
 		9341794B1AC6013A0021FD30 /* FBSDKLoginKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 934179491AC6013A0021FD30 /* FBSDKLoginKit.framework */; };
 		936A28BD19EE74A300FE0206 /* CouchbaseLite.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 936A28BB19EE74A300FE0206 /* CouchbaseLite.framework */; };
@@ -48,6 +49,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		150DD44D1C585028003ADEAF /* libCBLForestDBStorage.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libCBLForestDBStorage.a; path = Frameworks/libCBLForestDBStorage.a; sourceTree = SOURCE_ROOT; };
 		27B086CF1B3C747200D3D9D8 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		934179481AC6013A0021FD30 /* FBSDKCoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FBSDKCoreKit.framework; path = Frameworks/FBSDKCoreKit.framework; sourceTree = SOURCE_ROOT; };
 		934179491AC6013A0021FD30 /* FBSDKLoginKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FBSDKLoginKit.framework; path = Frameworks/FBSDKLoginKit.framework; sourceTree = SOURCE_ROOT; };
@@ -102,6 +104,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				150DD44E1C585028003ADEAF /* libCBLForestDBStorage.a in Frameworks */,
 				93F162C819E982640031E7CB /* libc++.dylib in Frameworks */,
 				93F162C619E9824F0031E7CB /* libz.dylib in Frameworks */,
 				9341794B1AC6013A0021FD30 /* FBSDKLoginKit.framework in Frameworks */,
@@ -127,6 +130,7 @@
 		936A28B219EE710800FE0206 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				150DD44D1C585028003ADEAF /* libCBLForestDBStorage.a */,
 				93F162C719E982640031E7CB /* libc++.dylib */,
 				93F162C319E9822E0031E7CB /* libsqlite3.dylib */,
 				93F162C519E9824F0031E7CB /* libz.dylib */,
@@ -498,8 +502,13 @@
 				INFOPLIST_FILE = ToDoLite/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Frameworks",
+				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = ToDoLite;
+				PROVISIONING_PROFILE = "e59df5aa-737a-4a7b-b965-5196eeb6e9a7";
 			};
 			name = Debug;
 		};
@@ -508,7 +517,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
-				CODE_SIGN_IDENTITY = "iPhone Distribution: Couchbase, Inc. (N2Q372V7W2)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks",
@@ -516,8 +525,13 @@
 				INFOPLIST_FILE = ToDoLite/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Frameworks",
+				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = ToDoLite;
+				PROVISIONING_PROFILE = "e59df5aa-737a-4a7b-b965-5196eeb6e9a7";
 			};
 			name = Release;
 		};
