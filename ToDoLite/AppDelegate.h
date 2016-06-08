@@ -23,12 +23,6 @@
 // For UISplitViewController (iOS7)
 @property (readonly, strong, nonatomic) UIBarButtonItem *displayModeButtonItem;
 
-- (void)loginAsGuest;
-
-- (void)loginWithFacebook:(void (^)(BOOL success, NSError *error))result;
-
-- (BOOL)isGuestLoggedIn;
-
 - (BOOL)isUserLoggedIn;
 
 - (void)logout;

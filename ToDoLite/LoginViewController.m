@@ -7,9 +7,14 @@
 //
 
 #import "LoginViewController.h"
+#import <FBSDKCoreKit/FBSDKCoreKit.h>
+#import <FBSDKLoginKit/FBSDKLoginKit.h>
 #import "AppDelegate.h"
 
 @interface LoginViewController ()
+
+@property (nonatomic) FBSDKLoginManager *facebookLoginManager;
+@property (nonatomic) UIAlertView *facebookLoginAlertView;
 
 @end
 
@@ -17,10 +22,6 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
-    if (self.skipLogin) {
-        [self start];
-    }
 }
 
 - (void)didReceiveMemoryWarning {
@@ -36,7 +37,7 @@
 
 - (IBAction)facebookLoginAction:(id)sender {
     AppDelegate *app = [[UIApplication sharedApplication] delegate];
-    [app loginWithFacebook:^(BOOL success, NSError *error) {
+    [self loginWithFacebook:^(BOOL success, NSError *error) {
         if (success) {
             [self start];
         } else {
@@ -46,9 +47,126 @@
 }
 
 - (IBAction)loginAsGuestAction:(id)sender {
-    AppDelegate *app = [[UIApplication sharedApplication] delegate];
-    [app loginAsGuest];
+    [self loginAsGuest];
+}
+
+#pragma mark - Application Level Setup
+
++ (BOOL)application:(UIApplication *)application
+   didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    return [[FBSDKApplicationDelegate sharedInstance] application:application
+                                    didFinishLaunchingWithOptions:launchOptions];
+}
+
++ (BOOL)application:(UIApplication *)application openURL:(NSURL *)url
+  sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
+    return [[FBSDKApplicationDelegate sharedInstance] application:application
+                                                          openURL:url
+                                                sourceApplication:sourceApplication
+                                                       annotation:annotation];
+}
+
+#pragma mark - Login
+
+- (void)tryLogin {
+    // Checking the current access token:
+    FBSDKAccessToken *token = [FBSDKAccessToken currentAccessToken];
+    if (token) {
+        [self observeFacebookAccessTokenChange];
+        [self facebookUserDidLoginWithToken:token userInfo:nil];
+        [self start];
+    }
+}
+
+- (void)loginAsGuest {
+    if ([self.delegate respondsToSelector:@selector(didLogInAsGuest)])
+        [self.delegate didLogInAsGuest];
     [self start];
+}
+
+- (void)logout {
+    if (self.facebookLoginManager) {
+        [self unobserveFacebookAccessTokenChange];
+        [self.facebookLoginManager logOut];
+        self.facebookLoginManager = nil;
+    }
+
+    if ([self.delegate respondsToSelector:@selector(didLogout)])
+        [self.delegate didLogout];
+}
+
+#pragma mark - Facebook
+
+- (FBSDKLoginManager *)facebookLoginManager {
+    if (!_facebookLoginManager)
+        _facebookLoginManager = [[FBSDKLoginManager alloc] init];
+    return _facebookLoginManager;
+}
+
+- (void)loginWithFacebook:(void (^)(BOOL success, NSError *error))resultBlock {
+    [self.facebookLoginManager logInWithReadPermissions:@[@"email"]
+                                     fromViewController:self
+                                                handler:
+     ^(FBSDKLoginManagerLoginResult *loginResult, NSError *error) {
+         if (error || loginResult.isCancelled) {
+             resultBlock(NO, error);
+         } else {
+             [[[FBSDKGraphRequest alloc] initWithGraphPath:@"me"
+                                                parameters:@{@"fields": @"name"}]
+              startWithCompletionHandler:
+              ^(FBSDKGraphRequestConnection *connection, id result, NSError *error) {
+                  if (!error) {
+                      [self observeFacebookAccessTokenChange];
+                      [self facebookUserDidLoginWithToken:loginResult.token userInfo:result];
+                      resultBlock(YES, nil);
+                  } else {
+                      [self.facebookLoginManager logOut];
+                      resultBlock(NO, error);
+                  }
+              }];
+         }
+     }];
+}
+
+- (void)facebookUserDidLoginWithToken:(FBSDKAccessToken *)token userInfo:(NSDictionary *)info {
+    NSAssert(token, @"Facebook Access Token Data is nil");
+    if ([self.delegate respondsToSelector:@selector(didLogInAsFacebookUserId:name:token:)])
+        [self.delegate didLogInAsFacebookUserId:token.userID
+                                           name:info[@"name"] token:token.tokenString];
+}
+
+- (void)observeFacebookAccessTokenChange {
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:FBSDKAccessTokenDidChangeNotification
+                                                  object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(facebookAccessTokenChange:)
+                                                 name:FBSDKAccessTokenDidChangeNotification
+                                               object:nil];
+}
+
+- (void)unobserveFacebookAccessTokenChange {
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:FBSDKAccessTokenDidChangeNotification
+                                                  object:nil];
+}
+
+- (void)facebookAccessTokenChange:(NSNotification *)notification {
+    NSString *message = @"Facebook Session is expired. "
+        "Please login again to review your session.";
+    self.facebookLoginAlertView = [[UIAlertView alloc] initWithTitle:@"Facebook"
+                                                             message:message
+                                                            delegate:self
+                                                   cancelButtonTitle:@"OK"
+                                                   otherButtonTitles:nil];
+    [self.facebookLoginAlertView show];
+}
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+    if (alertView == self.facebookLoginAlertView) {
+        AppDelegate *app = [[UIApplication sharedApplication] delegate];
+        [app logout];
+    }
 }
 
 @end

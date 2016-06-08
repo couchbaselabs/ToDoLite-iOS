@@ -113,17 +113,7 @@ static void *listsQueryContext = &listsQueryContext;
 
 - (IBAction)loginButtonAction:(id)sender {
     AppDelegate *app = [[UIApplication sharedApplication] delegate];
-    if ([app isUserLoggedIn]) {
-        [app logout];
-    } else {
-        [app loginWithFacebook:^(BOOL success, NSError *error) {
-            if (success) {
-                self.loginButton.title = @"Logout";
-            } else {
-                [app showMessage:@"Facebook Login Error. Please try again." withTitle:@"Error"];
-            }
-        }];
-    }
+    [app logout];
 }
 
 #pragma mark - UIAlertViewDelegate
