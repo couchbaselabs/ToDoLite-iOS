@@ -26,13 +26,6 @@ static void *listsQueryContext = &listsQueryContext;
 
 - (void)awakeFromNib {
     [super awakeFromNib];
-    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
-        self.preferredContentSize = CGSizeMake(320.0, 600.0);
-    }
-    
-    // There is a bug in iOS8 UISplitViewController on iPads that doesn't set the main button item
-    // correctly during its first display. A work would be manually setting the master
-    // controller title here.
     self.title = @"ToDo Lists";
 }
 
@@ -81,20 +74,7 @@ static void *listsQueryContext = &listsQueryContext;
         CBLQueryRow *row = [self.listsResult objectAtIndex:indexPath.row];
         List *list = [List modelForDocument:row.document];
         
-        DetailViewController *controller;
-        if ([[segue destinationViewController] isKindOfClass:[UINavigationController class]]) {
-            controller = (DetailViewController *)[[segue destinationViewController] topViewController];
-        } else {
-            controller = [segue destinationViewController];
-        }
-        
-        if ([[[UIDevice currentDevice] systemVersion] compare:@"8.0" options:NSNumericSearch] != NSOrderedAscending) {
-            controller.navigationItem.leftBarButtonItem = self.splitViewController.displayModeButtonItem;
-            controller.navigationItem.leftItemsSupplementBackButton = YES;
-        } else {
-            // For iOS7, Setting the display mode is done in DetailViewController.setList: method.
-        }
-        
+        DetailViewController *controller = [segue destinationViewController];
         controller.list = list;
     }
 }
@@ -133,9 +113,11 @@ static void *listsQueryContext = &listsQueryContext;
     return self.listsResult.count;
 }
 
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    UITableViewCell* cell = [tableView dequeueReusableCellWithIdentifier:@"List" forIndexPath:indexPath];
-    
+- (UITableViewCell *)tableView:(UITableView *)tableView
+         cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    UITableViewCell* cell = [tableView dequeueReusableCellWithIdentifier:@"List"
+                                                            forIndexPath:indexPath];
+
     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     
     CBLQueryRow* row = [self.listsResult objectAtIndex:indexPath.row];
@@ -146,8 +128,10 @@ static void *listsQueryContext = &listsQueryContext;
 
 #pragma mark - Table View Delegate
 
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
-    if (editingStyle == UITableViewCellEditingStyleDelete) {
+- (void)tableView:(UITableView *)tableView
+commitEditingStyle:(UITableViewCellEditingStyle)style
+forRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (style == UITableViewCellEditingStyleDelete) {
         CBLQueryRow* row = [self.listsResult objectAtIndex:indexPath.row];
         List *list = [List modelForDocument:row.document];
         [list deleteList:nil];
@@ -156,7 +140,10 @@ static void *listsQueryContext = &listsQueryContext;
 
 #pragma mark - Observers
 
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
+- (void)observeValueForKeyPath:(NSString *)keyPath
+                      ofObject:(id)object
+                        change:(NSDictionary *)change
+                       context:(void *)context {
     AppDelegate *app = [[UIApplication sharedApplication] delegate];
     if (object == app && [keyPath isEqual:@"database"]) {
         [self setup];

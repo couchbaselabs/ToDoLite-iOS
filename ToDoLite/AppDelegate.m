@@ -28,7 +28,7 @@
 // Enable or disable logging:
 #define kLoggingEnabled NO
 
-@interface AppDelegate () <UISplitViewControllerDelegate, UIAlertViewDelegate, LoginViewControllerDelegate>
+@interface AppDelegate () <UIAlertViewDelegate, LoginViewControllerDelegate>
 
 @property (nonatomic) CBLReplication *push;
 @property (nonatomic) CBLReplication *pull;
@@ -63,49 +63,6 @@
                                     openURL:url
                           sourceApplication:sourceApplication
                                  annotation:annotation];
-}
-
-- (void)replaceRootViewController:(UIViewController *)controller {
-    if ([controller isKindOfClass:[UISplitViewController class]]) {
-        // Setup SplitViewController
-        UISplitViewController *splitViewController = (UISplitViewController *)controller;
-        if ([[[UIDevice currentDevice] systemVersion]
-             compare:@"8.0"
-             options:NSNumericSearch] != NSOrderedAscending) {
-            if ([[splitViewController.viewControllers lastObject]
-                 isKindOfClass:[UINavigationController class]]) {
-                UINavigationController *navigationController =
-                    [splitViewController.viewControllers lastObject];
-                navigationController.topViewController.navigationItem.leftBarButtonItem =
-                    splitViewController.displayModeButtonItem;
-            }
-        }
-        splitViewController.delegate = self;
-    }
-    self.window.rootViewController = controller;
-}
-
-#pragma mark - Properties
-
-- (NSString *)currentUserId {
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    return [defaults objectForKey:@"user_id"];
-}
-
-- (void)setCurrentUserId:(NSString *)userId {
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    [defaults setObject:userId forKey:@"user_id"];
-    [defaults synchronize];
-}
-
-#pragma mark - Message
-
-- (void)showMessage:(NSString *)text withTitle:(NSString *)title {
-    [[[UIAlertView alloc] initWithTitle:title
-                                message:text
-                               delegate:nil
-                      cancelButtonTitle:@"OK"
-                      otherButtonTitles:nil] show];
 }
 
 #pragma mark - Logging
@@ -266,12 +223,21 @@
     self.loginViewController = [self.window.rootViewController.storyboard
                                 instantiateInitialViewController];
     self.loginViewController.delegate = self;
-    [self performSelector:@selector(replaceRootViewController:)
-               withObject:self.loginViewController
-               afterDelay:0.0];
+    self.window.rootViewController = self.loginViewController;
 }
 
 #pragma mark - Login & Logout
+
+- (NSString *)currentUserId {
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    return [defaults objectForKey:@"user_id"];
+}
+
+- (void)setCurrentUserId:(NSString *)userId {
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setObject:userId forKey:@"user_id"];
+    [defaults synchronize];
+}
 
 - (BOOL)isFirstTimeUsed {
     return [[[CBLManager sharedInstance] allDatabaseNames] count] == 0;
@@ -321,7 +287,9 @@
             if ([attachments count] > 0) {
                 CBLUnsavedRevision *rev = [newDoc.currentRevision createRevision];
                 for (CBLAttachment *att in attachments) {
-                    [rev setAttachmentNamed:att.name withContentType:att.contentType content:att.content];
+                    [rev setAttachmentNamed:att.name
+                            withContentType:att.contentType
+                                    content:att.content];
                 }
                 
                 CBLSavedRevision *saved = [rev save:&error];
@@ -347,31 +315,14 @@
     }
 }
 
-#pragma mark - Split view
+#pragma mark - Message
 
-- (BOOL)splitViewController:(UISplitViewController *)splitViewController collapseSecondaryViewController:(UIViewController *)secondaryViewController ontoPrimaryViewController:(UIViewController *)primaryViewController {
-    if ([secondaryViewController isKindOfClass:[UINavigationController class]] &&
-        [[(UINavigationController *)secondaryViewController topViewController] isKindOfClass:[DetailViewController class]] &&
-        ([(DetailViewController *)[(UINavigationController *)secondaryViewController topViewController] list] == nil)) {
-        return YES;
-    } else {
-        return NO;
-    }
-}
-
-- (void)splitViewController:(UISplitViewController *)splitViewController
-     willHideViewController:(UIViewController *)viewController
-          withBarButtonItem:(UIBarButtonItem *)barButtonItem
-       forPopoverController:(UIPopoverController *)popoverController {
-    
-    if ([[[UIDevice currentDevice] systemVersion] compare:@"8.0" options:NSNumericSearch] == NSOrderedAscending) {
-        // For iOS7
-        UINavigationController *navigationController = [splitViewController.viewControllers lastObject];
-        navigationController.topViewController.navigationItem.leftBarButtonItem = barButtonItem;
-    }
-    
-    _popoverController = popoverController;
-    _displayModeButtonItem = barButtonItem;
+- (void)showMessage:(NSString *)text withTitle:(NSString *)title {
+    [[[UIAlertView alloc] initWithTitle:title
+                                message:text
+                               delegate:nil
+                      cancelButtonTitle:@"OK"
+                      otherButtonTitles:nil] show];
 }
 
 @end

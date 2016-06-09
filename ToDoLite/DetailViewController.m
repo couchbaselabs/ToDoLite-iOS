@@ -33,12 +33,6 @@
         _list = list;
         [self configureView];
     }
-    
-    AppDelegate *app = [[UIApplication sharedApplication] delegate];
-    if ([[[UIDevice currentDevice] systemVersion] compare:@"8.0" options:NSNumericSearch] == NSOrderedAscending) {
-        self.navigationItem.leftBarButtonItem = app.displayModeButtonItem;
-    }
-    [[app popoverController] dismissPopoverAnimated:YES];
 }
 
 - (void)configureView {
@@ -93,7 +87,9 @@
     [_addItemTextField setText:nil];
 
     NSData *image = imageForNewTask ? [self dataForImage:imageForNewTask] : nil;
-    Task *task = [self.list addTaskWithTitle:title withImage:image withImageContentType:ImageDataContentType];
+    Task *task = [self.list addTaskWithTitle:title
+                                   withImage:image
+                        withImageContentType:ImageDataContentType];
     NSError *error;
     if ([task save:&error]) {
         imageForNewTask = nil;
@@ -172,10 +168,12 @@
 
 #pragma mark - UIImagePickerViewDelegate
 
-- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
+- (void)imagePickerController:(UIImagePickerController *)picker
+didFinishPickingMediaWithInfo:(NSDictionary *)info {
     UIImage *selectedImage = (UIImage *) [info objectForKey:UIImagePickerControllerEditedImage];
     if (taskToAddImageTo) {
-        [taskToAddImageTo setImage:[self dataForImage:selectedImage] contentType:ImageDataContentType];
+        [taskToAddImageTo setImage:
+            [self dataForImage:selectedImage] contentType:ImageDataContentType];
 
         NSError *error;
         if (![taskToAddImageTo save:&error]) {
@@ -219,7 +217,8 @@
 
 #pragma mark - TaskTableViewCellDelegate
 
-- (UITableViewCell *)couchTableSource:(CBLUITableSource *)source cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+- (UITableViewCell *)couchTableSource:(CBLUITableSource *)source
+                cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     static NSString *CellIdentifier = @"Task";
     TaskTableViewCell *cell = (TaskTableViewCell *)[source.tableView
                                                     dequeueReusableCellWithIdentifier:CellIdentifier
