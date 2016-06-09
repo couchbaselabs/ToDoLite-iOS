@@ -8,8 +8,28 @@
 
 #import <UIKit/UIKit.h>
 
+@protocol LoginViewControllerDelegate;
+
 @interface LoginViewController : UIViewController
 
-@property (nonatomic) BOOL skipLogin;
+@property id<LoginViewControllerDelegate> delegate;
+
++ (BOOL)application:(UIApplication *)application
+    didFinishLaunchingWithOptions:(NSDictionary *)launchOptions;
+
++ (BOOL)application:(UIApplication *)application openURL:(NSURL *)url
+  sourceApplication:(NSString *)sourceApplication annotation:(id)annotation;
+
+- (void)tryLogin;
+- (void)loginAsGuest;
+- (void)logout;
+
+@end
+
+@protocol LoginViewControllerDelegate <NSObject>
+
+- (void)didLogInAsGuest;
+- (void)didLogInAsFacebookUserId:(NSString *)userId name:(NSString *)name token:(NSString *)token;
+- (void)didLogout;
 
 @end

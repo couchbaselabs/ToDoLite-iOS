@@ -7,8 +7,6 @@
 //
 
 #import "AppDelegate.h"
-#import <FBSDKCoreKit/FBSDKCoreKit.h>
-#import <FBSDKLoginKit/FBSDKLoginKit.h>
 #import "DetailViewController.h"
 #import "LoginViewController.h"
 #import "Profile.h"
@@ -28,60 +26,43 @@
 #define kStorageType kCBLSQLiteStorage
 
 // Enable or disable logging:
-#define kLoggingEnabled YES
+#define kLoggingEnabled NO
 
-@interface AppDelegate () <UISplitViewControllerDelegate, UIAlertViewDelegate>
+@interface AppDelegate () <UISplitViewControllerDelegate, UIAlertViewDelegate, LoginViewControllerDelegate>
 
 @property (nonatomic) CBLReplication *push;
 @property (nonatomic) CBLReplication *pull;
 @property (nonatomic) NSError *lastSyncError;
-@property (nonatomic) FBSDKLoginManager *facebookLoginManager;
-@property (nonatomic) UIAlertView *facebookLoginAlertView;
+@property (nonatomic) LoginViewController *loginViewController;
 
 @end
 
 @implementation AppDelegate
 
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+- (BOOL)application:(UIApplication *)application
+    didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     [self enableLogging];
-    
-    LoginViewController *loginViewController =
-        (LoginViewController *)self.window.rootViewController;
 
-    // Guest login:
-    if ([self isFirstTimeUsed] || [self isGuestLoggedIn]) {
-        loginViewController.skipLogin = YES;
-        [self loginAsGuest];
-        return YES;
-    }
+    [LoginViewController application:application
+       didFinishLaunchingWithOptions:launchOptions];
 
-    // Facebook login:
-    // Needs to be called before getting the current access token:
-    [[FBSDKApplicationDelegate sharedInstance] application:application
-                             didFinishLaunchingWithOptions:launchOptions];
+    self.loginViewController = (LoginViewController *)self.window.rootViewController;
+    self.loginViewController.delegate = self;
 
-    // Checking the current access token:
-    FBSDKAccessToken *token = [FBSDKAccessToken currentAccessToken];
-    if (token) {
-        [self observeFacebookAccessTokenChange];
-        [self facebookUserDidLoginWithToken:token userInfo:nil];
-        loginViewController.skipLogin = YES;
-    } else
-        loginViewController.skipLogin = NO;
+    if ([self isFirstTimeUsed] || [self isGuestLoggedIn])
+        [self.loginViewController loginAsGuest];
+    else
+        [self.loginViewController tryLogin];
 
     return YES;
 }
 
-- (void)applicationDidBecomeActive:(UIApplication *)application {
-    [FBSDKAppEvents activateApp];
-}
-
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url
   sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
-    return [[FBSDKApplicationDelegate sharedInstance] application:application
-                                                          openURL:url
-                                                sourceApplication:sourceApplication
-                                                       annotation:annotation];
+    return [LoginViewController application:application
+                                    openURL:url
+                          sourceApplication:sourceApplication
+                                 annotation:annotation];
 }
 
 - (void)replaceRootViewController:(UIViewController *)controller {
@@ -128,9 +109,10 @@
 }
 
 #pragma mark - Logging
+
 - (void)enableLogging {
     if (kLoggingEnabled) {
-        [CBLManager enableLogging:@"CBLDatabase"];
+        [CBLManager enableLogging:@"Database"];
         [CBLManager enableLogging:@"View"];
         [CBLManager enableLogging:@"ViewVerbose"];
         [CBLManager enableLogging:@"Query"];
@@ -148,23 +130,20 @@
     [self didChangeValueForKey:@"database"];
 }
 
-- (NSString *)databaseNameForName:(NSString *)name {
-    return [NSString stringWithFormat:@"db%@", [[name MD5] lowercaseString]];
-}
-
 - (CBLDatabase *)databaseForName:(NSString *)name {
-    NSString *dbName = [self databaseNameForName:name];
-    NSError *error;
+    NSString *dbName = [NSString stringWithFormat:@"db%@", [[name MD5] lowercaseString]];
 
     CBLDatabaseOptions *option = [[CBLDatabaseOptions alloc] init];
     option.create = YES;
     option.storageType = kStorageType;
+
+    NSError *error;
     CBLDatabase *database = [[CBLManager sharedInstance] openDatabaseNamed:dbName
                                                                withOptions:option
                                                                      error:&error];
-    if (error) {
+    if (error)
         NSLog(@"Cannot create database with an error : %@", [error description]);
-    }
+
     return database;
 }
 
@@ -179,16 +158,13 @@
 
 #pragma mark - Replication
 
-- (void)startReplicationWithFacebookAccessToken:(NSString *)token {
-    NSAssert(token, @"Facebook token is nil");
-    
+- (void)startReplicationWithAuthenticator:(id <CBLAuthenticator>)authenticator {
     if (!_pull) {
         NSURL *syncUrl = [NSURL URLWithString:kSyncGatewayUrl];
         _pull = [self.database createPullReplication:syncUrl];
         _pull.continuous  = YES;
-        if (!kSyncGatewayWebSocketSupport) {
+        if (!kSyncGatewayWebSocketSupport)
             _pull.customProperties = @{@"websocket": @NO};
-        }
         
         _push = [self.database createPushReplication:syncUrl];
         _push.continuous = YES;
@@ -200,10 +176,9 @@
         [nctr addObserver: self selector: @selector(replicationProgress:)
                      name:kCBLReplicationChangeNotification object:_push];
     }
-    
-    id <CBLAuthenticator> auth = [CBLAuthenticator facebookAuthenticatorWithToken:token];
-    _pull.authenticator = auth;
-    _push.authenticator = auth;
+
+    _pull.authenticator = authenticator;
+    _push.authenticator = authenticator;
 
     if (_push.running)
         [_push stop];
@@ -247,6 +222,55 @@
     }
 }
 
+#pragma mark - LoginViewControllerDelegate
+
+- (void)didLogInAsGuest {
+    CBLDatabase *database = [self databaseForGuest];
+    [self setCurrentDatabase:database];
+    [self setGuestLoggedIn:YES];
+    [self setCurrentUserId:nil];
+}
+
+- (void)didLogInAsFacebookUserId:(NSString *)userId name:(NSString *)name token:(NSString *)token {
+    [self setCurrentUserId:userId];
+
+    CBLDatabase *database = [self databaseForUser:userId];
+    [self setCurrentDatabase:database];
+    [self setGuestLoggedIn:NO];
+
+    Profile *profile = [Profile profileInDatabase:database forExistingUserId:userId];
+    if (!profile) {
+        if (name) {
+            NSError *error;
+            profile = [Profile profileInDatabase:database forNewUserId:userId name:name];
+            if ([profile save:&error])
+                [self migrateGuestDataToUser:profile];
+            else
+                NSLog(@"Cannot create a new user profile with error : %@", error);
+        } else
+            NSLog(@"Cannot create a new user profile as there is no name information.");
+    }
+
+    if (profile)
+        [self startReplicationWithAuthenticator:
+         [CBLAuthenticator facebookAuthenticatorWithToken:token]];
+    else
+        [self showMessage:@"Cannot create a new user profile" withTitle:@"Error"];
+}
+
+- (void)didLogout {
+    [self setCurrentUserId:nil];
+    [self stopReplication];
+    [self setCurrentDatabase:nil];
+
+    self.loginViewController = [self.window.rootViewController.storyboard
+                                instantiateInitialViewController];
+    self.loginViewController.delegate = self;
+    [self performSelector:@selector(replaceRootViewController:)
+               withObject:self.loginViewController
+               afterDelay:0.0];
+}
+
 #pragma mark - Login & Logout
 
 - (BOOL)isFirstTimeUsed {
@@ -268,115 +292,8 @@
     [defaults synchronize];
 }
 
-- (void)loginAsGuest {
-    CBLDatabase *database = [self databaseForGuest];
-    [self setCurrentDatabase:database];
-    [self setGuestLoggedIn:YES];
-    [self setCurrentUserId:nil];
-}
-
-- (FBSDKLoginManager *)facebookLoginManager {
-    if (!_facebookLoginManager)
-        _facebookLoginManager = [[FBSDKLoginManager alloc] init];
-    return _facebookLoginManager;
-}
-
-- (void)loginWithFacebook:(void (^)(BOOL success, NSError *error))resultBlock {
-    [self.facebookLoginManager logInWithReadPermissions:@[@"email"] handler:
-        ^(FBSDKLoginManagerLoginResult *loginResult, NSError *error) {
-            if (error || loginResult.isCancelled) {
-                resultBlock(NO, error);
-            } else {
-                [[[FBSDKGraphRequest alloc] initWithGraphPath:@"me"
-                                                   parameters:@{@"fields": @"name"}]
-                 startWithCompletionHandler:
-                    ^(FBSDKGraphRequestConnection *connection, id result, NSError *error) {
-                        if (!error) {
-                            [self observeFacebookAccessTokenChange];
-                            [self facebookUserDidLoginWithToken:loginResult.token userInfo:result];
-                            resultBlock(YES, nil);
-                        } else {
-                            [self.facebookLoginManager logOut];
-                            resultBlock(NO, error);
-                        }
-                 }];
-            }
-        }];
-}
-
-- (void)facebookUserDidLoginWithToken:(FBSDKAccessToken *)token userInfo:(NSDictionary *)info {
-    NSAssert(token, @"Facebook Access Token Data is nil");
-
-    NSString *userId = token.userID;
-    [self setCurrentUserId:userId];
-    
-    CBLDatabase *database = [self databaseForUser:userId];
-    [self setCurrentDatabase:database];
-    [self setGuestLoggedIn:NO];
-    
-    Profile *profile = [Profile profileInDatabase:database forExistingUserId:userId];
-    if (!profile) {
-        NSString *name = info[@"name"];
-        if (name) {
-            NSError *error;
-            profile = [Profile profileInDatabase:database forNewUserId:userId name:name];
-            if ([profile save:&error])
-                [self migrateGuestDataToUser:profile];
-            else
-                NSLog(@"Cannot create a new user profile with error : %@", error);
-        } else
-            NSLog(@"Cannot create a new user profile as there is no name information.");
-    }
-    
-    if (profile)
-        [self startReplicationWithFacebookAccessToken:token.tokenString];
-    else
-        [self showMessage:@"Cannot create a new user profile" withTitle:@"Error"];
-}
-
-- (void)observeFacebookAccessTokenChange {
-    [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                    name:FBSDKAccessTokenDidChangeNotification
-                                                  object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(facebookAccessTokenChange:)
-                                                 name:FBSDKAccessTokenDidChangeNotification
-                                               object:nil];
-}
-
-- (void)unobserveFacebookAccessTokenChange {
-    [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                    name:FBSDKAccessTokenDidChangeNotification
-                                                  object:nil];
-}
-
-- (void)facebookAccessTokenChange:(NSNotification *)notification {
-    FBSDKAccessToken *token = notification.userInfo[FBSDKAccessTokenChangeNewKey];
-    if (token) {
-        [self startReplicationWithFacebookAccessToken:token.tokenString];
-    } else {
-        NSString *message = @"Facebook Session is expired. "
-                             "Please login again to review your session.";
-        self.facebookLoginAlertView = [[UIAlertView alloc] initWithTitle:@"Facebook"
-                                                                 message:message
-                                                                delegate:self
-                                                       cancelButtonTitle:@"OK"
-                                                       otherButtonTitles:nil];
-        [self.facebookLoginAlertView show];
-    }
-}
-
 - (void)logout {
-    [self.facebookLoginManager logOut];
-    [self unobserveFacebookAccessTokenChange];
-
-    [self setCurrentUserId:nil];
-    [self stopReplication];
-    [self setCurrentDatabase:nil];
-    
-    [self performSelector:@selector(replaceRootViewController:)
-               withObject:[self.window.rootViewController.storyboard instantiateInitialViewController]
-               afterDelay:0.0];
+    [self.loginViewController logout];
 }
 
 - (void)migrateGuestDataToUser:(Profile *)profile {
@@ -427,15 +344,6 @@
             NSLog(@"Error when deleting the guest database during migrating guest data : %@",
                   [error description]);
         }
-    }
-}
-
-
-#pragma mark - UIAlertViewDelegate
-
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
-    if (alertView == self.facebookLoginAlertView) {
-        [self logout];
     }
 }
 
