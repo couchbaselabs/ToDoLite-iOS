@@ -12,6 +12,9 @@
 		936A28BD19EE74A300FE0206 /* CouchbaseLite.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 936A28BB19EE74A300FE0206 /* CouchbaseLite.framework */; };
 		9386F56F19EC44AB005AC336 /* ShareViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9386F56E19EC44AB005AC336 /* ShareViewController.m */; };
 		9386F57219EC84F0005AC336 /* LoginViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9386F57119EC84F0005AC336 /* LoginViewController.m */; };
+		93B173F81D1CABBA0036B182 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 93B173F71D1CABBA0036B182 /* libsqlite3.tbd */; };
+		93B173FA1D1CABC20036B182 /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 93B173F91D1CABC20036B182 /* libc++.tbd */; };
+		93B173FC1D1CABC80036B182 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 93B173FB1D1CABC80036B182 /* libz.tbd */; };
 		93BC251E19EC992A0072AFB7 /* ReplaceRootViewControllerSegue.m in Sources */ = {isa = PBXBuildFile; fileRef = 93BC251D19EC992A0072AFB7 /* ReplaceRootViewControllerSegue.m */; };
 		93BC252219ECAD820072AFB7 /* NSString+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 93BC252119ECAD820072AFB7 /* NSString+Additions.m */; };
 		93F1627919E97FC40031E7CB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 93F1627819E97FC40031E7CB /* main.m */; };
@@ -29,9 +32,6 @@
 		93F162BE19E982040031E7CB /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93F162BD19E982040031E7CB /* CFNetwork.framework */; };
 		93F162C019E9820C0031E7CB /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93F162BF19E9820C0031E7CB /* Security.framework */; };
 		93F162C219E982160031E7CB /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93F162C119E982160031E7CB /* SystemConfiguration.framework */; };
-		93F162C419E9822E0031E7CB /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 93F162C319E9822E0031E7CB /* libsqlite3.dylib */; };
-		93F162C619E9824F0031E7CB /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 93F162C519E9824F0031E7CB /* libz.dylib */; };
-		93F162C819E982640031E7CB /* libc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 93F162C719E982640031E7CB /* libc++.dylib */; };
 		93F162CE19E982AD0031E7CB /* RoundedButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 93F162CB19E982AD0031E7CB /* RoundedButton.m */; };
 		93F162CF19E982AD0031E7CB /* TaskTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 93F162CD19E982AD0031E7CB /* TaskTableViewCell.m */; };
 		93F162D519E982D40031E7CB /* ImageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 93F162D319E982D40031E7CB /* ImageViewController.m */; };
@@ -56,6 +56,9 @@
 		9386F56E19EC44AB005AC336 /* ShareViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShareViewController.m; sourceTree = "<group>"; };
 		9386F57019EC84F0005AC336 /* LoginViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoginViewController.h; sourceTree = "<group>"; };
 		9386F57119EC84F0005AC336 /* LoginViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LoginViewController.m; sourceTree = "<group>"; };
+		93B173F71D1CABBA0036B182 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
+		93B173F91D1CABC20036B182 /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
+		93B173FB1D1CABC80036B182 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		93BC251C19EC992A0072AFB7 /* ReplaceRootViewControllerSegue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReplaceRootViewControllerSegue.h; sourceTree = "<group>"; };
 		93BC251D19EC992A0072AFB7 /* ReplaceRootViewControllerSegue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReplaceRootViewControllerSegue.m; sourceTree = "<group>"; };
 		93BC252019ECAD820072AFB7 /* NSString+Additions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+Additions.h"; sourceTree = "<group>"; };
@@ -86,9 +89,6 @@
 		93F162BD19E982040031E7CB /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		93F162BF19E9820C0031E7CB /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		93F162C119E982160031E7CB /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
-		93F162C319E9822E0031E7CB /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
-		93F162C519E9824F0031E7CB /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
-		93F162C719E982640031E7CB /* libc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.dylib"; path = "usr/lib/libc++.dylib"; sourceTree = SDKROOT; };
 		93F162CA19E982AD0031E7CB /* RoundedButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoundedButton.h; sourceTree = "<group>"; };
 		93F162CB19E982AD0031E7CB /* RoundedButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RoundedButton.m; sourceTree = "<group>"; };
 		93F162CC19E982AD0031E7CB /* TaskTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TaskTableViewCell.h; sourceTree = "<group>"; };
@@ -102,10 +102,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				93F162C819E982640031E7CB /* libc++.dylib in Frameworks */,
-				93F162C619E9824F0031E7CB /* libz.dylib in Frameworks */,
+				93B173FC1D1CABC80036B182 /* libz.tbd in Frameworks */,
+				93B173FA1D1CABC20036B182 /* libc++.tbd in Frameworks */,
+				93B173F81D1CABBA0036B182 /* libsqlite3.tbd in Frameworks */,
 				9341794B1AC6013A0021FD30 /* FBSDKLoginKit.framework in Frameworks */,
-				93F162C419E9822E0031E7CB /* libsqlite3.dylib in Frameworks */,
 				93F162C219E982160031E7CB /* SystemConfiguration.framework in Frameworks */,
 				93F162C019E9820C0031E7CB /* Security.framework in Frameworks */,
 				9341794A1AC6013A0021FD30 /* FBSDKCoreKit.framework in Frameworks */,
@@ -127,9 +127,9 @@
 		936A28B219EE710800FE0206 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				93F162C719E982640031E7CB /* libc++.dylib */,
-				93F162C319E9822E0031E7CB /* libsqlite3.dylib */,
-				93F162C519E9824F0031E7CB /* libz.dylib */,
+				93B173FB1D1CABC80036B182 /* libz.tbd */,
+				93B173F91D1CABC20036B182 /* libc++.tbd */,
+				93B173F71D1CABBA0036B182 /* libsqlite3.tbd */,
 				93F162BD19E982040031E7CB /* CFNetwork.framework */,
 				936A28BB19EE74A300FE0206 /* CouchbaseLite.framework */,
 				934179481AC6013A0021FD30 /* FBSDKCoreKit.framework */,
