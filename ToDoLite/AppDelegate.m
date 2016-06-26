@@ -17,13 +17,20 @@
 //#define kSyncGatewayUrl @"http://<IP>:4984/todos"
 
 // Enable/disable WebSocket in pull replication:
-#define kSyncGatewayWebSocketSupport NO
+#define kSyncGatewayWebSocketSupport YES
 
 // Guest DB Name:
 #define kGuestDBName @"guest"
 
 // Storage Type: kCBLSQLiteStorage or kCBLForestDBStorage
 #define kStorageType kCBLSQLiteStorage
+
+// Encryption:
+// Note: This is just a sample showing how to set an encryption key.
+// In the any production apps, generate an encryption key and keep it
+// in the secure storage (e.g. keychain), not in source code.
+#define kEncryptionEnabled NO
+#define kEncryptionKey @"Seekrit"
 
 // Enable or disable logging:
 #define kLoggingEnabled NO
@@ -93,6 +100,9 @@
     CBLDatabaseOptions *option = [[CBLDatabaseOptions alloc] init];
     option.create = YES;
     option.storageType = kStorageType;
+    
+    if (kEncryptionEnabled)
+        option.encryptionKey = kEncryptionKey;
 
     NSError *error;
     CBLDatabase *database = [[CBLManager sharedInstance] openDatabaseNamed:dbName
