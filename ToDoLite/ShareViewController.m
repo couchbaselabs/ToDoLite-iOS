@@ -53,7 +53,7 @@
 - (void)setList:(List *)newList {
     if (_list != newList) {
         _list = newList;
-        [self configureView];
+        [self.tableView reloadData];
     }
 }
 
@@ -98,9 +98,9 @@
     
     // Save changes:
     NSError* error;
-    if (![_list save: &error]) {
+    if ([_list save: &error]) {
+        [self.tableView reloadData];
     }
-    [self configureView];
 }
 
 @end
