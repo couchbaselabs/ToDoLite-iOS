@@ -30,7 +30,7 @@
 // In the any production apps, generate an encryption key and keep it
 // in the secure storage (e.g. keychain), not in source code.
 #define kEncryptionEnabled NO
-#define kEncryptionKey @"Seekrit"
+#define kEncryptionKey @"seekrit"
 
 // Enable or disable logging:
 #define kLoggingEnabled NO
@@ -177,16 +177,17 @@
     NSNotificationCenter *nctr = [NSNotificationCenter defaultCenter];
     if (_pull) {
         [_pull stop];
-        [_pull deleteCookieNamed:@"SyncGatewaySession"];
+        [_pull clearAuthenticationStores:nil];
         [nctr removeObserver:self name:kCBLReplicationChangeNotification object:_pull];
         _pull = nil;
     }
     if (_push) {
         [_push stop];
-        [_push deleteCookieNamed:@"SyncGatewaySession"];
+        [_push clearAuthenticationStores:nil];
         [nctr removeObserver:self name:kCBLReplicationChangeNotification object:_push];
         _pull = nil;
     }
+    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
 }
 
 #pragma mark - LoginViewControllerDelegate
@@ -230,10 +231,7 @@
     [self stopReplication];
     [self setCurrentDatabase:nil];
 
-    self.loginViewController = [self.window.rootViewController.storyboard
-                                instantiateInitialViewController];
-    self.loginViewController.delegate = self;
-    self.window.rootViewController = self.loginViewController;
+    [self.loginViewController dismissViewControllerAnimated:YES completion:nil];
 }
 
 #pragma mark - Login & Logout

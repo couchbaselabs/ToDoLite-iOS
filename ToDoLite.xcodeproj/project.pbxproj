@@ -15,7 +15,6 @@
 		93B173F81D1CABBA0036B182 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 93B173F71D1CABBA0036B182 /* libsqlite3.tbd */; };
 		93B173FA1D1CABC20036B182 /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 93B173F91D1CABC20036B182 /* libc++.tbd */; };
 		93B173FC1D1CABC80036B182 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 93B173FB1D1CABC80036B182 /* libz.tbd */; };
-		93BC251E19EC992A0072AFB7 /* ReplaceRootViewControllerSegue.m in Sources */ = {isa = PBXBuildFile; fileRef = 93BC251D19EC992A0072AFB7 /* ReplaceRootViewControllerSegue.m */; };
 		93BC252219ECAD820072AFB7 /* NSString+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 93BC252119ECAD820072AFB7 /* NSString+Additions.m */; };
 		93F1627919E97FC40031E7CB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 93F1627819E97FC40031E7CB /* main.m */; };
 		93F1627C19E97FC40031E7CB /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 93F1627B19E97FC40031E7CB /* AppDelegate.m */; };
@@ -59,8 +58,6 @@
 		93B173F71D1CABBA0036B182 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 		93B173F91D1CABC20036B182 /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		93B173FB1D1CABC80036B182 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
-		93BC251C19EC992A0072AFB7 /* ReplaceRootViewControllerSegue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReplaceRootViewControllerSegue.h; sourceTree = "<group>"; };
-		93BC251D19EC992A0072AFB7 /* ReplaceRootViewControllerSegue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReplaceRootViewControllerSegue.m; sourceTree = "<group>"; };
 		93BC252019ECAD820072AFB7 /* NSString+Additions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+Additions.h"; sourceTree = "<group>"; };
 		93BC252119ECAD820072AFB7 /* NSString+Additions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+Additions.m"; sourceTree = "<group>"; };
 		93F1627319E97FC40031E7CB /* ToDoLite.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ToDoLite.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -240,8 +237,6 @@
 		93F162C919E9829C0031E7CB /* View */ = {
 			isa = PBXGroup;
 			children = (
-				93BC251C19EC992A0072AFB7 /* ReplaceRootViewControllerSegue.h */,
-				93BC251D19EC992A0072AFB7 /* ReplaceRootViewControllerSegue.m */,
 				93F162CA19E982AD0031E7CB /* RoundedButton.h */,
 				93F162CB19E982AD0031E7CB /* RoundedButton.m */,
 				93F162CC19E982AD0031E7CB /* TaskTableViewCell.h */,
@@ -357,7 +352,6 @@
 				93F162CF19E982AD0031E7CB /* TaskTableViewCell.m in Sources */,
 				93F162CE19E982AD0031E7CB /* RoundedButton.m in Sources */,
 				93F162B519E981490031E7CB /* List.m in Sources */,
-				93BC251E19EC992A0072AFB7 /* ReplaceRootViewControllerSegue.m in Sources */,
 				93F162D519E982D40031E7CB /* ImageViewController.m in Sources */,
 				93BC252219ECAD820072AFB7 /* NSString+Additions.m in Sources */,
 				93F1627C19E97FC40031E7CB /* AppDelegate.m in Sources */,

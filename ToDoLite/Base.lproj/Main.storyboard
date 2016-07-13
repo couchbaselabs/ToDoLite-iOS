@@ -70,7 +70,7 @@
                         </constraints>
                     </view>
                     <connections>
-                        <segue destination="RMx-3f-FxP" kind="custom" identifier="start" customClass="ReplaceRootViewControllerSegue" id="Fpm-yW-U2C"/>
+                        <segue destination="RMx-3f-FxP" kind="modal" identifier="start" id="Fpm-yW-U2C"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="z0Z-rB-rRz" userLabel="First Responder" sceneMemberID="firstResponder"/>
