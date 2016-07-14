@@ -177,7 +177,10 @@
     NSError* error = _pull.lastError ? _pull.lastError : _push.lastError;
     if (error != _lastSyncError) {
         _lastSyncError = error;
-        if (error)
+        if (error.code == 401) {
+            [self showMessage:@"Authentication failed" withTitle:@"Sync Error"];
+            [self logout];
+        } else
             [self showMessage:error.description withTitle:@"Sync Error"];
     }
 }

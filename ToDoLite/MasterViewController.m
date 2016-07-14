@@ -162,7 +162,11 @@ forRowAtIndexPath:(NSIndexPath *)indexPath {
     if (style == UITableViewCellEditingStyleDelete) {
         CBLQueryRow* row = [self.listsResult objectAtIndex:indexPath.row];
         List *list = [List modelForDocument:row.document];
-        [list deleteList:nil];
+        AppDelegate *app = [[UIApplication sharedApplication] delegate];
+        if (!app.currentUserId || [app.currentUserId isEqualToString:list.owner.user_id])
+            [list deleteList:nil];
+        else
+            [app showMessage:@"Only the owner can delete the list." withTitle:@"Info"];
     }
 }
 

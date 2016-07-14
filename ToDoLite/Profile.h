@@ -20,7 +20,7 @@
 /** The readwrite full name. */
 @property (readwrite) NSString* name;
 
-/** The user_id is usually an email address. */
+/** The user id. */
 @property (readwrite) NSString* user_id;
 
 /** The type is "profile". */

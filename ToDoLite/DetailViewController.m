@@ -9,6 +9,7 @@
 #import "DetailViewController.h"
 #import "AppDelegate.h"
 #import "Task.h"
+#import "Profile.h"
 #import "ShareViewController.h"
 #import "ImageViewController.h"
 
@@ -42,10 +43,14 @@
 }
 
 - (void)viewWillAppear:(BOOL)animated {
+    // Hide the share button if the current user is guest or is not the owner of the list:
+    AppDelegate *app = [[UIApplication sharedApplication] delegate];
+    if (![app.currentUserId isEqualToString:self.list.owner.user_id])
+        self.navigationItem.rightBarButtonItem = nil;
+
     NSIndexPath *selected = [self.tableView indexPathForSelectedRow];
-    if (selected) {
+    if (selected)
         [self.tableView deselectRowAtIndexPath:selected animated:NO];
-    }
 }
 
 - (void)didReceiveMemoryWarning {
