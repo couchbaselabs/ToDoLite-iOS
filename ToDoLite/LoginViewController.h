@@ -20,8 +20,6 @@
 + (BOOL)application:(UIApplication *)application openURL:(NSURL *)url
   sourceApplication:(NSString *)sourceApplication annotation:(id)annotation;
 
-- (void)tryLogin;
-- (void)loginAsGuest;
 - (void)logout;
 
 @end

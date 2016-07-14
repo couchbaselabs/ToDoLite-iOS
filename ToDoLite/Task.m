@@ -24,4 +24,8 @@
     [self setAttachmentNamed:kTaskImageName withContentType:contentType content:image];
 }
 
+- (BOOL) deleteTask: (NSError**)error {
+    return [self deleteDocument: error];
+}
+
 @end

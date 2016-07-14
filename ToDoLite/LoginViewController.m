@@ -28,11 +28,6 @@
     [super didReceiveMemoryWarning];
 }
 
-#pragma mark - Navigation
-- (void)start {
-    [self performSegueWithIdentifier:@"start" sender:self];
-}
-
 #pragma mark - Buttons
 
 - (IBAction)facebookLoginAction:(id)sender {
@@ -47,8 +42,17 @@
 }
 
 - (IBAction)loginAsGuestAction:(id)sender {
-    [self loginAsGuest];
+    if ([self.delegate respondsToSelector:@selector(didLogInAsGuest)])
+        [self.delegate didLogInAsGuest];
+    [self start];
 }
+
+#pragma mark - Navigation
+
+- (void)start {
+    [self performSegueWithIdentifier:@"start" sender:self];
+}
+
 
 #pragma mark - Application Level Setup
 
@@ -67,22 +71,6 @@
 }
 
 #pragma mark - Login
-
-- (void)tryLogin {
-    // Checking the current access token:
-    FBSDKAccessToken *token = [FBSDKAccessToken currentAccessToken];
-    if (token) {
-        [self observeFacebookAccessTokenChange];
-        [self facebookUserDidLoginWithToken:token userInfo:nil];
-        [self start];
-    }
-}
-
-- (void)loginAsGuest {
-    if ([self.delegate respondsToSelector:@selector(didLogInAsGuest)])
-        [self.delegate didLogInAsGuest];
-    [self start];
-}
 
 - (void)logout {
     if (self.facebookLoginManager) {

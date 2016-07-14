@@ -13,7 +13,7 @@
 #import "NSString+Additions.h"
 
 // Sync Gateway:
-#define kSyncGatewayUrl @"http://demo-mobile.couchbase.com/todolite"
+#define kSyncGatewayUrl @"http://us-east.testfest.couchbasemobile.com:4984/todolite"
 //#define kSyncGatewayUrl @"http://<IP>:4984/todos"
 
 // Enable/disable WebSocket in pull replication:
@@ -33,7 +33,7 @@
 #define kEncryptionKey @"seekrit"
 
 // Enable or disable logging:
-#define kLoggingEnabled NO
+#define kLoggingEnabled YES
 
 @interface AppDelegate () <UIAlertViewDelegate, LoginViewControllerDelegate>
 
@@ -55,11 +55,6 @@
 
     self.loginViewController = (LoginViewController *)self.window.rootViewController;
     self.loginViewController.delegate = self;
-
-    if ([self isFirstTimeUsed] || [self isGuestLoggedIn])
-        [self.loginViewController loginAsGuest];
-    else
-        [self.loginViewController tryLogin];
 
     return YES;
 }
@@ -100,9 +95,7 @@
     CBLDatabaseOptions *option = [[CBLDatabaseOptions alloc] init];
     option.create = YES;
     option.storageType = kStorageType;
-    
-    if (kEncryptionEnabled)
-        option.encryptionKey = kEncryptionKey;
+    option.encryptionKey = kEncryptionEnabled ? kEncryptionKey : nil;
 
     NSError *error;
     CBLDatabase *database = [[CBLManager sharedInstance] openDatabaseNamed:dbName
@@ -130,6 +123,7 @@
         NSURL *syncUrl = [NSURL URLWithString:kSyncGatewayUrl];
         _pull = [self.database createPullReplication:syncUrl];
         _pull.continuous  = YES;
+
         if (!kSyncGatewayWebSocketSupport)
             _pull.customProperties = @{@"websocket": @NO};
         
@@ -156,23 +150,6 @@
     [_pull start];
 }
 
-- (void)replicationProgress:(NSNotification *)notification {
-    if (_pull.status == kCBLReplicationActive || _push.status == kCBLReplicationActive) {
-        [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
-    } else {
-        [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
-    }
-    
-    // Check for any change in error status and display new errors:
-    NSError* error = _pull.lastError ? _pull.lastError : _push.lastError;
-    if (error != _lastSyncError) {
-        _lastSyncError = error;
-        if (error) {
-            // TODO: Handle sync error properly
-        }
-    }
-}
-
 - (void)stopReplication {
     NSNotificationCenter *nctr = [NSNotificationCenter defaultCenter];
     if (_pull) {
@@ -190,12 +167,26 @@
     [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
 }
 
+- (void)replicationProgress:(NSNotification *)notification {
+    if (_pull.status == kCBLReplicationActive || _push.status == kCBLReplicationActive)
+        [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
+    else
+        [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
+
+    // Check for any change in error status and display new errors:
+    NSError* error = _pull.lastError ? _pull.lastError : _push.lastError;
+    if (error != _lastSyncError) {
+        _lastSyncError = error;
+        if (error)
+            [self showMessage:error.description withTitle:@"Sync Error"];
+    }
+}
+
 #pragma mark - LoginViewControllerDelegate
 
 - (void)didLogInAsGuest {
     CBLDatabase *database = [self databaseForGuest];
     [self setCurrentDatabase:database];
-    [self setGuestLoggedIn:YES];
     [self setCurrentUserId:nil];
 }
 
@@ -204,7 +195,6 @@
 
     CBLDatabase *database = [self databaseForUser:userId];
     [self setCurrentDatabase:database];
-    [self setGuestLoggedIn:NO];
 
     Profile *profile = [Profile profileInDatabase:database forExistingUserId:userId];
     if (!profile) {
@@ -230,7 +220,6 @@
     [self setCurrentUserId:nil];
     [self stopReplication];
     [self setCurrentDatabase:nil];
-
     [self.loginViewController dismissViewControllerAnimated:YES completion:nil];
 }
 
@@ -244,25 +233,6 @@
 - (void)setCurrentUserId:(NSString *)userId {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [defaults setObject:userId forKey:@"user_id"];
-    [defaults synchronize];
-}
-
-- (BOOL)isFirstTimeUsed {
-    return [[[CBLManager sharedInstance] allDatabaseNames] count] == 0;
-}
-
-- (BOOL)isUserLoggedIn {
-    return self.currentUserId != nil;
-}
-
-- (BOOL)isGuestLoggedIn {
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    return [[defaults objectForKey:@"guest"] boolValue];
-}
-
-- (void)setGuestLoggedIn:(BOOL)status {
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    [defaults setObject:[NSNumber numberWithBool:status] forKey:@"guest"];
     [defaults synchronize];
 }
 

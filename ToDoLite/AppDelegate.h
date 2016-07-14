@@ -17,8 +17,6 @@
 
 @property (strong, nonatomic, readonly) NSString *currentUserId;
 
-- (BOOL)isUserLoggedIn;
-
 - (void)logout;
 
 - (void)showMessage:(NSString *)text withTitle:(NSString *)title;

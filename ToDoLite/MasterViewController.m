@@ -12,8 +12,6 @@
 #import "Profile.h"
 #import "List.h"
 
-static void *listsQueryContext = &listsQueryContext;
-
 @interface MasterViewController ()
 
 @property CBLDatabase *database;
@@ -32,30 +30,18 @@ static void *listsQueryContext = &listsQueryContext;
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self setup];
+
+    AppDelegate *app = [[UIApplication sharedApplication] delegate];
+    self.loginButton.title = app.currentUserId != nil ? @"Logout" : @"Login";
+
+    [self.tableView reloadData];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
-    [super viewWillAppear:animated];
-
-    if (!self.database) {
-        [self setup];
-    }
-    
-    AppDelegate *app = [[UIApplication sharedApplication] delegate];
-    [app addObserver:self forKeyPath:@"database"
-             options:(NSKeyValueObservingOptionNew |  NSKeyValueObservingOptionOld) context:nil];
-
-    self.loginButton.title = [app isUserLoggedIn] ? @"Logout" : @"Login";
-
     NSIndexPath *selected = [self.tableView indexPathForSelectedRow];
     if (selected) {
         [self.tableView deselectRowAtIndexPath:selected animated:NO];
     }
-}
-
-- (void)viewWillDisappear:(BOOL)animated {
-    AppDelegate *app = [[UIApplication sharedApplication] delegate];
-    [app removeObserver:self forKeyPath:@"database" context:nil];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -63,7 +49,49 @@ static void *listsQueryContext = &listsQueryContext;
 }
 
 - (void)dealloc {
-    [self.liveQuery removeObserver:self forKeyPath:@"rows" context:listsQueryContext];
+    [self.liveQuery removeObserver:self forKeyPath:@"rows"];
+}
+
+#pragma mark - Database
+
+// In this View Controller, we show an example of a Live Query
+// and KVO to update the Table View accordingly when data changed.
+// See DetailViewController and ShareViewController for
+// examples of a Live Query used with the CBLUITableSource api.
+- (void)setup {
+    AppDelegate *app = [[UIApplication sharedApplication] delegate];
+    self.database = app.database;
+
+    self.liveQuery = [List queryListsInDatabase:self.database].asLiveQuery;
+    [self.liveQuery addObserver:self forKeyPath:@"rows" options:0 context:nil];
+}
+
+- (List *)createListWithTitle:(NSString*)title {
+    List *list = [List modelForNewDocumentInDatabase:self.database];
+    list.title = title;
+
+    AppDelegate *app = [[UIApplication sharedApplication] delegate];
+    NSString *currentUserId = app.currentUserId;
+    if (currentUserId) {
+        Profile *owner = [Profile profileInDatabase:self.database forExistingUserId:currentUserId];
+        list.owner = owner;
+    }
+
+    NSError *error;
+    if (![list save:&error]) {
+        [app showMessage:@"Cannot create a new list" withTitle:@"Error"];
+        return nil;
+    }
+
+    return list;
+}
+
+#pragma mark - Observers
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change
+                       context:(void *)context {
+    self.listsResult = self.liveQuery.rows.allObjects;
+    [self.tableView reloadData];
 }
 
 #pragma mark - Segues
@@ -138,61 +166,5 @@ forRowAtIndexPath:(NSIndexPath *)indexPath {
     }
 }
 
-#pragma mark - Observers
-
-- (void)observeValueForKeyPath:(NSString *)keyPath
-                      ofObject:(id)object
-                        change:(NSDictionary *)change
-                       context:(void *)context {
-    AppDelegate *app = [[UIApplication sharedApplication] delegate];
-    if (object == app && [keyPath isEqual:@"database"]) {
-        [self setup];
-    }
-    if (context == listsQueryContext) {
-        self.listsResult = self.liveQuery.rows.allObjects;
-        [self.tableView reloadData];
-    }
-}
-
-#pragma mark - Database
-
-// In this View Controller, we show an example of a Live Query
-// and KVO to update the Table View accordingly when data changed.
-// See DetailViewController and ShareViewController for
-// examples of a Live Query used with the CBLUITableSource api.
-- (void)setup {
-    AppDelegate *app = [[UIApplication sharedApplication] delegate];
-    self.database = app.database;
-    
-    [self.liveQuery removeObserver:self forKeyPath:@"rows" context:listsQueryContext];
-    if (self.database != nil) {
-        self.liveQuery = [List queryListsInDatabase:self.database].asLiveQuery;
-        [self.liveQuery addObserver:self forKeyPath:@"rows" options:0 context:listsQueryContext];
-    } else {
-        self.liveQuery = nil;
-    }
-    
-    [self.tableView reloadData];
-}
-
-- (List *)createListWithTitle:(NSString*)title {
-    List *list = [List modelForNewDocumentInDatabase:self.database];
-    list.title = title;
-    
-    AppDelegate *app = [[UIApplication sharedApplication] delegate];
-    NSString *currentUserId = app.currentUserId;
-    if (currentUserId) {
-        Profile *owner = [Profile profileInDatabase:self.database forExistingUserId:currentUserId];
-        list.owner = owner;
-    }
-    
-    NSError *error;
-    if (![list save:&error]) {
-        [app showMessage:@"Cannot create a new list" withTitle:@"Error"];
-        return nil;
-    }
-    
-    return list;
-}
 
 @end

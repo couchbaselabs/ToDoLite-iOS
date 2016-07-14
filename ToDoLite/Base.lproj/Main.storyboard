@@ -248,7 +248,7 @@
                                     </tableViewCell>
                                 </prototypes>
                                 <connections>
-                                    <outlet property="dataSource" destination="2fZ-FM-ZWF" id="nWB-td-WRT"/>
+                                    <outlet property="dataSource" destination="fy2-jN-Qde" id="j9e-2J-oo8"/>
                                     <outlet property="delegate" destination="fy2-jN-Qde" id="hcp-qI-nza"/>
                                 </connections>
                             </tableView>
@@ -271,17 +271,11 @@
                     <connections>
                         <outlet property="addImageButton" destination="1Iv-ul-I16" id="5UT-cu-LAh"/>
                         <outlet property="addItemTextField" destination="bIT-Er-ctJ" id="gwE-Zo-hGh"/>
-                        <outlet property="dataSource" destination="2fZ-FM-ZWF" id="2fb-H4-yof"/>
-                        <outlet property="tableView" destination="JcI-2b-brh" id="rqg-TP-tjb"/>
+                        <outlet property="tableView" destination="JcI-2b-brh" id="uMv-yF-kTn"/>
                         <segue destination="qud-Mm-93v" kind="modal" identifier="showImage" animates="NO" id="xrQ-6k-7Bs"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="tS9-Zl-LkM" userLabel="First Responder" sceneMemberID="firstResponder"/>
-                <customObject id="2fZ-FM-ZWF" customClass="CBLUITableSource">
-                    <connections>
-                        <outlet property="tableView" destination="JcI-2b-brh" id="w1L-5V-hCi"/>
-                    </connections>
-                </customObject>
             </objects>
             <point key="canvasLocation" x="763" y="-597"/>
         </scene>

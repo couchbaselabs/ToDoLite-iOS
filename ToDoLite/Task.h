@@ -22,4 +22,6 @@
 /** Attach an image to the task */
 - (void) setImage: (NSData*)image contentType: (NSString*)contentType;
 
+- (BOOL) deleteTask: (NSError**)error;
+
 @end

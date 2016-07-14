@@ -12,11 +12,10 @@
 #import "RoundedButton.h"
 #import "TaskTableViewCell.h"
 
-@interface DetailViewController : UIViewController <CBLUITableDelegate, TaskTableViewCellDelegate,
+@interface DetailViewController : UIViewController <UITableViewDelegate, TaskTableViewCellDelegate,
 UITextFieldDelegate, UIActionSheetDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate>
 
 @property (strong, nonatomic) List *list;
-@property (strong, nonatomic) IBOutlet CBLUITableSource *dataSource;
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 @property (weak, nonatomic) IBOutlet UITextField *addItemTextField;
 @property (weak, nonatomic) IBOutlet RoundedButton *addImageButton;

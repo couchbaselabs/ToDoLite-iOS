@@ -22,45 +22,47 @@
     UIPopoverController *imagePickerPopover;
 }
 
+@property CBLDatabase *database;
+@property CBLLiveQuery *liveQuery;
+@property NSArray *tasks;
+
 @end
 
 @implementation DetailViewController
 
-#pragma mark - Managing the detail item
-
-- (void)setList:(List *)list {
-    if (_list != list) {
-        _list = list;
-        [self configureView];
-    }
-}
-
-- (void)configureView {
-    if (self.list) {
-        self.title = self.list.title;
-        self.addImageButton.enabled = YES;
-        self.addItemTextField.enabled = YES;
-
-        AppDelegate *app = [[UIApplication sharedApplication] delegate];
-        self.navigationItem.rightBarButtonItem.enabled = [app isUserLoggedIn];
-
-        _dataSource.labelProperty = @"title";
-        _dataSource.query = [[self.list queryTasks] asLiveQuery];
-    } else {
-        self.title = nil;
-        self.addImageButton.enabled = NO;
-        self.addItemTextField.enabled = NO;
-        self.navigationItem.rightBarButtonItem.enabled = NO;
-    }
-}
-
 - (void)viewDidLoad {
     [super viewDidLoad];
-    [self configureView];
+
+    self.title = self.list.title;
+    self.addImageButton.enabled = YES;
+    self.addItemTextField.enabled = YES;
+
+    self.liveQuery = [[self.list queryTasks] asLiveQuery];
+    [self.liveQuery addObserver:self forKeyPath:@"rows" options:0 context:nil];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    NSIndexPath *selected = [self.tableView indexPathForSelectedRow];
+    if (selected) {
+        [self.tableView deselectRowAtIndexPath:selected animated:NO];
+    }
 }
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
+}
+
+- (void)dealloc {
+    [self.liveQuery removeObserver:self forKeyPath:@"rows"];
+}
+
+
+#pragma mark - KVO Observer for live query
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change
+                       context:(void *)context {
+    self.tasks = self.liveQuery.rows.allObjects;
+    [self.tableView reloadData];
 }
 
 #pragma mark - Segues
@@ -214,25 +216,25 @@ didFinishPickingMediaWithInfo:(NSDictionary *)info {
     });
 }
 
+#pragma mark - Table View Datasource
 
-#pragma mark - TaskTableViewCellDelegate
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return self.tasks.count;
+}
 
-- (UITableViewCell *)couchTableSource:(CBLUITableSource *)source
-                cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    static NSString *CellIdentifier = @"Task";
-    TaskTableViewCell *cell = (TaskTableViewCell *)[source.tableView
-                                                    dequeueReusableCellWithIdentifier:CellIdentifier
-                                                    forIndexPath:indexPath];
-    CBLQueryRow *row = [source rowAtIndex:indexPath.row];
+- (UITableViewCell *)tableView:(UITableView *)tableView
+         cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    TaskTableViewCell *cell = (TaskTableViewCell *)
+        [tableView dequeueReusableCellWithIdentifier:@"Task" forIndexPath:indexPath];
+    CBLQueryRow* row = [self.tasks objectAtIndex:indexPath.row];
     Task *task = [Task modelForDocument:row.document];
     cell.task = task;
     cell.delegate = self;
-
     return cell;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    CBLQueryRow *row = [self.dataSource rowAtIndex:indexPath.row];
+    CBLQueryRow* row = [self.tasks objectAtIndex:indexPath.row];
     Task *task = [Task modelForDocument:row.document];
     task.checked = !task.checked;
 
@@ -245,13 +247,21 @@ didFinishPickingMediaWithInfo:(NSDictionary *)info {
 
 - (void)didSelectImageButton:(UIButton *)imageButton ofTask:(Task *)task {
     [self.addItemTextField resignFirstResponder];
-    
     CBLAttachment *attachment = [task attachmentNamed:@"image"];
     if (attachment) {
         imageToDisplay = [UIImage imageWithData:attachment.content];
         [self performSegueWithIdentifier: @"showImage" sender: self];
     } else {
         [self displayAddImageActionSheetFor:imageButton forTask:task];
+    }
+}
+
+- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)style
+forRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (style == UITableViewCellEditingStyleDelete) {
+        CBLQueryRow* row = [self.tasks objectAtIndex:indexPath.row];
+        Task *task = [Task modelForDocument:row.document];
+        [task deleteTask:nil];
     }
 }
 

@@ -86,9 +86,6 @@
 // Delete list
 - (BOOL)deleteList: (NSError**)error {
     CBLQueryEnumerator* tasks = [[self queryTasks] run: error];
-    if (!tasks) {
-        return NO;
-    }
     for (CBLQueryRow* row in tasks) {
         if (![row.document.currentRevision deleteDocument: error]) {
             return NO;
