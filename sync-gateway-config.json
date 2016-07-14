@@ -16,10 +16,15 @@ function(doc, oldDoc) {
     }
     channel("list-"+doc.list_id);
   } else if (doc.type == "list" || (doc._deleted && oldDoc && oldDoc.type == "list")) {
-    // Make sure that only the owner of the list can update the list:
+    // Make sure that the owner propery exists:
     var owner = oldDoc ? oldDoc.owner : doc.owner;
     if (!owner) {
-      throw({forbidden : "list must have an owner"});
+      throw({forbidden : "list must have an owner."});
+    }
+
+    // Make sure that only the owner of the list can update the list:
+    if (owner != doc.owner) {
+      throw({forbidden : "no permission to modify the doc."});
     }
 
     var ownerName = owner.substring(owner.indexOf(":")+1);
