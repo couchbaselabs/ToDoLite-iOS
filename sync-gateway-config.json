@@ -12,19 +12,19 @@ function(doc, oldDoc) {
   // NOTE this function is the same across the iOS, Android, and PhoneGap versions.
   if (doc.type == "task") {
     if (!doc.list_id) {
-      throw({forbidden : "items must have a list_id"});
+      throw({forbidden : "Items must have a list_id."});
     }
     channel("list-"+doc.list_id);
   } else if (doc.type == "list" || (doc._deleted && oldDoc && oldDoc.type == "list")) {
     // Make sure that the owner propery exists:
     var owner = oldDoc ? oldDoc.owner : doc.owner;
     if (!owner) {
-      throw({forbidden : "list must have an owner."});
+      throw({forbidden : "List must have an owner."});
     }
 
     // Make sure that only the owner of the list can update the list:
     if (owner != doc.owner) {
-      throw({forbidden : "no permission to modify the doc."});
+      throw({forbidden : "Cannot change owner for lists."});
     }
 
     var ownerName = owner.substring(owner.indexOf(":")+1);
@@ -51,7 +51,7 @@ function(doc, oldDoc) {
     channel("profiles");
     var user = doc._id.substring(doc._id.indexOf(":")+1);
     if (user !== doc.user_id) {
-      throw({forbidden : "profile user_id must match docid"});
+      throw({forbidden : "Profile user_id must match docid."});
     }
     requireUser(user);
     access(user, "profiles");
