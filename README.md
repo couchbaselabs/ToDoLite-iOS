@@ -1,3 +1,6 @@
+
+**This repository is in the process of being deprecated.  See the [Swift TODO app](https://developer.couchbase.com/documentation/mobile/1.3/training/develop/create-database/index.html) in the training documentation for a more up-to-date sample.
+
 ## ToDo Lite for iOS
 
 This is a demo app showing how to use the [Couchbase Lite][CBL] framework to embed a nonrelational ("NoSQL") document-oriented database in an iOS app and sync it with [Couchbase Server][CBS] in "the cloud".
